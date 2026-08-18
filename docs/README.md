@@ -11,6 +11,7 @@ docs/
     architecture/
         platform-boundaries.md
         public-rendering.md
+        seo-infrastructure.md
         site-shell-theme.md
 
     configuration/
@@ -42,6 +43,7 @@ The platform foundation establishes:
 - config-owned static public page resolution;
 - normalized metadata and section contracts;
 - explicit public page/section client view seams;
-- normalized public site identity, shell, navigation, footer, and semantic theme-token contracts.
+- normalized public site identity, shell, navigation, footer, and semantic theme-token contracts;
+- production-gated indexing, dynamic robots/sitemap output, redirects, page JSON-LD, and Feature SEO contribution seams.
 
-Richer reusable section components, sitemap/schema/redirect infrastructure, media pipelines, CMS Features, and Engage Core integrations remain later slices.
+Richer reusable section components, media pipelines, CMS Features, and Engage Core integrations remain later slices.

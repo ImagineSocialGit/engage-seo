@@ -46,6 +46,9 @@ class ClientSetupValidatorTest extends TestCase
         config()->set('features.enabled', []);
         config()->set('features.disabled', []);
         config()->set('pages', []);
+        config()->set('site.seo.indexing_enabled', false);
+        config()->set('site.seo.sitemap_enabled', true);
+        config()->set('site.seo.redirects', []);
     }
 
     protected function tearDown(): void

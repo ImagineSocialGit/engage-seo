@@ -9,11 +9,31 @@ return [
     ],
 
     'seo' => [
+        /*
+         * Production indexing is an explicit launch switch.
+         *
+         * Even when true, Engage SEO refuses indexing outside APP_ENV=production
+         * and refuses indexing when no client is selected.
+         */
+        'indexing_enabled' => false,
+
         'default_description' => null,
         'default_image' => null,
         'default_indexable' => true,
         'open_graph_type' => 'website',
         'twitter_card' => 'summary_large_image',
+
+        /*
+         * Sitemap output is available only when the site-wide indexing policy
+         * also permits indexing.
+         */
+        'sitemap_enabled' => true,
+
+        /*
+         * Redirects are evaluated only by the generic public-page fallback.
+         * Explicit platform/Feature routes therefore retain precedence.
+         */
+        'redirects' => [],
     ],
 
     'shell' => [

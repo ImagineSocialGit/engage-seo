@@ -2,10 +2,16 @@
 
 namespace App\Support\Pages;
 
+use App\Support\Seo\SeoIndexingPolicy;
 use InvalidArgumentException;
 
 final class PageMetaResolver
 {
+    public function __construct(
+        private readonly SeoIndexingPolicy $indexing,
+    ) {
+    }
+
     /**
      * @param array<string, mixed> $meta
      * @return array<string, mixed>
@@ -27,14 +33,18 @@ final class PageMetaResolver
             $path,
         );
 
-        $indexable = $meta['indexable']
+        $requestedIndexable = $meta['indexable']
             ?? config('site.seo.default_indexable', true);
 
-        if (! is_bool($indexable)) {
+        if (! is_bool($requestedIndexable)) {
             throw new InvalidArgumentException(
                 'Page meta [indexable] must be a boolean.'
             );
         }
+
+        $indexable = $this->indexing->pageIndexable(
+            $requestedIndexable
+        );
 
         $image = $this->stringValue($meta['image'] ?? null)
             ?? $this->stringValue(config('site.seo.default_image'));
@@ -55,10 +65,27 @@ final class PageMetaResolver
             );
         }
 
+        $structuredData = $meta['structured_data'] ?? [];
+
+        if (! is_array($structuredData) || ! array_is_list($structuredData)) {
+            throw new InvalidArgumentException(
+                'Page meta [structured_data] must be a list.'
+            );
+        }
+
+        foreach ($structuredData as $index => $node) {
+            if (! is_array($node) || array_is_list($node)) {
+                throw new InvalidArgumentException(
+                    "Page meta [structured_data] node [{$index}] must be an associative array."
+                );
+            }
+        }
+
         return [
             'title' => $title,
             'description' => $description,
             'canonical' => $canonical,
+            'indexable' => $indexable,
             'robots' => $indexable
                 ? 'index,follow'
                 : 'noindex,nofollow',
@@ -86,6 +113,7 @@ final class PageMetaResolver
                 'image' => $this->stringValue($twitter['image'] ?? null)
                     ?? $image,
             ],
+            'structured_data' => array_values($structuredData),
         ];
     }
 

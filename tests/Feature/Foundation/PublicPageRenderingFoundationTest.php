@@ -63,6 +63,7 @@ class PublicPageRenderingFoundationTest extends TestCase
             ->assertViewHas('page', function (array $page): bool {
                 return $page['key'] === 'example'
                     && $page['path'] === '/example'
+                    && $page['meta']['indexable'] === false
                     && $page['meta']['robots'] === 'noindex,nofollow'
                     && $page['meta']['canonical'] === 'https://site.example.test/example'
                     && $page['sections'][0]['component'] === 'content'

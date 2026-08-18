@@ -136,6 +136,14 @@ return [
         'logo_alt' => null,
     ],
 
+    'seo' => [
+        // Enable only when the production site is ready to be indexed.
+        'indexing_enabled' => false,
+
+        'redirects' => [
+        ],
+    ],
+
     'shell' => [
         'navigation' => [
             'items' => [
@@ -239,7 +247,7 @@ Engage SEO client repository.
 
 2. Populate \`.env\` with the client URL, database identity/credentials, and client-specific namespaces.
 
-3. Configure site identity, navigation, footer, and optional theme overrides in:
+3. Configure site identity, navigation, footer, SEO launch state, redirects, and optional theme overrides in:
 
    \`\`\`text
    config/site.php
@@ -341,6 +349,7 @@ Next:
 
   # Populate clients/$CLIENT_KEY/.env
   # Configure clients/$CLIENT_KEY/config/site.php
+  # Keep seo.indexing_enabled=false until the production site is ready to launch
   # Add public page definitions under clients/$CLIENT_KEY/config/pages/
   # Set CLIENT_KEY=$CLIENT_KEY in the platform root .env
 

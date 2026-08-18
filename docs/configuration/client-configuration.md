@@ -255,6 +255,70 @@ docs/architecture/site-shell-theme.md
 
 for navigation, theme-token, and validation contracts.
 
+## SEO infrastructure
+
+Client SEO controls live under:
+
+```text
+site.seo
+```
+
+The production launch switch is explicit:
+
+```php
+'seo' => [
+    'indexing_enabled' => false,
+    'redirects' => [
+    ],
+],
+```
+
+A new client begins with indexing disabled.
+
+Even after a client enables indexing, Engage SEO permits indexing only when:
+
+```text
+APP_ENV=production
+a client is selected
+```
+
+The existing page-level/default `indexable` setting is then applied inside that site-wide safety gate.
+
+Sitemap output defaults to enabled, but `/sitemap.xml` is available only while the site-wide indexing gate allows indexing.
+
+Client redirects use:
+
+```php
+[
+    'from' => '/old-path',
+    'to' => '/new-path',
+    'status' => 301,
+]
+```
+
+Redirects are handled only for generic fallback-page requests, so explicit platform and Feature routes retain precedence.
+
+Configured pages may provide JSON-LD through:
+
+```php
+'meta' => [
+    'structured_data' => [
+        [
+            '@context' => 'https://schema.org',
+            '@type' => '...',
+        ],
+    ],
+],
+```
+
+See:
+
+```text
+docs/architecture/seo-infrastructure.md
+```
+
+for the indexing, robots, sitemap, redirect, structured-data, and Feature contribution contracts.
+
 ## Public pages
 
 Static public page definitions belong under:
@@ -346,12 +410,13 @@ The validator checks structural/configuration contracts including:
 - required URL/database identity values are structurally usable;
 - page paths and page contracts are valid;
 - registered reusable section views exist;
-- site identity, navigation, shell, and theme contracts are valid.
+- site identity, navigation, shell, and theme contracts are valid;
+- site-wide SEO boolean and redirect contracts are valid.
 
 The validator does not test external provider connectivity or make client-specific business/content assertions.
 
 ## Future client override seams
 
-Structured data, media pipelines, richer section components, Feature-specific presentation, and Core integrations will be added only through documented seams as those platform capabilities are implemented.
+Media pipelines, richer section components, Feature-specific presentation, and Core integrations will be added only through documented seams as those platform capabilities are implemented.
 
 Do not assume arbitrary files placed in a client repository are automatically loaded.

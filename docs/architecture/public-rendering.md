@@ -115,6 +115,7 @@ indexable
 image
 open_graph
 twitter
+structured_data
 ```
 
 The resolved view contract contains:
@@ -123,27 +124,48 @@ The resolved view contract contains:
 title
 description
 canonical
+indexable
 robots
 open_graph
 twitter
+structured_data
 ```
 
 `canonical` defaults to the configured page path resolved against `APP_URL`.
 
-`indexable=false` resolves to:
+The page-level/default `indexable` value is a request, not a bypass of site
+safety policy. Effective indexing also requires:
 
 ```text
-noindex,nofollow
+APP_ENV=production
+selected client
+site.seo.indexing_enabled=true
+```
+
+A blocked page resolves to:
+
+```text
+indexable=false
+robots=noindex,nofollow
 ```
 
 Open Graph and Twitter values inherit the normalized page metadata unless they
 are explicitly overridden.
 
+`structured_data` is a list of associative-array JSON-LD nodes. Registered
+Feature contributors may append additional nodes before the page renders.
+
 The page `title` is treated as the final browser/SEO title. The platform does not
 silently append a brand suffix.
 
-Sitemap generation, redirects, JSON-LD/schema.org, and environment-specific
-robots policy remain later SEO infrastructure.
+See:
+
+```text
+docs/architecture/seo-infrastructure.md
+```
+
+for robots, sitemap, redirects, indexing policy, and Feature SEO contribution
+contracts.
 
 ## Section dispatch
 

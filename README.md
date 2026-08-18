@@ -34,6 +34,7 @@ See:
 docs/README.md
 docs/architecture/platform-boundaries.md
 docs/architecture/public-rendering.md
+docs/architecture/seo-infrastructure.md
 docs/architecture/site-shell-theme.md
 docs/configuration/client-configuration.md
 docs/operations/client-lifecycle.md
@@ -133,6 +134,31 @@ See:
 docs/architecture/public-rendering.md
 ```
 
+## SEO infrastructure
+
+New clients start with production indexing disabled in:
+
+```text
+clients/[CLIENT_KEY]/config/site.php
+```
+
+Engage SEO permits indexing only for a selected production client with the explicit launch switch enabled.
+
+The platform owns dynamic:
+
+```text
+/robots.txt
+/sitemap.xml
+```
+
+plus config-owned redirects, page JSON-LD, and contribution seams that future Features can use for dynamic sitemap/structured-data entries.
+
+See:
+
+```text
+docs/architecture/seo-infrastructure.md
+```
+
 ## Development database operations
 
 Local destructive scripts require:
@@ -158,6 +184,6 @@ Both refuse to operate without a selected client and the required safety gates.
 
 ## Current implementation status
 
-The foundation currently establishes client selection/configuration, explicit root/client environment ownership, Feature/Vertical composition, client scaffolding, setup validation, config-owned public page rendering, normalized metadata/section contracts, explicit client view seams, a normalized public site shell/theme contract, documentation, and safe local database lifecycle tooling.
+The foundation currently establishes client selection/configuration, explicit root/client environment ownership, Feature/Vertical composition, client scaffolding, setup validation, config-owned public page rendering, normalized metadata/section contracts, explicit client view seams, a normalized public site shell/theme contract, production-gated indexing, dynamic robots/sitemap output, redirects, JSON-LD contribution seams, documentation, and safe local database lifecycle tooling.
 
-Richer reusable section components, sitemap/schema/redirect infrastructure, media pipelines, CMS Features, and Engage Core integration implementations are intentionally added in later slices.
+Richer reusable section components, media pipelines, CMS Features, and Engage Core integration implementations are intentionally added in later slices.

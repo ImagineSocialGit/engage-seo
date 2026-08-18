@@ -54,6 +54,43 @@ final class PageRepository
     }
 
     /**
+     * Return every configured page using the same normalized runtime contract
+     * used by public rendering.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function normalizedPages(): array
+    {
+        $pages = [];
+
+        foreach ($this->all() as $key => $definition) {
+            if (! is_string($key) || trim($key) === '') {
+                throw new InvalidArgumentException(
+                    'Page configuration contains an invalid page key.'
+                );
+            }
+
+            if (! is_array($definition)) {
+                throw new InvalidArgumentException(
+                    "Page [{$key}] must be an array."
+                );
+            }
+
+            $path = $definition['path'] ?? null;
+
+            if (! is_string($path) || trim($path) === '') {
+                throw new InvalidArgumentException(
+                    "Page [{$key}] is missing a valid [path]."
+                );
+            }
+
+            $pages[] = $this->normalizePage($key, $definition);
+        }
+
+        return $pages;
+    }
+
+    /**
      * @return list<string>
      */
     public function validationErrors(): array

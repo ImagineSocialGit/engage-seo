@@ -196,6 +196,45 @@ except for that placeholder.
 
 Each actual client directory may therefore be its own repository without its files becoming part of the platform repository.
 
+## SEO launch gate
+
+New clients start with production indexing disabled:
+
+```php
+'site' => [
+    'seo' => [
+        'indexing_enabled' => false,
+    ],
+],
+```
+
+The actual client file is:
+
+```text
+clients/[CLIENT_KEY]/config/site.php
+```
+
+Before enabling indexing:
+
+1. confirm the intended production `APP_URL`;
+2. confirm canonical metadata and redirects;
+3. confirm `/robots.txt` disallows crawling on non-production;
+4. confirm the production site is ready to be crawled;
+5. set:
+
+   ```php
+   'indexing_enabled' => true,
+   ```
+
+6. clear/rebuild cached configuration as required by the deployment;
+7. run:
+
+   ```bash
+   php artisan setup:validate
+   ```
+
+In non-production environments, Engage SEO remains non-indexable even if the client switch is accidentally enabled.
+
 ## Production safety
 
 Do not enable `DEV_DESTRUCTIVE_COMMANDS_ENABLED` in staging or production.

@@ -6,6 +6,8 @@ use App\Support\Clients\ClientEnvironmentDefinition;
 use App\Support\Features\FeatureManager;
 use App\Support\Pages\PageRepository;
 use App\Support\Sections\SectionManager;
+use App\Support\Seo\RedirectRepository;
+use App\Support\Seo\SeoIndexingPolicy;
 use App\Support\Site\SitePresentationResolver;
 use App\Support\Verticals\VerticalManager;
 use Dotenv\Dotenv;
@@ -21,6 +23,8 @@ final class ClientSetupValidator
         private readonly PageRepository $pages,
         private readonly SectionManager $sections,
         private readonly SitePresentationResolver $sitePresentation,
+        private readonly SeoIndexingPolicy $seoIndexing,
+        private readonly RedirectRepository $redirects,
     ) {
     }
 
@@ -132,6 +136,8 @@ final class ClientSetupValidator
             ...$this->pages->validationErrors(),
             ...$this->sections->validationErrors(),
             ...$this->sitePresentation->validationErrors(),
+            ...$this->seoIndexing->validationErrors(),
+            ...$this->redirects->validationErrors(),
         ];
 
         $rootEnvironmentPath = rtrim($basePath, DIRECTORY_SEPARATOR)

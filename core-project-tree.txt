@@ -3,10 +3,17 @@
 │   ├── Console
 │   │   └── Commands
 │   │       └── ValidateSetupCommand.php
+│   ├── Contracts
+│   │   └── Seo
+│   │       ├── SitemapContributor.php
+│   │       └── StructuredDataContributor.php
 │   ├── Http
 │   │   └── Controllers
 │   │       ├── Controller.php
-│   │       └── PublicPageController.php
+│   │       ├── PublicPageController.php
+│   │       └── Seo
+│   │           ├── RobotsController.php
+│   │           └── SitemapController.php
 │   ├── Models
 │   │   └── User.php
 │   ├── Providers
@@ -25,6 +32,12 @@
 │       │   └── PageRepository.php
 │       ├── Sections
 │       │   └── SectionManager.php
+│       ├── Seo
+│       │   ├── RedirectRepository.php
+│       │   ├── SeoExtensionRegistry.php
+│       │   ├── SeoIndexingPolicy.php
+│       │   ├── SitemapBuilder.php
+│       │   └── StructuredDataResolver.php
 │       ├── SetupValidation
 │       │   ├── ClientSetupValidator.php
 │       │   └── SetupValidationResult.php
@@ -77,6 +90,7 @@
 │   ├── architecture
 │   │   ├── platform-boundaries.md
 │   │   ├── public-rendering.md
+│   │   ├── seo-infrastructure.md
 │   │   └── site-shell-theme.md
 │   ├── configuration
 │   │   └── client-configuration.md
@@ -88,8 +102,7 @@
 ├── phpunit.xml
 ├── public
 │   ├── favicon.ico
-│   ├── index.php
-│   └── robots.txt
+│   └── index.php
 ├── README.md
 ├── resources
 │   ├── css
@@ -110,6 +123,8 @@
 │       │   └── public.blade.php
 │       ├── sections
 │       │   └── content.blade.php
+│       ├── seo
+│       │   └── sitemap.blade.php
 │       └── welcome.blade.php
 ├── routes
 │   ├── console.php
@@ -126,6 +141,7 @@
 │   │       ├── ClientConfigurationFoundationTest.php
 │   │       ├── ClientSetupValidatorTest.php
 │   │       ├── PublicPageRenderingFoundationTest.php
+│   │       ├── SeoInfrastructureFoundationTest.php
 │   │       └── SiteShellFoundationTest.php
 │   ├── TestCase.php
 │   └── Unit
@@ -136,4 +152,4 @@
 │           └── ConfigMergerTest.php
 └── vite.config.js
 
-47 directories, 90 files
+52 directories, 101 files
