@@ -4,6 +4,8 @@ namespace App\Support\SetupValidation;
 
 use App\Support\Clients\ClientEnvironmentDefinition;
 use App\Support\Features\FeatureManager;
+use App\Support\Pages\PageRepository;
+use App\Support\Sections\SectionManager;
 use App\Support\Verticals\VerticalManager;
 use Dotenv\Dotenv;
 use Illuminate\Foundation\Application;
@@ -15,6 +17,8 @@ final class ClientSetupValidator
         private readonly Application $app,
         private readonly FeatureManager $features,
         private readonly VerticalManager $verticals,
+        private readonly PageRepository $pages,
+        private readonly SectionManager $sections,
     ) {
     }
 
@@ -44,6 +48,7 @@ final class ClientSetupValidator
         $requiredPaths = [
             'config/client.php' => 'file',
             'config/features.php' => 'file',
+            'config/pages' => 'directory',
             '.env.example' => 'file',
             '.env' => 'file',
             'resources/views' => 'directory',
@@ -108,6 +113,12 @@ final class ClientSetupValidator
         } catch (Throwable $exception) {
             $errors[] = $exception->getMessage();
         }
+
+        $errors = [
+            ...$errors,
+            ...$this->pages->validationErrors(),
+            ...$this->sections->validationErrors(),
+        ];
 
         $rootEnvironmentPath = rtrim($basePath, DIRECTORY_SEPARATOR)
             .DIRECTORY_SEPARATOR.'.env';

@@ -10,6 +10,7 @@ The documentation is intentionally organized around durable platform boundaries 
 docs/
     architecture/
         platform-boundaries.md
+        public-rendering.md
 
     configuration/
         client-configuration.md
@@ -28,13 +29,17 @@ Client-specific business content does not belong in the platform documentation u
 
 ## Current foundation
 
-The first platform foundation establishes:
+The platform foundation establishes:
 
 - one selected client through `CLIENT_KEY`;
 - client-specific environment and PHP configuration under `clients/{CLIENT_KEY}`;
 - platform Git isolation for client repositories;
 - lightweight reusable Features;
 - lightweight Verticals that compose shared Features rather than duplicate them;
-- safe client scaffold/reset/refresh scripts.
+- safe client scaffold/reset/refresh scripts;
+- setup validation;
+- config-owned static public page resolution;
+- normalized metadata and section contracts;
+- explicit public page/section client view seams.
 
-Page rendering, theming, CMS features, SEO metadata, accessibility components, and Engage Core integrations are intentionally deferred to later implementation slices.
+Theme/design systems, richer section components, CMS Features, sitemap/schema/redirect infrastructure, media pipelines, and Engage Core integrations remain later slices.

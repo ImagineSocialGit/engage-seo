@@ -5,8 +5,13 @@ namespace App\Providers;
 use App\Console\Commands\ValidateSetupCommand;
 use App\Support\Clients\ClientConfigLoader;
 use App\Support\Features\FeatureManager;
+use App\Support\Pages\PageMetaResolver;
+use App\Support\Pages\PageRepository;
+use App\Support\Sections\SectionManager;
 use App\Support\SetupValidation\ClientSetupValidator;
 use App\Support\Verticals\VerticalManager;
+use App\Support\Views\ClientViewNamespaceRegistrar;
+use App\Support\Views\PageViewResolver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -16,6 +21,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(ClientConfigLoader::class);
         $this->app->singleton(VerticalManager::class);
         $this->app->singleton(FeatureManager::class);
+        $this->app->singleton(PageMetaResolver::class);
+        $this->app->singleton(PageRepository::class);
+        $this->app->singleton(SectionManager::class);
+        $this->app->singleton(ClientViewNamespaceRegistrar::class);
+        $this->app->singleton(PageViewResolver::class);
         $this->app->singleton(ClientSetupValidator::class);
 
         $this->app->make(ClientConfigLoader::class)->load();
@@ -26,8 +36,11 @@ class AppServiceProvider extends ServiceProvider
         $features->registerProviders();
     }
 
-    public function boot(): void
-    {
+    public function boot(
+        ClientViewNamespaceRegistrar $clientViews,
+    ): void {
+        $clientViews->register();
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 ValidateSetupCommand::class,

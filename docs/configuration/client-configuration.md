@@ -188,6 +188,74 @@ A Vertical may contribute `default_features`, but should not duplicate generic F
 
 Unknown Verticals fail validation.
 
+## Public pages
+
+Static public page definitions belong under:
+
+```text
+clients/[CLIENT_KEY]/config/pages/*.php
+```
+
+Each page definition declares its own public `path`.
+
+The configuration filename/key is an internal identifier and does not determine the URL.
+
+Example shape:
+
+```php
+<?php
+
+return [
+    'path' => '/about',
+
+    'meta' => [
+        'title' => '...',
+        'description' => '...',
+        'indexable' => true,
+    ],
+
+    'sections' => [
+        [
+            'id' => 'introduction',
+            'component' => 'content',
+            'props' => [
+                // Component-specific data.
+            ],
+        ],
+    ],
+];
+```
+
+Page sections always normalize to:
+
+```text
+id
+component
+theme
+layout
+overrides
+props
+```
+
+See `docs/architecture/public-rendering.md` for the complete rendering and metadata contract.
+
+## Client view overrides
+
+The selected client is registered under the explicit Blade namespace:
+
+```text
+client::
+```
+
+The public rendering foundation currently supports automatic overrides only for:
+
+```text
+resources/views/pages/public.blade.php
+resources/views/sections/{registered-component}.blade.php
+```
+
+Arbitrary client views do not silently replace platform views.
+
 ## Setup validation
 
 After selecting/configuring a client, run:
@@ -196,21 +264,23 @@ After selecting/configuring a client, run:
 php artisan setup:validate
 ```
 
-The foundation validator checks structural/configuration contracts including:
+The validator checks structural/configuration contracts including:
 
 - a selected client exists;
-- required client config/environment paths exist;
+- required client config/environment/page directories exist;
 - the selected client timezone is valid;
 - selected Vertical and Feature keys are known;
 - root `.env` does not contain selected-client-owned keys;
 - client `.env` does not contain root-owned/unknown keys;
 - required client environment keys are present;
-- required URL/database identity values are structurally usable.
+- required URL/database identity values are structurally usable;
+- page paths and page contracts are valid;
+- registered reusable section views exist.
 
 The validator does not test external provider connectivity or make client-specific business/content assertions.
 
 ## Future client override seams
 
-Client views, page definitions, theme configuration, assets, structured data, navigation, and Core integrations will be added only through documented seams as those platform capabilities are implemented.
+Theme configuration, navigation, structured data, media pipelines, richer section components, and Core integrations will be added only through documented seams as those platform capabilities are implemented.
 
 Do not assume arbitrary files placed in a client repository are automatically loaded.

@@ -33,6 +33,7 @@ See:
 ```text
 docs/README.md
 docs/architecture/platform-boundaries.md
+docs/architecture/public-rendering.md
 docs/configuration/client-configuration.md
 docs/operations/client-lifecycle.md
 ```
@@ -89,6 +90,24 @@ php artisan setup:validate
 
 Rebuild configuration cache deliberately for the selected client when deployment uses cached configuration.
 
+## Public pages
+
+Static public pages are config-owned:
+
+```text
+clients/[CLIENT_KEY]/config/pages/*.php
+```
+
+Each page declares an explicit public path and resolves into one normalized page, metadata, and section contract.
+
+The platform public renderer uses Laravel's fallback routing so future explicit Feature routes remain separate from generic static-page resolution.
+
+See:
+
+```text
+docs/architecture/public-rendering.md
+```
+
 ## Development database operations
 
 Local destructive scripts require:
@@ -114,6 +133,6 @@ Both refuse to operate without a selected client and the required safety gates.
 
 ## Current implementation status
 
-The foundation currently establishes client selection/configuration, explicit root/client environment ownership, Feature/Vertical composition, client scaffolding, setup validation, documentation, and safe local database lifecycle tooling.
+The foundation currently establishes client selection/configuration, explicit root/client environment ownership, Feature/Vertical composition, client scaffolding, setup validation, config-owned public page rendering, normalized metadata/section contracts, explicit client view seams, documentation, and safe local database lifecycle tooling.
 
-Page rendering, theme/design systems, CMS Features, SEO metadata, accessibility components, media pipelines, and Engage Core integration implementations are intentionally added in later slices.
+Theme/design systems, richer reusable section components, CMS Features, sitemap/schema/redirect infrastructure, media pipelines, and Engage Core integration implementations are intentionally added in later slices.

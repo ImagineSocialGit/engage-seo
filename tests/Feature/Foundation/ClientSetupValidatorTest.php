@@ -17,7 +17,7 @@ class ClientSetupValidatorTest extends TestCase
         $this->temporaryRoot = sys_get_temp_dir()
             .DIRECTORY_SEPARATOR.'engage-seo-setup-validator-'.bin2hex(random_bytes(6));
 
-        File::ensureDirectoryExists($this->temporaryRoot.'/clients/validator-client/config');
+        File::ensureDirectoryExists($this->temporaryRoot.'/clients/validator-client/config/pages');
         File::ensureDirectoryExists($this->temporaryRoot.'/clients/validator-client/resources/views');
         File::ensureDirectoryExists($this->temporaryRoot.'/clients/validator-client/resources/images/raw');
 
@@ -41,6 +41,7 @@ class ClientSetupValidatorTest extends TestCase
         config()->set('features.available', []);
         config()->set('features.enabled', []);
         config()->set('features.disabled', []);
+        config()->set('pages', []);
     }
 
     protected function tearDown(): void
@@ -98,6 +99,34 @@ class ClientSetupValidatorTest extends TestCase
 
         $this->assertFalse($result->valid());
         $this->assertCount(2, $result->errors);
+    }
+
+    public function test_invalid_page_configuration_fails_validation(): void
+    {
+        File::put(
+            $this->temporaryRoot.'/clients/validator-client/.env',
+            implode(PHP_EOL, [
+                'APP_URL=https://validator.example.test',
+                'DB_DATABASE=validator_database',
+                'DB_USERNAME=validator_user',
+                'DB_PASSWORD=',
+                '',
+            ])
+        );
+
+        config()->set('pages', [
+            'invalid' => [
+                'path' => 'missing-leading-slash',
+                'sections' => [],
+            ],
+        ]);
+
+        $result = app(ClientSetupValidator::class)->validate(
+            $this->temporaryRoot
+        );
+
+        $this->assertFalse($result->valid());
+        $this->assertCount(1, $result->errors);
     }
 
     public function test_setup_validate_command_fails_when_no_client_is_selected(): void

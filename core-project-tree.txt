@@ -5,7 +5,8 @@
 │   │       └── ValidateSetupCommand.php
 │   ├── Http
 │   │   └── Controllers
-│   │       └── Controller.php
+│   │       ├── Controller.php
+│   │       └── PublicPageController.php
 │   ├── Models
 │   │   └── User.php
 │   ├── Providers
@@ -19,11 +20,19 @@
 │       │   └── ConfigMerger.php
 │       ├── Features
 │       │   └── FeatureManager.php
+│       ├── Pages
+│       │   ├── PageMetaResolver.php
+│       │   └── PageRepository.php
+│       ├── Sections
+│       │   └── SectionManager.php
 │       ├── SetupValidation
 │       │   ├── ClientSetupValidator.php
 │       │   └── SetupValidationResult.php
-│       └── Verticals
-│           └── VerticalManager.php
+│       ├── Verticals
+│       │   └── VerticalManager.php
+│       └── Views
+│           ├── ClientViewNamespaceRegistrar.php
+│           └── PageViewResolver.php
 ├── artisan
 ├── bootstrap
 │   ├── app.php
@@ -44,9 +53,12 @@
 │   ├── filesystems.php
 │   ├── logging.php
 │   ├── mail.php
+│   ├── pages.php
 │   ├── queue.php
+│   ├── sections.php
 │   ├── services.php
 │   ├── session.php
+│   ├── site.php
 │   └── verticals.php
 ├── core-project-tree.txt
 ├── database
@@ -61,7 +73,8 @@
 │       └── DatabaseSeeder.php
 ├── docs
 │   ├── architecture
-│   │   └── platform-boundaries.md
+│   │   ├── platform-boundaries.md
+│   │   └── public-rendering.md
 │   ├── configuration
 │   │   └── client-configuration.md
 │   ├── operations
@@ -81,6 +94,15 @@
 │   ├── js
 │   │   └── app.js
 │   └── views
+│       ├── components
+│       │   ├── dynamic-section.blade.php
+│       │   └── layouts
+│       │       ├── head.blade.php
+│       │       └── public.blade.php
+│       ├── pages
+│       │   └── public.blade.php
+│       ├── sections
+│       │   └── content.blade.php
 │       └── welcome.blade.php
 ├── routes
 │   ├── console.php
@@ -95,7 +117,8 @@
 │   │   ├── ExampleTest.php
 │   │   └── Foundation
 │   │       ├── ClientConfigurationFoundationTest.php
-│   │       └── ClientSetupValidatorTest.php
+│   │       ├── ClientSetupValidatorTest.php
+│   │       └── PublicPageRenderingFoundationTest.php
 │   ├── TestCase.php
 │   └── Unit
 │       ├── ExampleTest.php
@@ -105,4 +128,4 @@
 │           └── ConfigMergerTest.php
 └── vite.config.js
 
-39 directories, 67 files
+46 directories, 83 files

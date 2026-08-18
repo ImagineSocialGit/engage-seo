@@ -82,9 +82,7 @@ cleanup() {
 trap cleanup EXIT
 
 CLIENT_NAME="$(
-    echo "$CLIENT_KEY" \
-        | tr '_-' '  ' \
-        | awk '{
+    echo "$CLIENT_KEY"         | tr '_-' '  '         | awk '{
             for (i = 1; i <= NF; i++) {
                 $i = toupper(substr($i, 1, 1)) substr($i, 2)
             }
@@ -97,8 +95,9 @@ if [[ -n "$VERTICAL_KEY" ]]; then
     VERTICAL_VALUE="'$VERTICAL_KEY'"
 fi
 
-mkdir -p "$TEMP_CLIENT_DIR/config"
-mkdir -p "$TEMP_CLIENT_DIR/resources/views"
+mkdir -p "$TEMP_CLIENT_DIR/config/pages"
+mkdir -p "$TEMP_CLIENT_DIR/resources/views/pages"
+mkdir -p "$TEMP_CLIENT_DIR/resources/views/sections"
 mkdir -p "$TEMP_CLIENT_DIR/resources/images/raw"
 
 cat > "$TEMP_CLIENT_DIR/config/client.php" <<EOF_CLIENT
@@ -145,6 +144,7 @@ cat > "$TEMP_CLIENT_DIR/.env.example" <<'EOF_ENV'
 #   stable client timezone
 #   optional vertical
 #   enabled/disabled Features
+#   public static page definitions
 
 ################################
 # PUBLIC SITE
@@ -181,7 +181,9 @@ cat > "$TEMP_CLIENT_DIR/.gitignore" <<'EOF_GITIGNORE'
 Thumbs.db
 EOF_GITIGNORE
 
-touch "$TEMP_CLIENT_DIR/resources/views/.gitkeep"
+touch "$TEMP_CLIENT_DIR/config/pages/.gitkeep"
+touch "$TEMP_CLIENT_DIR/resources/views/pages/.gitkeep"
+touch "$TEMP_CLIENT_DIR/resources/views/sections/.gitkeep"
 touch "$TEMP_CLIENT_DIR/resources/images/raw/.gitkeep"
 
 cat > "$TEMP_CLIENT_DIR/README.md" <<EOF_README
@@ -200,32 +202,38 @@ Engage SEO client repository.
 1. Create the client environment:
 
    \`\`\`bash
-   sudo install -o "\$(id -un)" -g "$WEB_GROUP" -m 640 \\
-     clients/$CLIENT_KEY/.env.example \\
+   sudo install -o "\$(id -un)" -g "$WEB_GROUP" -m 640 \
+     clients/$CLIENT_KEY/.env.example \
      clients/$CLIENT_KEY/.env
    \`\`\`
 
 2. Populate \`.env\` with the client URL, database identity/credentials, and client-specific namespaces.
 
-3. Set this in the Engage SEO platform root \`.env\`:
+3. Add public static page definitions under:
+
+   \`\`\`text
+   config/pages/*.php
+   \`\`\`
+
+4. Set this in the Engage SEO platform root \`.env\`:
 
    \`\`\`env
    CLIENT_KEY=$CLIENT_KEY
    \`\`\`
 
-4. Clear cached configuration:
+5. Clear cached configuration:
 
    \`\`\`bash
    php artisan optimize:clear
    \`\`\`
 
-5. Validate the selected client:
+6. Validate the selected client:
 
    \`\`\`bash
    php artisan setup:validate
    \`\`\`
 
-6. Run migrations when the client database is ready:
+7. Run migrations when the client database is ready:
 
    \`\`\`bash
    php artisan migrate
@@ -239,8 +247,17 @@ Engage SEO client repository.
 \`config/features.php\`
 : Explicit Feature additions/disables.
 
-\`resources/\`
-: Client assets and future supported view/content overrides.
+\`config/pages/*.php\`
+: Static public SEO/business page definitions.
+
+\`resources/views/pages/public.blade.php\`
+: Optional override of the platform public page shell.
+
+\`resources/views/sections/*.blade.php\`
+: Optional overrides of registered reusable platform section views.
+
+\`resources/images/raw/\`
+: Client-owned raw source imagery.
 
 \`.env\`
 : Deployment-specific client values and secrets; never commit it.
@@ -278,11 +295,12 @@ Vertical: ${VERTICAL_KEY:-none}
 Permissions: directories 2750; files 0640; group $WEB_GROUP
 
 Next:
-  sudo install -o "$CURRENT_USER" -g "$WEB_GROUP" -m 640 \\
-    clients/$CLIENT_KEY/.env.example \\
+  sudo install -o "$CURRENT_USER" -g "$WEB_GROUP" -m 640 \
+    clients/$CLIENT_KEY/.env.example \
     clients/$CLIENT_KEY/.env
 
   # Populate clients/$CLIENT_KEY/.env
+  # Add public page definitions under clients/$CLIENT_KEY/config/pages/
   # Set CLIENT_KEY=$CLIENT_KEY in the platform root .env
 
   php artisan optimize:clear
