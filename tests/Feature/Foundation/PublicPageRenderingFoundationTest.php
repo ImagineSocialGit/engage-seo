@@ -3,7 +3,6 @@
 namespace Tests\Feature\Foundation;
 
 use App\Support\Pages\PageRepository;
-use App\Support\Views\ClientViewNamespaceRegistrar;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\View;
 use Tests\TestCase;
@@ -31,6 +30,7 @@ class PublicPageRenderingFoundationTest extends TestCase
     public function test_configured_public_page_resolves_to_normalized_view_contract(): void
     {
         config()->set('app.url', 'https://site.example.test');
+        config()->set('site.name', 'Rendering Test Site');
 
         config()->set('pages', [
             'example' => [
@@ -70,6 +70,11 @@ class PublicPageRenderingFoundationTest extends TestCase
                     && $page['sections'][0]['theme'] === null
                     && $page['sections'][0]['layout'] === null
                     && $page['sections'][0]['overrides'] === [];
+            })
+            ->assertViewHas('site', function (array $site): bool {
+                return $site['name'] === 'Rendering Test Site'
+                    && is_array($site['shell'])
+                    && is_array($site['theme']['css_variables']);
             });
     }
 
@@ -112,7 +117,7 @@ class PublicPageRenderingFoundationTest extends TestCase
         File::put(
             $this->temporaryClientViewPath.'/pages/public.blade.php',
             <<<'BLADE'
-<x-layouts.public :meta="$page['meta']">
+<x-layouts.public :meta="$page['meta']" :site="$site">
 </x-layouts.public>
 BLADE
         );

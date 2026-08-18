@@ -27,6 +27,7 @@ The script:
 - validates the optional registered vertical;
 - creates the scaffold in a temporary directory;
 - creates the public page and supported client-view directories;
+- creates the client site-shell configuration;
 - validates generated PHP;
 - assigns PHP-FPM-readable permissions;
 - atomically publishes `clients/[CLIENT_KEY]`.
@@ -45,12 +46,23 @@ git init
 Create the real client environment from the generated example:
 
 ```bash
-sudo install   -o "$(id -un)"   -g www-data   -m 640   clients/[CLIENT_KEY]/.env.example   clients/[CLIENT_KEY]/.env
+sudo install \
+  -o "$(id -un)" \
+  -g www-data \
+  -m 640 \
+  clients/[CLIENT_KEY]/.env.example \
+  clients/[CLIENT_KEY]/.env
 ```
 
 Adjust the group when PHP-FPM uses a different group.
 
 Populate the client URL, database identity/credentials, and client-specific namespaces.
+
+Configure public site identity/navigation/theme values in:
+
+```text
+clients/[CLIENT_KEY]/config/site.php
+```
 
 Add static public pages under:
 

@@ -9,6 +9,7 @@ use App\Support\Pages\PageMetaResolver;
 use App\Support\Pages\PageRepository;
 use App\Support\Sections\SectionManager;
 use App\Support\SetupValidation\ClientSetupValidator;
+use App\Support\Site\SitePresentationResolver;
 use App\Support\Verticals\VerticalManager;
 use App\Support\Views\ClientViewNamespaceRegistrar;
 use App\Support\Views\PageViewResolver;
@@ -24,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(PageMetaResolver::class);
         $this->app->singleton(PageRepository::class);
         $this->app->singleton(SectionManager::class);
+        $this->app->singleton(SitePresentationResolver::class);
         $this->app->singleton(ClientViewNamespaceRegistrar::class);
         $this->app->singleton(PageViewResolver::class);
         $this->app->singleton(ClientSetupValidator::class);

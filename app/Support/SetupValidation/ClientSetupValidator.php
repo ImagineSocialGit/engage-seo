@@ -6,6 +6,7 @@ use App\Support\Clients\ClientEnvironmentDefinition;
 use App\Support\Features\FeatureManager;
 use App\Support\Pages\PageRepository;
 use App\Support\Sections\SectionManager;
+use App\Support\Site\SitePresentationResolver;
 use App\Support\Verticals\VerticalManager;
 use Dotenv\Dotenv;
 use Illuminate\Foundation\Application;
@@ -19,6 +20,7 @@ final class ClientSetupValidator
         private readonly VerticalManager $verticals,
         private readonly PageRepository $pages,
         private readonly SectionManager $sections,
+        private readonly SitePresentationResolver $sitePresentation,
     ) {
     }
 
@@ -48,6 +50,7 @@ final class ClientSetupValidator
         $requiredPaths = [
             'config/client.php' => 'file',
             'config/features.php' => 'file',
+            'config/site.php' => 'file',
             'config/pages' => 'directory',
             '.env.example' => 'file',
             '.env' => 'file',
@@ -94,6 +97,16 @@ final class ClientSetupValidator
             }
         }
 
+        $siteConfigPath = $clientDirectory.DIRECTORY_SEPARATOR.'config/site.php';
+
+        if (is_file($siteConfigPath)) {
+            $siteConfig = require $siteConfigPath;
+
+            if (! is_array($siteConfig)) {
+                $errors[] = 'Client config/site.php must return an array.';
+            }
+        }
+
         $timezone = config('client.timezone');
 
         if (! is_string($timezone)
@@ -118,6 +131,7 @@ final class ClientSetupValidator
             ...$errors,
             ...$this->pages->validationErrors(),
             ...$this->sections->validationErrors(),
+            ...$this->sitePresentation->validationErrors(),
         ];
 
         $rootEnvironmentPath = rtrim($basePath, DIRECTORY_SEPARATOR)

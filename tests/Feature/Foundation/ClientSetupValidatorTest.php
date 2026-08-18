@@ -30,6 +30,10 @@ class ClientSetupValidatorTest extends TestCase
             "<?php\n\nreturn [];\n"
         );
         File::put(
+            $this->temporaryRoot.'/clients/validator-client/config/site.php',
+            "<?php\n\nreturn [\n    'name' => 'Validator Test Site',\n];\n"
+        );
+        File::put(
             $this->temporaryRoot.'/clients/validator-client/.env.example',
             "APP_URL=\nDB_DATABASE=\nDB_USERNAME=\nDB_PASSWORD=\n"
         );
@@ -118,6 +122,33 @@ class ClientSetupValidatorTest extends TestCase
             'invalid' => [
                 'path' => 'missing-leading-slash',
                 'sections' => [],
+            ],
+        ]);
+
+        $result = app(ClientSetupValidator::class)->validate(
+            $this->temporaryRoot
+        );
+
+        $this->assertFalse($result->valid());
+        $this->assertCount(1, $result->errors);
+    }
+
+    public function test_invalid_site_shell_configuration_fails_validation(): void
+    {
+        File::put(
+            $this->temporaryRoot.'/clients/validator-client/.env',
+            implode(PHP_EOL, [
+                'APP_URL=https://validator.example.test',
+                'DB_DATABASE=validator_database',
+                'DB_USERNAME=validator_user',
+                'DB_PASSWORD=',
+                '',
+            ])
+        );
+
+        config()->set('site.shell.navigation.items', [
+            [
+                'label' => 'Invalid item',
             ],
         ]);
 

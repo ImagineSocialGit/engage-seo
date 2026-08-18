@@ -188,6 +188,73 @@ A Vertical may contribute `default_features`, but should not duplicate generic F
 
 Unknown Verticals fail validation.
 
+## Public site shell
+
+Every client scaffold includes:
+
+```text
+clients/[CLIENT_KEY]/config/site.php
+```
+
+This file owns client-specific public presentation data such as:
+
+```text
+site name
+logo reference and alt fallback
+header/navigation/footer preferences
+navigation items and primary CTA
+semantic theme-token overrides
+```
+
+The effective site name resolves from:
+
+```text
+site.name
+client.name
+app.name
+```
+
+A minimal client shape is:
+
+```php
+<?php
+
+return [
+    'name' => '[CLIENT]',
+
+    'brand' => [
+        'logo' => null,
+        'logo_alt' => null,
+    ],
+
+    'shell' => [
+        'navigation' => [
+            'items' => [
+            ],
+
+            'primary_cta' => null,
+        ],
+
+        'footer' => [
+            'items' => [
+            ],
+        ],
+    ],
+];
+```
+
+The platform provides neutral theme defaults. Clients override only the semantic tokens they need.
+
+Do not put large Tailwind class strings into client theme configuration.
+
+See:
+
+```text
+docs/architecture/site-shell-theme.md
+```
+
+for navigation, theme-token, and validation contracts.
+
 ## Public pages
 
 Static public page definitions belong under:
@@ -256,6 +323,8 @@ resources/views/sections/{registered-component}.blade.php
 
 Arbitrary client views do not silently replace platform views.
 
+The generic header, navigation, and footer are configured through `config/site.php`; they are not automatically replaced by similarly named client Blade files.
+
 ## Setup validation
 
 After selecting/configuring a client, run:
@@ -268,6 +337,7 @@ The validator checks structural/configuration contracts including:
 
 - a selected client exists;
 - required client config/environment/page directories exist;
+- `config/site.php` exists and returns an array;
 - the selected client timezone is valid;
 - selected Vertical and Feature keys are known;
 - root `.env` does not contain selected-client-owned keys;
@@ -275,12 +345,13 @@ The validator checks structural/configuration contracts including:
 - required client environment keys are present;
 - required URL/database identity values are structurally usable;
 - page paths and page contracts are valid;
-- registered reusable section views exist.
+- registered reusable section views exist;
+- site identity, navigation, shell, and theme contracts are valid.
 
 The validator does not test external provider connectivity or make client-specific business/content assertions.
 
 ## Future client override seams
 
-Theme configuration, navigation, structured data, media pipelines, richer section components, and Core integrations will be added only through documented seams as those platform capabilities are implemented.
+Structured data, media pipelines, richer section components, Feature-specific presentation, and Core integrations will be added only through documented seams as those platform capabilities are implemented.
 
 Do not assume arbitrary files placed in a client repository are automatically loaded.

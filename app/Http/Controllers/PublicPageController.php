@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Support\Pages\PageRepository;
+use App\Support\Site\SitePresentationResolver;
 use App\Support\Views\PageViewResolver;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -14,6 +15,7 @@ final class PublicPageController extends Controller
         Request $request,
         PageRepository $pages,
         PageViewResolver $views,
+        SitePresentationResolver $sitePresentation,
     ): View {
         $path = '/'.ltrim($request->path(), '/');
 
@@ -26,6 +28,7 @@ final class PublicPageController extends Controller
         if ($page !== null) {
             return view($views->resolve(), [
                 'page' => $page,
+                'site' => $sitePresentation->resolve($path),
             ]);
         }
 

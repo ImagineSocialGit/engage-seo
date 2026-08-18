@@ -11,6 +11,7 @@ docs/
     architecture/
         platform-boundaries.md
         public-rendering.md
+        site-shell-theme.md
 
     configuration/
         client-configuration.md
@@ -40,6 +41,7 @@ The platform foundation establishes:
 - setup validation;
 - config-owned static public page resolution;
 - normalized metadata and section contracts;
-- explicit public page/section client view seams.
+- explicit public page/section client view seams;
+- normalized public site identity, shell, navigation, footer, and semantic theme-token contracts.
 
-Theme/design systems, richer section components, CMS Features, sitemap/schema/redirect infrastructure, media pipelines, and Engage Core integrations remain later slices.
+Richer reusable section components, sitemap/schema/redirect infrastructure, media pipelines, CMS Features, and Engage Core integrations remain later slices.

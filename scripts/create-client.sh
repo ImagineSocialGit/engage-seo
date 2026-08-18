@@ -82,7 +82,9 @@ cleanup() {
 trap cleanup EXIT
 
 CLIENT_NAME="$(
-    echo "$CLIENT_KEY"         | tr '_-' '  '         | awk '{
+    echo "$CLIENT_KEY" \
+        | tr '_-' '  ' \
+        | awk '{
             for (i = 1; i <= NF; i++) {
                 $i = toupper(substr($i, 1, 1)) substr($i, 2)
             }
@@ -123,6 +125,33 @@ return [
 ];
 EOF_FEATURES
 
+cat > "$TEMP_CLIENT_DIR/config/site.php" <<EOF_SITE
+<?php
+
+return [
+    'name' => '$CLIENT_NAME',
+
+    'brand' => [
+        'logo' => null,
+        'logo_alt' => null,
+    ],
+
+    'shell' => [
+        'navigation' => [
+            'items' => [
+            ],
+
+            'primary_cta' => null,
+        ],
+
+        'footer' => [
+            'items' => [
+            ],
+        ],
+    ],
+];
+EOF_SITE
+
 cat > "$TEMP_CLIENT_DIR/.env.example" <<'EOF_ENV'
 # Engage SEO selected-client deployment environment
 #
@@ -144,6 +173,7 @@ cat > "$TEMP_CLIENT_DIR/.env.example" <<'EOF_ENV'
 #   stable client timezone
 #   optional vertical
 #   enabled/disabled Features
+#   public site identity, shell, navigation, and theme overrides
 #   public static page definitions
 
 ################################
@@ -209,31 +239,37 @@ Engage SEO client repository.
 
 2. Populate \`.env\` with the client URL, database identity/credentials, and client-specific namespaces.
 
-3. Add public static page definitions under:
+3. Configure site identity, navigation, footer, and optional theme overrides in:
+
+   \`\`\`text
+   config/site.php
+   \`\`\`
+
+4. Add public static page definitions under:
 
    \`\`\`text
    config/pages/*.php
    \`\`\`
 
-4. Set this in the Engage SEO platform root \`.env\`:
+5. Set this in the Engage SEO platform root \`.env\`:
 
    \`\`\`env
    CLIENT_KEY=$CLIENT_KEY
    \`\`\`
 
-5. Clear cached configuration:
+6. Clear cached configuration:
 
    \`\`\`bash
    php artisan optimize:clear
    \`\`\`
 
-6. Validate the selected client:
+7. Validate the selected client:
 
    \`\`\`bash
    php artisan setup:validate
    \`\`\`
 
-7. Run migrations when the client database is ready:
+8. Run migrations when the client database is ready:
 
    \`\`\`bash
    php artisan migrate
@@ -246,6 +282,9 @@ Engage SEO client repository.
 
 \`config/features.php\`
 : Explicit Feature additions/disables.
+
+\`config/site.php\`
+: Public site name, brand assets, shell/navigation/footer configuration, and optional semantic theme-token overrides.
 
 \`config/pages/*.php\`
 : Static public SEO/business page definitions.
@@ -267,6 +306,7 @@ EOF_README
 
 php -l "$TEMP_CLIENT_DIR/config/client.php" >/dev/null
 php -l "$TEMP_CLIENT_DIR/config/features.php" >/dev/null
+php -l "$TEMP_CLIENT_DIR/config/site.php" >/dev/null
 
 if ! chgrp -R "$WEB_GROUP" "$TEMP_CLIENT_DIR" 2>/dev/null; then
     if ! command -v sudo >/dev/null 2>&1; then
@@ -300,6 +340,7 @@ Next:
     clients/$CLIENT_KEY/.env
 
   # Populate clients/$CLIENT_KEY/.env
+  # Configure clients/$CLIENT_KEY/config/site.php
   # Add public page definitions under clients/$CLIENT_KEY/config/pages/
   # Set CLIENT_KEY=$CLIENT_KEY in the platform root .env
 

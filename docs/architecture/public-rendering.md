@@ -74,6 +74,35 @@ props
 The homepage follows this same contract. It is not a separate one-off rendering
 system.
 
+## Site presentation contract
+
+The public page controller also passes one normalized `site` array.
+
+It contains the selected client's effective:
+
+```text
+site name
+brand asset references
+header/navigation/footer configuration
+semantic theme tokens
+CSS custom properties
+```
+
+The platform public page view therefore receives:
+
+```text
+$page
+$site
+```
+
+See:
+
+```text
+docs/architecture/site-shell-theme.md
+```
+
+for the complete shell/theme contract.
+
 ## Metadata contract
 
 Page metadata may define:
@@ -169,6 +198,13 @@ The namespace does not mean arbitrary client files replace platform views.
 Platform code must explicitly resolve a client-namespaced view for an override
 to take effect.
 
+A client override of `pages/public.blade.php` receives both normalized contracts:
+
+```text
+$page
+$site
+```
+
 ## Base public layout
 
 The platform public layout owns:
@@ -176,12 +212,17 @@ The platform public layout owns:
 - document language;
 - charset and viewport;
 - normalized SEO metadata output;
+- normalized theme CSS custom properties;
 - Vite asset loading;
 - a skip link;
-- the primary `<main>` landmark.
+- the primary `<main>` landmark;
+- generic semantic header/navigation/footer rendering when enabled.
 
-Header, navigation, footer, themes, and design-system behavior are not defined by
-this foundation. They will be layered onto the stable rendering contract later.
+The selected client controls shell contents and presentation tokens through
+`config/site.php`.
+
+The foundation does not require a client to duplicate the platform layout merely
+to change branding, navigation, colors, typography, or shell visibility.
 
 ## Testing boundary
 
@@ -190,6 +231,7 @@ Public rendering tests cover:
 - path resolution;
 - 404 behavior;
 - normalized page/meta/section data passed to the view;
+- normalized site presentation data passed to the view;
 - generic client page-view override selection;
 - setup-validation behavior.
 

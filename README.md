@@ -34,6 +34,7 @@ See:
 docs/README.md
 docs/architecture/platform-boundaries.md
 docs/architecture/public-rendering.md
+docs/architecture/site-shell-theme.md
 docs/configuration/client-configuration.md
 docs/operations/client-lifecycle.md
 ```
@@ -90,6 +91,30 @@ php artisan setup:validate
 
 Rebuild configuration cache deliberately for the selected client when deployment uses cached configuration.
 
+## Public site shell
+
+Client public-site identity and shell configuration live in:
+
+```text
+clients/[CLIENT_KEY]/config/site.php
+```
+
+The platform provides generic semantic header/navigation/footer rendering and neutral theme defaults.
+
+Clients configure:
+
+```text
+site name
+brand logo reference
+navigation
+primary CTA
+footer navigation
+shell enablement
+semantic theme-token overrides
+```
+
+Theme configuration maps to a fixed set of CSS custom properties rather than storing large Tailwind class strings in PHP config.
+
 ## Public pages
 
 Static public pages are config-owned:
@@ -133,6 +158,6 @@ Both refuse to operate without a selected client and the required safety gates.
 
 ## Current implementation status
 
-The foundation currently establishes client selection/configuration, explicit root/client environment ownership, Feature/Vertical composition, client scaffolding, setup validation, config-owned public page rendering, normalized metadata/section contracts, explicit client view seams, documentation, and safe local database lifecycle tooling.
+The foundation currently establishes client selection/configuration, explicit root/client environment ownership, Feature/Vertical composition, client scaffolding, setup validation, config-owned public page rendering, normalized metadata/section contracts, explicit client view seams, a normalized public site shell/theme contract, documentation, and safe local database lifecycle tooling.
 
-Theme/design systems, richer reusable section components, CMS Features, sitemap/schema/redirect infrastructure, media pipelines, and Engage Core integration implementations are intentionally added in later slices.
+Richer reusable section components, sitemap/schema/redirect infrastructure, media pipelines, CMS Features, and Engage Core integration implementations are intentionally added in later slices.

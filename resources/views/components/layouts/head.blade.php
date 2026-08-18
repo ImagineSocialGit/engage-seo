@@ -1,5 +1,6 @@
 @props([
     'meta',
+    'site',
 ])
 
 <head>
@@ -38,6 +39,14 @@
     @if($meta['twitter']['image'])
         <meta name="twitter:image" content="{{ $meta['twitter']['image'] }}">
     @endif
+
+    <style>
+        :root {
+            @foreach($site['theme']['css_variables'] as $name => $value)
+                {{ $name }}: {{ $value }};
+            @endforeach
+        }
+    </style>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>

@@ -28,6 +28,8 @@
 │       ├── SetupValidation
 │       │   ├── ClientSetupValidator.php
 │       │   └── SetupValidationResult.php
+│       ├── Site
+│       │   └── SitePresentationResolver.php
 │       ├── Verticals
 │       │   └── VerticalManager.php
 │       └── Views
@@ -74,7 +76,8 @@
 ├── docs
 │   ├── architecture
 │   │   ├── platform-boundaries.md
-│   │   └── public-rendering.md
+│   │   ├── public-rendering.md
+│   │   └── site-shell-theme.md
 │   ├── configuration
 │   │   └── client-configuration.md
 │   ├── operations
@@ -98,7 +101,11 @@
 │       │   ├── dynamic-section.blade.php
 │       │   └── layouts
 │       │       ├── head.blade.php
-│       │       └── public.blade.php
+│       │       ├── navigation-item.blade.php
+│       │       ├── navigation-list.blade.php
+│       │       ├── public.blade.php
+│       │       ├── site-footer.blade.php
+│       │       └── site-header.blade.php
 │       ├── pages
 │       │   └── public.blade.php
 │       ├── sections
@@ -118,7 +125,8 @@
 │   │   └── Foundation
 │   │       ├── ClientConfigurationFoundationTest.php
 │   │       ├── ClientSetupValidatorTest.php
-│   │       └── PublicPageRenderingFoundationTest.php
+│   │       ├── PublicPageRenderingFoundationTest.php
+│   │       └── SiteShellFoundationTest.php
 │   ├── TestCase.php
 │   └── Unit
 │       ├── ExampleTest.php
@@ -128,4 +136,4 @@
 │           └── ConfigMergerTest.php
 └── vite.config.js
 
-46 directories, 83 files
+47 directories, 90 files
