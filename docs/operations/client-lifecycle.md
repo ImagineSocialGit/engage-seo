@@ -1,0 +1,155 @@
+# Client Lifecycle Operations
+
+## Create a client scaffold
+
+Run:
+
+```bash
+./scripts/create-client.sh [CLIENT_KEY] [TIMEZONE]
+```
+
+Optional vertical:
+
+```bash
+./scripts/create-client.sh [CLIENT_KEY] [TIMEZONE] [VERTICAL_KEY]
+```
+
+Example:
+
+```bash
+./scripts/create-client.sh example-client America/Chicago
+```
+
+The script:
+
+- validates the client key;
+- validates the timezone;
+- validates the optional registered vertical;
+- creates the scaffold in a temporary directory;
+- validates generated PHP;
+- assigns PHP-FPM-readable permissions;
+- atomically publishes `clients/[CLIENT_KEY]`.
+
+It does not initialize a Git repository or create a remote.
+
+To make the generated client its own repository:
+
+```bash
+cd clients/[CLIENT_KEY]
+git init
+```
+
+## Client environment
+
+Create the real client environment from the generated example:
+
+```bash
+sudo install \
+  -o "$(id -un)" \
+  -g www-data \
+  -m 640 \
+  clients/[CLIENT_KEY]/.env.example \
+  clients/[CLIENT_KEY]/.env
+```
+
+Adjust the group when PHP-FPM uses a different group.
+
+Populate client deployment values, then set only the selected key in the platform root `.env`:
+
+```env
+CLIENT_KEY=[CLIENT_KEY]
+```
+
+Clear cached Laravel state after changing selected-client configuration:
+
+```bash
+php artisan optimize:clear
+```
+
+## Root/client environment migration
+
+When converting an existing local `.env` to selected-client loading:
+
+Move client-varying values out of root `.env`, including values such as:
+
+```text
+APP_URL
+DB_DATABASE
+DB_USERNAME
+DB_PASSWORD
+client-specific cache/Redis prefixes
+client storage/provider credentials
+```
+
+Keep platform/process values in root `.env`.
+
+A root value wins over the same value in a client `.env`.
+
+## Reset a local client database
+
+Destructive database tooling requires both:
+
+```text
+APP_ENV=local
+DEV_DESTRUCTIVE_COMMANDS_ENABLED=true
+```
+
+Run:
+
+```bash
+./scripts/dev-reset-client-database.sh
+```
+
+The script displays the resolved client, connection, and database and requires an exact typed confirmation before wiping the selected database.
+
+Use `--force` only for deliberate non-interactive local automation:
+
+```bash
+./scripts/dev-reset-client-database.sh --force
+```
+
+`--force` does not bypass the environment or destructive-operation safety gates.
+
+## Refresh a local client database
+
+Run:
+
+```bash
+./scripts/dev-refresh-client.sh
+```
+
+This performs the same safety-gated reset, then runs migrations.
+
+Use:
+
+```bash
+./scripts/dev-refresh-client.sh --force
+```
+
+for deliberate local non-interactive operation.
+
+The foundation refresh does not seed client content. A future install/bootstrap contract may extend this once durable page/CMS/client-state ownership exists.
+
+## Git isolation
+
+The platform repository tracks:
+
+```text
+clients/.gitkeep
+```
+
+but ignores:
+
+```text
+clients/*
+```
+
+except for that placeholder.
+
+Each actual client directory may therefore be its own repository without its files becoming part of the platform repository.
+
+## Production safety
+
+Do not enable `DEV_DESTRUCTIVE_COMMANDS_ENABLED` in staging or production.
+
+The reset and refresh scripts also require Laravel to resolve `APP_ENV=local`.
