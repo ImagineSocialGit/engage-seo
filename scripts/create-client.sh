@@ -127,17 +127,24 @@ EOF_FEATURES
 cat > "$TEMP_CLIENT_DIR/.env.example" <<'EOF_ENV'
 # Engage SEO selected-client deployment environment
 #
+# This file contains runtime values that should follow the selected CLIENT_KEY.
 # Do not commit the real .env file.
 #
-# Root .env owns platform/process values such as:
-#   APP_ENV / APP_DEBUG / APP_KEY
+# Root .env owns:
 #   CLIENT_KEY
+#   APP_ENV / APP_DEBUG / APP_KEY
 #   DB_CONNECTION / DB_HOST / DB_PORT
 #   logging
-#   queue/cache/session driver choices
-#   shared process tuning
+#   cache/session/queue driver choices
+#   Redis host/port/database indexes
+#   filesystem transport choice
+#   destructive-local-operation gate
 #
-# This client .env owns values that vary with the selected website.
+# Client PHP config owns:
+#   client name/key
+#   stable client timezone
+#   optional vertical
+#   enabled/disabled Features
 
 ################################
 # PUBLIC SITE
@@ -157,19 +164,15 @@ DB_PASSWORD=
 # CLIENT-SCOPED NAMESPACES
 ################################
 
+# Keep these unique per client/environment when infrastructure is shared.
 CACHE_PREFIX=
 REDIS_PREFIX=
 
-# Optional when cookie domain must be explicit.
+# Optional when the session cookie domain must be explicit.
 # SESSION_DOMAIN=.example.com
 
-################################
-# FILE STORAGE
-################################
-
-FILESYSTEM_DISK=local
-
-# Add provider/storage credentials only when the selected client uses them.
+# Add new client-owned environment keys only when Engage SEO documents and
+# validates the corresponding platform/integration seam.
 EOF_ENV
 
 cat > "$TEMP_CLIENT_DIR/.gitignore" <<'EOF_GITIGNORE'
@@ -202,7 +205,7 @@ Engage SEO client repository.
      clients/$CLIENT_KEY/.env
    \`\`\`
 
-2. Populate \`.env\` with the client URL, database identity/credentials, namespaces, and any client-specific provider values.
+2. Populate \`.env\` with the client URL, database identity/credentials, and client-specific namespaces.
 
 3. Set this in the Engage SEO platform root \`.env\`:
 
@@ -216,7 +219,13 @@ Engage SEO client repository.
    php artisan optimize:clear
    \`\`\`
 
-5. Run migrations when the client database is ready:
+5. Validate the selected client:
+
+   \`\`\`bash
+   php artisan setup:validate
+   \`\`\`
+
+6. Run migrations when the client database is ready:
 
    \`\`\`bash
    php artisan migrate
@@ -269,14 +278,15 @@ Vertical: ${VERTICAL_KEY:-none}
 Permissions: directories 2750; files 0640; group $WEB_GROUP
 
 Next:
-  sudo install -o "$CURRENT_USER" -g "$WEB_GROUP" -m 640 \
-    clients/$CLIENT_KEY/.env.example \
+  sudo install -o "$CURRENT_USER" -g "$WEB_GROUP" -m 640 \\
+    clients/$CLIENT_KEY/.env.example \\
     clients/$CLIENT_KEY/.env
 
   # Populate clients/$CLIENT_KEY/.env
   # Set CLIENT_KEY=$CLIENT_KEY in the platform root .env
 
   php artisan optimize:clear
+  php artisan setup:validate
   php artisan migrate
 
 Optional client repository initialization:

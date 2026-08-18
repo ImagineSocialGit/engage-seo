@@ -76,7 +76,18 @@ clients/[CLIENT_KEY]/.env
 clients/[CLIENT_KEY]/config/**
 ```
 
-Root/process environment values take precedence over selected-client environment values.
+Root `.env` owns process/machine infrastructure. The selected client `.env` owns only explicitly registered client-scoped environment values.
+
+When a client is selected, stale root values for registered client-owned keys are cleared before the selected client environment is applied.
+
+After selecting or changing a client, run:
+
+```bash
+php artisan optimize:clear
+php artisan setup:validate
+```
+
+Rebuild configuration cache deliberately for the selected client when deployment uses cached configuration.
 
 ## Development database operations
 
@@ -103,6 +114,6 @@ Both refuse to operate without a selected client and the required safety gates.
 
 ## Current implementation status
 
-The foundation currently establishes client selection/configuration, Feature/Vertical composition, client scaffolding, documentation, and safe local database lifecycle tooling.
+The foundation currently establishes client selection/configuration, explicit root/client environment ownership, Feature/Vertical composition, client scaffolding, setup validation, documentation, and safe local database lifecycle tooling.
 
 Page rendering, theme/design systems, CMS Features, SEO metadata, accessibility components, media pipelines, and Engage Core integration implementations are intentionally added in later slices.

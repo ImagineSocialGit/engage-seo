@@ -1,0 +1,108 @@
+.
+├── app
+│   ├── Console
+│   │   └── Commands
+│   │       └── ValidateSetupCommand.php
+│   ├── Http
+│   │   └── Controllers
+│   │       └── Controller.php
+│   ├── Models
+│   │   └── User.php
+│   ├── Providers
+│   │   └── AppServiceProvider.php
+│   └── Support
+│       ├── Clients
+│       │   ├── ClientConfigLoader.php
+│       │   ├── ClientEnvironmentDefinition.php
+│       │   └── ClientEnvironmentLoader.php
+│       ├── Config
+│       │   └── ConfigMerger.php
+│       ├── Features
+│       │   └── FeatureManager.php
+│       ├── SetupValidation
+│       │   ├── ClientSetupValidator.php
+│       │   └── SetupValidationResult.php
+│       └── Verticals
+│           └── VerticalManager.php
+├── artisan
+├── bootstrap
+│   ├── app.php
+│   ├── cache
+│   │   ├── packages.php
+│   │   └── services.php
+│   └── providers.php
+├── clients
+├── composer.json
+├── composer.lock
+├── config
+│   ├── app.php
+│   ├── auth.php
+│   ├── cache.php
+│   ├── client.php
+│   ├── database.php
+│   ├── features.php
+│   ├── filesystems.php
+│   ├── logging.php
+│   ├── mail.php
+│   ├── queue.php
+│   ├── services.php
+│   ├── session.php
+│   └── verticals.php
+├── core-project-tree.txt
+├── database
+│   ├── database.sqlite
+│   ├── factories
+│   │   └── UserFactory.php
+│   ├── migrations
+│   │   ├── 0001_01_01_000000_create_users_table.php
+│   │   ├── 0001_01_01_000001_create_cache_table.php
+│   │   └── 0001_01_01_000002_create_jobs_table.php
+│   └── seeders
+│       └── DatabaseSeeder.php
+├── docs
+│   ├── architecture
+│   │   └── platform-boundaries.md
+│   ├── configuration
+│   │   └── client-configuration.md
+│   ├── operations
+│   │   └── client-lifecycle.md
+│   └── README.md
+├── package.json
+├── package-lock.json
+├── phpunit.xml
+├── public
+│   ├── favicon.ico
+│   ├── index.php
+│   └── robots.txt
+├── README.md
+├── resources
+│   ├── css
+│   │   └── app.css
+│   ├── js
+│   │   └── app.js
+│   └── views
+│       └── welcome.blade.php
+├── routes
+│   ├── console.php
+│   └── web.php
+├── scripts
+│   ├── create-client.sh
+│   ├── dev-refresh-client.sh
+│   ├── dev-reset-client-database.sh
+│   └── dump-seo-site-state.sh
+├── tests
+│   ├── Feature
+│   │   ├── ExampleTest.php
+│   │   └── Foundation
+│   │       ├── ClientConfigurationFoundationTest.php
+│   │       └── ClientSetupValidatorTest.php
+│   ├── TestCase.php
+│   └── Unit
+│       ├── ExampleTest.php
+│       └── Support
+│           ├── Clients
+│           │   └── ClientEnvironmentLoaderTest.php
+│           └── ConfigMergerTest.php
+└── vite.config.js
+
+39 directories, 67 files

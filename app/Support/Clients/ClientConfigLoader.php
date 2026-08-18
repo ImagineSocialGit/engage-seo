@@ -5,6 +5,7 @@ namespace App\Support\Clients;
 use App\Support\Config\ConfigMerger;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Env;
 use InvalidArgumentException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -21,6 +22,10 @@ class ClientConfigLoader
 
     public function load(?string $clientKey = null): ?string
     {
+        if ($this->app->configurationIsCached()) {
+            return $this->configuredClientKey();
+        }
+
         $clientKey = $this->normalizeClientKey(
             $clientKey ?? $this->environmentClientKey()
         );
@@ -77,11 +82,20 @@ class ClientConfigLoader
         return $clientKey;
     }
 
+    protected function configuredClientKey(): ?string
+    {
+        $value = $this->config->get('client.key');
+
+        if (! is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        return trim($value);
+    }
+
     protected function environmentClientKey(): ?string
     {
-        $value = $_ENV['CLIENT_KEY']
-            ?? $_SERVER['CLIENT_KEY']
-            ?? null;
+        $value = Env::get('CLIENT_KEY');
 
         return is_string($value) ? $value : null;
     }

@@ -23,37 +23,70 @@ The key must:
 
 ## Environment ownership
 
-Environment loading occurs in this order:
+Environment ownership is explicit rather than based on whichever `.env` happens to load first.
+
+Root `.env` owns machine/process infrastructure such as:
 
 ```text
-1. process/server environment
-2. root .env
-3. selected client .env
+APP_ENV / APP_DEBUG / APP_KEY
+CLIENT_KEY
+DB_CONNECTION / DB_HOST / DB_PORT
+logging
+cache/session/queue drivers
+Redis host/port/database indexes
+filesystem transport choice
+local destructive-operation gate
 ```
 
-Existing environment values are not overwritten by later files.
-
-That produces the intended ownership split:
+Selected client `.env` currently owns:
 
 ```text
-Root .env
-    application/process infrastructure
-    APP_ENV / APP_DEBUG / APP_KEY
-    CLIENT_KEY
-    connection drivers/hosts/ports
-    logging
-    shared queue/cache/session behavior
-    destructive-local-operation gate
-
-Client .env
-    APP_URL
-    database name and credentials
-    client-specific namespaces/prefixes
-    client storage/provider credentials
-    future client integration credentials
+APP_URL
+DB_DATABASE
+DB_USERNAME
+DB_PASSWORD
+CACHE_PREFIX
+REDIS_PREFIX
+SESSION_DOMAIN
 ```
 
-Do not keep a root value for a setting that is intended to vary by client, because the root value takes precedence.
+When a non-cached application boots with a selected client, Engage SEO:
+
+1. lets Laravel load the process/root environment;
+2. resolves `CLIENT_KEY`;
+3. validates the selected client directory;
+4. parses `clients/[CLIENT_KEY]/.env`;
+5. rejects environment keys that are not registered as client-owned;
+6. clears every registered client-owned value from the loaded process/root environment;
+7. applies the selected client's values;
+8. then lets Laravel load application configuration.
+
+This prevents a stale root value such as `APP_URL` or `DB_DATABASE` from silently overriding the selected client.
+
+Do not keep selected-client-owned keys in root `.env` once a client is selected. `setup:validate` reports that ownership conflict.
+
+New client-owned environment keys are added only when a platform Feature or integration establishes and documents the corresponding runtime seam.
+
+## Configuration cache behavior
+
+A cached Laravel configuration contains the fully resolved selected-client environment and merged PHP configuration from the client that was active when the cache was built.
+
+When configuration is cached, Engage SEO does not re-read the selected client `.env` or merge client PHP config again during normal bootstrap.
+
+Therefore, changing clients or changing client environment/configuration requires rebuilding cached configuration:
+
+```bash
+php artisan optimize:clear
+php artisan config:cache
+```
+
+Do not switch `CLIENT_KEY` underneath an existing configuration cache and expect runtime client swapping.
+
+## Test isolation
+
+The PHPUnit environment forces `CLIENT_KEY` blank.
+
+Tests must create/configure their own generic test client state when they need to exercise client behavior. A developer's currently selected real client must not leak into the automated test suite.
 
 ## PHP configuration ownership
 
@@ -154,6 +187,27 @@ config/verticals.php
 A Vertical may contribute `default_features`, but should not duplicate generic Feature runtime behavior.
 
 Unknown Verticals fail validation.
+
+## Setup validation
+
+After selecting/configuring a client, run:
+
+```bash
+php artisan setup:validate
+```
+
+The foundation validator checks structural/configuration contracts including:
+
+- a selected client exists;
+- required client config/environment paths exist;
+- the selected client timezone is valid;
+- selected Vertical and Feature keys are known;
+- root `.env` does not contain selected-client-owned keys;
+- client `.env` does not contain root-owned/unknown keys;
+- required client environment keys are present;
+- required URL/database identity values are structurally usable.
+
+The validator does not test external provider connectivity or make client-specific business/content assertions.
 
 ## Future client override seams
 
