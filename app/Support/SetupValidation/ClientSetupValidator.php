@@ -8,6 +8,7 @@ use App\Support\Media\MediaManifestRepository;
 use App\Support\Media\MediaUrlResolver;
 use App\Support\Pages\PageRepository;
 use App\Support\Sections\SectionManager;
+use App\Support\Seo\Migration\SeoMigrationAuditor;
 use App\Support\Seo\RedirectRepository;
 use App\Support\Seo\SeoIndexingPolicy;
 use App\Support\Site\SitePresentationResolver;
@@ -27,6 +28,7 @@ final class ClientSetupValidator
         private readonly SitePresentationResolver $sitePresentation,
         private readonly SeoIndexingPolicy $seoIndexing,
         private readonly RedirectRepository $redirects,
+        private readonly SeoMigrationAuditor $seoMigration,
         private readonly MediaUrlResolver $mediaUrls,
         private readonly MediaManifestRepository $mediaManifest,
     ) {
@@ -142,6 +144,7 @@ final class ClientSetupValidator
             ...$this->sitePresentation->validationErrors(),
             ...$this->seoIndexing->validationErrors(),
             ...$this->redirects->validationErrors(),
+            ...$this->seoMigration->validationErrors($basePath),
             ...$this->mediaUrls->validationErrors(),
             ...$this->mediaManifest->validationErrors($basePath),
         ];

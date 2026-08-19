@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Console\Commands\AuditSeoMigrationCommand;
 use App\Console\Commands\ValidateSetupCommand;
 use App\Support\Clients\ClientConfigLoader;
 use App\Support\Features\FeatureManager;
@@ -10,6 +11,8 @@ use App\Support\Pages\PageRepository;
 use App\Support\Sections\SectionManager;
 use App\Support\Seo\RedirectRepository;
 use App\Support\Seo\SeoExtensionRegistry;
+use App\Support\Seo\Migration\LegacyUrlInventoryRepository;
+use App\Support\Seo\Migration\SeoMigrationAuditor;
 use App\Support\Seo\SeoIndexingPolicy;
 use App\Support\Seo\SitemapBuilder;
 use App\Support\Seo\StructuredDataResolver;
@@ -30,6 +33,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(SeoExtensionRegistry::class);
         $this->app->singleton(SeoIndexingPolicy::class);
         $this->app->singleton(RedirectRepository::class);
+        $this->app->singleton(LegacyUrlInventoryRepository::class);
+        $this->app->singleton(SeoMigrationAuditor::class);
         $this->app->singleton(PageMetaResolver::class);
         $this->app->singleton(PageRepository::class);
         $this->app->singleton(SitemapBuilder::class);
@@ -55,6 +60,7 @@ class AppServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->commands([
+                AuditSeoMigrationCommand::class,
                 ValidateSetupCommand::class,
             ]);
         }

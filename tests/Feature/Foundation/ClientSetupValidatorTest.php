@@ -163,6 +163,33 @@ class ClientSetupValidatorTest extends TestCase
         $this->assertCount(1, $result->errors);
     }
 
+    public function test_enabled_old_platform_migration_is_included_in_setup_validation(): void
+    {
+        File::put(
+            $this->temporaryRoot.'/clients/validator-client/.env',
+            implode(PHP_EOL, [
+                'APP_URL=https://validator.example.test',
+                'DB_DATABASE=validator_database',
+                'DB_USERNAME=validator_user',
+                'DB_PASSWORD=',
+                '',
+            ])
+        );
+
+        config()->set('seo_migration.enabled', true);
+        config()->set(
+            'seo_migration.inventory_path',
+            'resources/migration/legacy-urls.tsv',
+        );
+
+        $result = app(ClientSetupValidator::class)->validate(
+            $this->temporaryRoot
+        );
+
+        $this->assertFalse($result->valid());
+        $this->assertNotEmpty($result->errors);
+    }
+
     public function test_setup_validate_command_fails_when_no_client_is_selected(): void
     {
         config()->set('client.key', null);

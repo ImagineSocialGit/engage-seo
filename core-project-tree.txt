@@ -2,6 +2,7 @@
 ├── app
 │   ├── Console
 │   │   └── Commands
+│   │       ├── AuditSeoMigrationCommand.php
 │   │       └── ValidateSetupCommand.php
 │   ├── Contracts
 │   │   └── Seo
@@ -37,6 +38,10 @@
 │   │   ├── Sections
 │   │   │   └── SectionManager.php
 │   │   ├── Seo
+│   │   │   ├── Migration
+│   │   │   │   ├── LegacyUrlInventoryRepository.php
+│   │   │   │   ├── SeoMigrationAuditor.php
+│   │   │   │   └── SeoMigrationAuditResult.php
 │   │   │   ├── RedirectRepository.php
 │   │   │   ├── SeoExtensionRegistry.php
 │   │   │   ├── SeoIndexingPolicy.php
@@ -84,6 +89,7 @@
 │   ├── pages.php
 │   ├── queue.php
 │   ├── sections.php
+│   ├── seo_migration.php
 │   ├── services.php
 │   ├── session.php
 │   ├── site.php
@@ -102,6 +108,7 @@
 ├── docs
 │   ├── architecture
 │   │   ├── media-images.md
+│   │   ├── old-platform-migration.md
 │   │   ├── platform-boundaries.md
 │   │   ├── public-rendering.md
 │   │   ├── reusable-sections.md
@@ -173,6 +180,7 @@
 │   │       ├── ClientConfigurationFoundationTest.php
 │   │       ├── ClientSetupValidatorTest.php
 │   │       ├── MediaFoundationTest.php
+│   │       ├── OldPlatformMigrationFoundationTest.php
 │   │       ├── PublicPageRenderingFoundationTest.php
 │   │       ├── ReusableSectionsFoundationTest.php
 │   │       ├── SeoInfrastructureFoundationTest.php
@@ -186,4 +194,4 @@
 │           └── ConfigMergerTest.php
 └── vite.config.js
 
-56 directories, 131 files
+57 directories, 138 files

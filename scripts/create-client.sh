@@ -101,6 +101,7 @@ mkdir -p "$TEMP_CLIENT_DIR/config/pages"
 mkdir -p "$TEMP_CLIENT_DIR/resources/views/pages"
 mkdir -p "$TEMP_CLIENT_DIR/resources/views/sections"
 mkdir -p "$TEMP_CLIENT_DIR/resources/images/raw"
+mkdir -p "$TEMP_CLIENT_DIR/resources/migration"
 
 cat > "$TEMP_CLIENT_DIR/config/client.php" <<EOF_CLIENT
 <?php
@@ -124,6 +125,15 @@ return [
     ],
 ];
 EOF_FEATURES
+
+cat > "$TEMP_CLIENT_DIR/config/seo_migration.php" <<'EOF_SEO_MIGRATION'
+<?php
+
+return [
+    'enabled' => false,
+    'inventory_path' => 'resources/migration/legacy-urls.tsv',
+];
+EOF_SEO_MIGRATION
 
 cat > "$TEMP_CLIENT_DIR/config/site.php" <<EOF_SITE
 <?php
@@ -251,6 +261,8 @@ cat > "$TEMP_CLIENT_DIR/.gitignore" <<'EOF_GITIGNORE'
 Thumbs.db
 EOF_GITIGNORE
 
+printf 'path\toutcome\ttarget\tnotes\n' > "$TEMP_CLIENT_DIR/resources/migration/legacy-urls.tsv"
+
 touch "$TEMP_CLIENT_DIR/config/pages/.gitkeep"
 touch "$TEMP_CLIENT_DIR/resources/views/pages/.gitkeep"
 touch "$TEMP_CLIENT_DIR/resources/views/sections/.gitkeep"
@@ -291,25 +303,37 @@ Engage SEO client repository.
    config/pages/*.php
    \`\`\`
 
-5. Set this in the Engage SEO platform root \`.env\`:
+5. If this client replaces an existing public site, enable the old-platform SEO migration audit in:
+
+   \`\`\`text
+   config/seo_migration.php
+   \`\`\`
+
+   Then populate:
+
+   \`\`\`text
+   resources/migration/legacy-urls.tsv
+   \`\`\`
+
+6. Set this in the Engage SEO platform root \`.env\`:
 
    \`\`\`env
    CLIENT_KEY=$CLIENT_KEY
    \`\`\`
 
-6. Clear cached configuration:
+7. Clear cached configuration:
 
    \`\`\`bash
    php artisan optimize:clear
    \`\`\`
 
-7. Validate the selected client:
+8. Validate the selected client:
 
    \`\`\`bash
    php artisan setup:validate
    \`\`\`
 
-8. Run migrations when the client database is ready:
+9. Run migrations when the client database is ready:
 
    \`\`\`bash
    php artisan migrate
@@ -322,6 +346,9 @@ Engage SEO client repository.
 
 \`config/features.php\`
 : Explicit Feature additions/disables.
+
+\`config/seo_migration.php\`
+: Optional old-platform migration audit enablement and inventory path.
 
 \`config/site.php\`
 : Public site name, brand assets, business/contact data, utility/header/navigation/footer configuration, and optional semantic theme-token overrides.
@@ -338,6 +365,9 @@ Engage SEO client repository.
 \`resources/images/raw/\`
 : Client-owned raw source imagery.
 
+\`resources/migration/legacy-urls.tsv\`
+: Source-controlled legacy URL inventory used when replacing an existing public site.
+
 \`.env\`
 : Deployment-specific client values and secrets; never commit it.
 
@@ -346,6 +376,7 @@ EOF_README
 
 php -l "$TEMP_CLIENT_DIR/config/client.php" >/dev/null
 php -l "$TEMP_CLIENT_DIR/config/features.php" >/dev/null
+php -l "$TEMP_CLIENT_DIR/config/seo_migration.php" >/dev/null
 php -l "$TEMP_CLIENT_DIR/config/site.php" >/dev/null
 
 if ! chgrp -R "$WEB_GROUP" "$TEMP_CLIENT_DIR" 2>/dev/null; then
@@ -383,6 +414,8 @@ Next:
   # Configure clients/$CLIENT_KEY/config/site.php
   # Keep seo.indexing_enabled=false until the production site is ready to launch
   # Add public page definitions under clients/$CLIENT_KEY/config/pages/
+  # If replacing an old site, configure clients/$CLIENT_KEY/config/seo_migration.php
+  # and clients/$CLIENT_KEY/resources/migration/legacy-urls.tsv
   # Set CLIENT_KEY=$CLIENT_KEY in the platform root .env
 
   php artisan optimize:clear

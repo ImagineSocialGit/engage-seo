@@ -11,9 +11,9 @@ final class RedirectRepository
      */
     public function resolve(string $path): ?array
     {
-        $path = $this->normalizeSourcePath($path);
+        $path = $this->normalizePath($path);
 
-        foreach ($this->normalized() as $redirect) {
+        foreach ($this->all() as $redirect) {
             if ($redirect['from'] === $path) {
                 return $redirect;
             }
@@ -77,7 +77,7 @@ final class RedirectRepository
     /**
      * @return list<array{from: string, to: string, status: int}>
      */
-    private function normalized(): array
+    public function all(): array
     {
         $configured = config('site.seo.redirects', []);
 
@@ -146,7 +146,7 @@ final class RedirectRepository
             );
         }
 
-        $from = $this->normalizeSourcePath($from);
+        $from = $this->normalizePath($from);
         $to = trim($to);
 
         $this->assertDestination($to, $index);
@@ -166,7 +166,7 @@ final class RedirectRepository
         ];
     }
 
-    private function normalizeSourcePath(string $path): string
+    public function normalizePath(string $path): string
     {
         $path = trim($path);
 
@@ -206,7 +206,7 @@ final class RedirectRepository
         }
     }
 
-    private function internalTargetPath(string $destination): ?string
+    public function internalTargetPath(string $destination): ?string
     {
         if (! str_starts_with($destination, '/')) {
             return null;
@@ -218,6 +218,6 @@ final class RedirectRepository
             $path = '/';
         }
 
-        return $this->normalizeSourcePath($path);
+        return $this->normalizePath($path);
     }
 }

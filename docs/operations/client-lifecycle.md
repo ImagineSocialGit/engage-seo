@@ -28,6 +28,7 @@ The script:
 - creates the scaffold in a temporary directory;
 - creates the public page and supported client-view directories;
 - creates the client site-shell configuration;
+- creates disabled-by-default old-platform migration config and a legacy URL inventory template;
 - validates generated PHP;
 - assigns PHP-FPM-readable permissions;
 - atomically publishes `clients/[CLIENT_KEY]`.
@@ -196,6 +197,45 @@ except for that placeholder.
 
 Each actual client directory may therefore be its own repository without its files becoming part of the platform repository.
 
+## Old-platform SEO migration
+
+When the client replaces an existing public site, enable:
+
+```php
+// clients/[CLIENT_KEY]/config/seo_migration.php
+
+return [
+    'enabled' => true,
+    'inventory_path' => 'resources/migration/legacy-urls.tsv',
+];
+```
+
+Populate the source-controlled inventory:
+
+```text
+clients/[CLIENT_KEY]/resources/migration/legacy-urls.tsv
+```
+
+Use one row for every known old public URL.
+
+Before cutover, run:
+
+```bash
+php artisan seo:migration:audit
+```
+
+Do not proceed while any URL is unaccounted for or while preserved/redirected outcomes fail validation.
+
+The audit verifies permanent redirect behavior against `site.seo.redirects`; it does not install a second redirect system.
+
+A complete technical audit does not guarantee that a search engine will preserve a particular ranking. It reduces avoidable cutover loss caused by missing URLs, temporary redirects, broken targets, or contradictory canonicals.
+
+See:
+
+```text
+docs/architecture/old-platform-migration.md
+```
+
 ## SEO launch gate
 
 New clients start with production indexing disabled:
@@ -217,17 +257,18 @@ clients/[CLIENT_KEY]/config/site.php
 Before enabling indexing:
 
 1. confirm the intended production `APP_URL`;
-2. confirm canonical metadata and redirects;
-3. confirm `/robots.txt` disallows crawling on non-production;
-4. confirm the production site is ready to be crawled;
-5. set:
+2. if replacing an existing site, complete `php artisan seo:migration:audit`;
+3. confirm canonical metadata and redirects;
+4. confirm `/robots.txt` disallows crawling on non-production;
+5. confirm the production site is ready to be crawled;
+6. set:
 
    ```php
    'indexing_enabled' => true,
    ```
 
-6. clear/rebuild cached configuration as required by the deployment;
-7. run:
+7. clear/rebuild cached configuration as required by the deployment;
+8. run:
 
    ```bash
    php artisan setup:validate

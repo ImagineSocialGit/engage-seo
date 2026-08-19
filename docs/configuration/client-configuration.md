@@ -327,6 +327,55 @@ docs/architecture/seo-infrastructure.md
 
 for the indexing, robots, sitemap, redirect, structured-data, and Feature contribution contracts.
 
+## Old-platform SEO migration
+
+A client replacing an existing public website may enable the migration audit through:
+
+```text
+clients/[CLIENT_KEY]/config/seo_migration.php
+```
+
+Shape:
+
+```php
+<?php
+
+return [
+    'enabled' => true,
+    'inventory_path' => 'resources/migration/legacy-urls.tsv',
+];
+```
+
+The inventory path must remain under the selected client's:
+
+```text
+resources/migration/
+```
+
+and currently uses TSV format.
+
+The scaffold creates:
+
+```text
+resources/migration/legacy-urls.tsv
+```
+
+with columns:
+
+```text
+path	outcome	target	notes
+```
+
+The migration plan does not own runtime redirects. Redirected inventory entries must match `site.seo.redirects`.
+
+When migration auditing is enabled, `setup:validate` includes migration coverage errors.
+
+See:
+
+```text
+docs/architecture/old-platform-migration.md
+```
+
 ## Public pages
 
 Static public page definitions belong under:
@@ -419,7 +468,8 @@ The validator checks structural/configuration contracts including:
 - page paths and page contracts are valid;
 - registered reusable section views exist;
 - site identity, navigation, shell, and theme contracts are valid;
-- site-wide SEO boolean and redirect contracts are valid.
+- site-wide SEO boolean and redirect contracts are valid;
+- enabled old-platform migration inventory and cutover coverage are complete.
 
 The validator does not test external provider connectivity or make client-specific business/content assertions.
 

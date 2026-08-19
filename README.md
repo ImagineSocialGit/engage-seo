@@ -32,6 +32,7 @@ See:
 
 ```text
 docs/README.md
+docs/architecture/old-platform-migration.md
 docs/architecture/platform-boundaries.md
 docs/architecture/public-rendering.md
 docs/architecture/seo-infrastructure.md
@@ -105,13 +106,13 @@ The platform provides generic semantic header/navigation/footer rendering and ne
 Clients configure:
 
 ```text
-site name
-brand logo reference
-navigation
-primary CTA
-footer navigation
-shell enablement
-semantic theme-token overrides
+site name and brand
+optional business/contact identity
+utility/compliance bar
+navigation and primary CTA
+structured footer groups and conversion CTA
+legal/disclosure content
+semantic shell/theme-token overrides
 ```
 
 Theme configuration maps to a fixed set of CSS custom properties rather than storing large Tailwind class strings in PHP config.
@@ -159,6 +160,24 @@ See:
 docs/architecture/seo-infrastructure.md
 ```
 
+## Old-platform SEO migration
+
+Clients replacing an existing public site can enable a source-controlled legacy URL inventory and audit every known path before cutover.
+
+Run:
+
+```bash
+php artisan seo:migration:audit
+```
+
+Every legacy URL is classified as preserved, redirected, retired, or unaccounted. Redirected entries are verified against the existing `site.seo.redirects` runtime configuration so migration planning does not create a second redirect authority.
+
+See:
+
+```text
+docs/architecture/old-platform-migration.md
+```
+
 ## Development database operations
 
 Local destructive scripts require:
@@ -184,6 +203,6 @@ Both refuse to operate without a selected client and the required safety gates.
 
 ## Current implementation status
 
-The foundation currently establishes client selection/configuration, explicit root/client environment ownership, Feature/Vertical composition, client scaffolding, setup validation, config-owned public page rendering, normalized metadata/section contracts, explicit client view seams, a normalized public site shell/theme contract, production-gated indexing, dynamic robots/sitemap output, redirects, JSON-LD contribution seams, documentation, and safe local database lifecycle tooling.
+The foundation currently establishes client selection/configuration, explicit root/client environment ownership, Feature/Vertical composition, client scaffolding, setup validation, config-owned public page rendering, normalized metadata/section contracts, explicit client view seams, reusable public sections, responsive static media, a normalized business site shell/theme contract, production-gated indexing, dynamic robots/sitemap output, redirects, JSON-LD contribution seams, old-platform SEO migration auditing, documentation, and safe local database lifecycle tooling.
 
-Richer reusable section components, media pipelines, CMS Features, and Engage Core integration implementations are intentionally added in later slices.
+CMS Features, vertical defaults, and Engage Core integration implementations are intentionally added in later slices.
