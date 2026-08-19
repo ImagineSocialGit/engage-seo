@@ -4,6 +4,8 @@ namespace App\Support\SetupValidation;
 
 use App\Support\Clients\ClientEnvironmentDefinition;
 use App\Support\Features\FeatureManager;
+use App\Support\Media\MediaManifestRepository;
+use App\Support\Media\MediaUrlResolver;
 use App\Support\Pages\PageRepository;
 use App\Support\Sections\SectionManager;
 use App\Support\Seo\RedirectRepository;
@@ -25,6 +27,8 @@ final class ClientSetupValidator
         private readonly SitePresentationResolver $sitePresentation,
         private readonly SeoIndexingPolicy $seoIndexing,
         private readonly RedirectRepository $redirects,
+        private readonly MediaUrlResolver $mediaUrls,
+        private readonly MediaManifestRepository $mediaManifest,
     ) {
     }
 
@@ -138,6 +142,8 @@ final class ClientSetupValidator
             ...$this->sitePresentation->validationErrors(),
             ...$this->seoIndexing->validationErrors(),
             ...$this->redirects->validationErrors(),
+            ...$this->mediaUrls->validationErrors(),
+            ...$this->mediaManifest->validationErrors($basePath),
         ];
 
         $rootEnvironmentPath = rtrim($basePath, DIRECTORY_SEPARATOR)
