@@ -89,6 +89,73 @@ Validate the complete selected-client foundation:
 php artisan setup:validate
 ```
 
+## Staging and production deployments
+
+A single client repository may be deployed to both staging and production, but the real environment files are separate runtime state.
+
+Standard topology:
+
+```text
+STAGING
+Engage SEO Sites: staging.domain.com
+Engage Core CRM:  crm.staging.domain.com
+
+PRODUCTION
+Engage SEO Sites: domain.com
+Engage Core CRM:  crm.domain.com
+```
+
+The hostname pattern may vary for a particular client. The required invariant is:
+
+```text
+staging Engage SEO Sites -> staging Engage Core only
+production Engage SEO Sites -> production Engage Core only
+```
+
+Do not copy a real staging `clients/[CLIENT_KEY]/.env` into production. Do not copy a real production `.env` into staging. Build each environment's real file independently from the committed `.env.example` template.
+
+Current staging root/client examples:
+
+```env
+# platform root .env
+APP_ENV=staging
+CLIENT_KEY=[CLIENT_KEY]
+
+# clients/[CLIENT_KEY]/.env
+APP_URL=https://staging.domain.com
+DB_DATABASE=client_staging
+DB_USERNAME=client_staging
+DB_PASSWORD=...
+CACHE_PREFIX=client-staging-cache-
+REDIS_PREFIX=client-staging-
+```
+
+Current production root/client examples:
+
+```env
+# platform root .env
+APP_ENV=production
+CLIENT_KEY=[CLIENT_KEY]
+
+# clients/[CLIENT_KEY]/.env
+APP_URL=https://domain.com
+DB_DATABASE=client
+DB_USERNAME=client
+DB_PASSWORD=...
+CACHE_PREFIX=client-production-cache-
+REDIS_PREFIX=client-production-
+```
+
+Engage SEO Sites does not yet implement Core server-to-server destination/credential variables. When that integration is added, staging and production destinations and credentials must be issued separately, must remain runtime-only, and must be added to setup validation using the real Core contract. The human-facing CRM hostname must not be assumed to be the API base.
+
+See:
+
+```text
+docs/operations/environment-pairing.md
+```
+
+for the canonical pairing and promotion rules.
+
 ## Root/client environment ownership
 
 Root `.env` owns machine/process values such as:
@@ -116,6 +183,8 @@ SESSION_DOMAIN
 ```
 
 Do not duplicate a selected-client-owned key in root `.env`.
+
+Do not promote real environment files between staging and production. Client content/configuration may move through Git/deployment, but runtime URLs, database credentials/namespaces, and future external-integration destinations/credentials must be populated per environment.
 
 The selected-client loader explicitly clears stale values for registered client-owned keys before applying `clients/[CLIENT_KEY]/.env`.
 

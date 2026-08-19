@@ -1,5 +1,6 @@
 <?php
 
+use App\Features\Locations\LocationsServiceProvider;
 use App\Features\Services\ServicesServiceProvider;
 
 return [
@@ -25,6 +26,9 @@ return [
     'available' => [
         'services' => [
             'provider' => ServicesServiceProvider::class,
+        ],
+        'locations' => [
+            'provider' => LocationsServiceProvider::class,
         ],
     ],
 

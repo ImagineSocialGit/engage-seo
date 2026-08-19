@@ -67,6 +67,36 @@ Do not keep selected-client-owned keys in root `.env` once a client is selected.
 
 New client-owned environment keys are added only when a platform Feature or integration establishes and documents the corresponding runtime seam.
 
+## Staging and production environment pairing
+
+The same client repository may be deployed to staging and production, but each deployment owns its own real runtime environment files.
+
+The standard public topology is:
+
+```text
+staging Engage SEO Sites:     staging.domain.com
+production Engage SEO Sites:  domain.com
+```
+
+When Engage SEO Sites integrates with Engage Core, environment pairing is mandatory:
+
+```text
+staging SEO -> staging Core only
+production SEO -> production Core only
+```
+
+Real `.env` files are deployment state. They are not site content/configuration state and must not be promoted from staging to production or copied from production into staging.
+
+The current executable SEO platform does not yet define Core API destination or credential environment variables. Do not invent those names or derive an API base from the human-facing CRM hostname. When the Core integration seam is implemented, its actual runtime keys must be registered as client-owned environment keys and validated against the concrete contract.
+
+See:
+
+```text
+docs/operations/environment-pairing.md
+```
+
+for the canonical domain examples, current root/client variable ownership, promotion rules, and future integration hardening boundary.
+
 ## Configuration cache behavior
 
 A cached Laravel configuration contains the fully resolved selected-client environment and merged PHP configuration from the client that was active when the cache was built.
@@ -150,6 +180,7 @@ return [
     'enabled' => [
         // 'blog',
         // 'services',
+        // 'locations',
     ],
 
     'disabled' => [
@@ -190,6 +221,26 @@ docs/features/services.md
 ```
 
 for the catalog, section, validation, link, media, and persistence contracts.
+
+### Locations Feature configuration
+
+When the reusable `locations` Feature is enabled, client-owned geographic catalog configuration may live at:
+
+```text
+clients/[CLIENT_KEY]/config/features/locations.php
+```
+
+This file defines stable location/group keys plus client-owned address, fact, image, and link presentation data. A location may represent a physical location or a service area; physical address lines are optional.
+
+The Locations Feature registers the reusable `locations` page section only while the Feature is enabled. Public location-detail URL ownership remains with ordinary configured pages.
+
+See:
+
+```text
+docs/features/locations.md
+```
+
+for the catalog, grouping, address, section, validation, media, link, and public-page ownership contracts.
 
 ## Verticals
 
@@ -492,9 +543,10 @@ The validator checks structural/configuration contracts including:
 - registered reusable section views exist;
 - site identity, navigation, shell, and theme contracts are valid;
 - site-wide SEO boolean and redirect contracts are valid;
-- enabled old-platform migration inventory and cutover coverage are complete.
+- enabled old-platform migration inventory and cutover coverage are complete;
+- enabled Feature-contributed contracts such as Services and Locations are valid.
 
-The validator does not test external provider connectivity or make client-specific business/content assertions.
+The validator does not test external provider connectivity or make client-specific business/content assertions. It also cannot yet detect an SEO-to-Core environment mismatch because no executable Core integration destination/credential contract exists in Engage SEO Sites. That validation belongs with the future concrete integration seam.
 
 ## Future client override seams
 

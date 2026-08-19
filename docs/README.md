@@ -18,6 +18,7 @@ docs/
         site-shell-theme.md
 
     features/
+        locations.md
         services.md
 
     configuration/
@@ -25,6 +26,7 @@ docs/
 
     operations/
         client-lifecycle.md
+        environment-pairing.md
 ```
 
 Use:
@@ -55,6 +57,7 @@ The platform foundation establishes:
 - old-platform SEO migration inventory and cutover coverage auditing;
 - manifest-driven static client media with responsive AVIF/WebP generation and provider-neutral public URL resolution;
 - a reusable public section library for common content, conversion, process, media, proof, review, and FAQ patterns;
-- the first concrete reusable Feature: a configuration-backed Services catalog with shared setup-validation contribution support.
+- reusable configuration-backed Services and Locations catalogs using the shared Feature/setup-validation contribution seams;
+- explicit Engage SEO Sites staging/production environment-pairing and runtime-credential promotion rules.
 
-Database-backed CMS editing, additional Features, vertical presets, and Engage Core integrations remain later slices.
+Database-backed CMS editing, additional Features, vertical presets, and the executable Engage Core integration contract remain later slices.

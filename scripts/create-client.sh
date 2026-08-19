@@ -208,6 +208,10 @@ cat > "$TEMP_CLIENT_DIR/.env.example" <<'EOF_ENV'
 # This file contains runtime values that should follow the selected CLIENT_KEY.
 # Do not commit the real .env file.
 #
+# Staging and production each create their own real .env from this template.
+# Never promote/copy a populated .env between environments. Future external
+# integration destinations and credentials are runtime-specific too.
+#
 # Root .env owns:
 #   CLIENT_KEY
 #   APP_ENV / APP_DEBUG / APP_KEY
@@ -278,6 +282,21 @@ Engage SEO client repository.
 - Client key: \`$CLIENT_KEY\`
 - Timezone: \`$CLIENT_TIMEZONE\`
 - Vertical: \`${VERTICAL_KEY:-none}\`
+
+## Deployment environments
+
+The same client repository may be deployed to staging and production, but each deployment creates and owns its own real \`.env\`.
+
+Standard public topology:
+
+\`\`\`text
+staging Engage SEO Sites:     staging.domain.com
+production Engage SEO Sites:  domain.com
+\`\`\`
+
+When an Engage Core integration exists, staging Engage SEO Sites must use only staging Core and production Engage SEO Sites must use only production Core. Integration destinations and credentials are runtime-specific and must never be promoted as client content/configuration state.
+
+The current SEO platform does not yet define Core API destination or credential variables; do not invent them from CRM hostnames. Follow the platform's current environment-pairing documentation when that integration seam is added.
 
 ## Local setup
 
@@ -369,7 +388,13 @@ Engage SEO client repository.
 : Source-controlled legacy URL inventory used when replacing an existing public site.
 
 \`.env\`
-: Deployment-specific client values and secrets; never commit it.
+: Deployment-specific client values and secrets; never commit it and never copy a populated file between staging and production.
+
+For staging/production environment ownership and Engage Core pairing rules, follow the platform document:
+
+\`\`\`text
+docs/operations/environment-pairing.md
+\`\`\`
 
 This repository should use documented Engage SEO override/integration seams. Do not duplicate platform or Engage Core responsibilities inside the client repository.
 EOF_README
