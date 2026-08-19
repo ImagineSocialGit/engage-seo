@@ -5,9 +5,15 @@
 │   │       ├── AuditSeoMigrationCommand.php
 │   │       └── ValidateSetupCommand.php
 │   ├── Contracts
-│   │   └── Seo
-│   │       ├── SitemapContributor.php
-│   │       └── StructuredDataContributor.php
+│   │   ├── Seo
+│   │   │   ├── SitemapContributor.php
+│   │   │   └── StructuredDataContributor.php
+│   │   └── SetupValidation
+│   │       └── SetupValidationContributor.php
+│   ├── Features
+│   │   └── Services
+│   │       ├── ServiceCatalog.php
+│   │       └── ServicesServiceProvider.php
 │   ├── Http
 │   │   └── Controllers
 │   │       ├── Controller.php
@@ -49,6 +55,7 @@
 │   │   │   └── StructuredDataResolver.php
 │   │   ├── SetupValidation
 │   │   │   ├── ClientSetupValidator.php
+│   │   │   ├── SetupValidationRegistry.php
 │   │   │   └── SetupValidationResult.php
 │   │   ├── Site
 │   │   │   ├── BusinessPresentationResolver.php
@@ -81,6 +88,8 @@
 │   ├── cache.php
 │   ├── client.php
 │   ├── database.php
+│   ├── features
+│   │   └── services.php
 │   ├── features.php
 │   ├── filesystems.php
 │   ├── logging.php
@@ -116,6 +125,8 @@
 │   │   └── site-shell-theme.md
 │   ├── configuration
 │   │   └── client-configuration.md
+│   ├── features
+│   │   └── services.md
 │   ├── operations
 │   │   └── client-lifecycle.md
 │   └── README.md
@@ -147,6 +158,9 @@
 │       │   ├── responsive-image.blade.php
 │       │   ├── section-actions.blade.php
 │       │   └── section-image.blade.php
+│       ├── features
+│       │   └── services
+│       │       └── catalog.blade.php
 │       ├── pages
 │       │   └── public.blade.php
 │       ├── sections
@@ -184,6 +198,7 @@
 │   │       ├── PublicPageRenderingFoundationTest.php
 │   │       ├── ReusableSectionsFoundationTest.php
 │   │       ├── SeoInfrastructureFoundationTest.php
+│   │       ├── ServicesFeatureFoundationTest.php
 │   │       └── SiteShellFoundationTest.php
 │   ├── TestCase.php
 │   └── Unit
@@ -194,4 +209,4 @@
 │           └── ConfigMergerTest.php
 └── vite.config.js
 
-57 directories, 138 files
+64 directories, 146 files

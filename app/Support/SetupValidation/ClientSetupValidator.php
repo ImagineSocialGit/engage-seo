@@ -31,6 +31,7 @@ final class ClientSetupValidator
         private readonly SeoMigrationAuditor $seoMigration,
         private readonly MediaUrlResolver $mediaUrls,
         private readonly MediaManifestRepository $mediaManifest,
+        private readonly SetupValidationRegistry $setupValidation,
     ) {
     }
 
@@ -147,6 +148,7 @@ final class ClientSetupValidator
             ...$this->seoMigration->validationErrors($basePath),
             ...$this->mediaUrls->validationErrors(),
             ...$this->mediaManifest->validationErrors($basePath),
+            ...$this->setupValidation->validationErrors($basePath),
         ];
 
         $rootEnvironmentPath = rtrim($basePath, DIRECTORY_SEPARATOR)

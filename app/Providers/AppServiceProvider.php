@@ -17,6 +17,7 @@ use App\Support\Seo\SeoIndexingPolicy;
 use App\Support\Seo\SitemapBuilder;
 use App\Support\Seo\StructuredDataResolver;
 use App\Support\SetupValidation\ClientSetupValidator;
+use App\Support\SetupValidation\SetupValidationRegistry;
 use App\Support\Site\SitePresentationResolver;
 use App\Support\Verticals\VerticalManager;
 use App\Support\Views\ClientViewNamespaceRegistrar;
@@ -43,6 +44,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(SitePresentationResolver::class);
         $this->app->singleton(ClientViewNamespaceRegistrar::class);
         $this->app->singleton(PageViewResolver::class);
+        $this->app->singleton(SetupValidationRegistry::class);
         $this->app->singleton(ClientSetupValidator::class);
 
         $this->app->make(ClientConfigLoader::class)->load();

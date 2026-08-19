@@ -168,6 +168,29 @@ selected vertical default Features
 
 Unknown Features fail validation rather than being silently ignored.
 
+### Services Feature configuration
+
+When the reusable `services` Feature is enabled, client-owned catalog
+configuration may live at:
+
+```text
+clients/[CLIENT_KEY]/config/features/services.php
+```
+
+This file defines stable service/group keys and client-owned presentation data.
+The platform does not hardcode industry terminology.
+
+The Services Feature registers the reusable `services` page section only while
+the Feature is enabled.
+
+See:
+
+```text
+docs/features/services.md
+```
+
+for the catalog, section, validation, link, media, and persistence contracts.
+
 ## Verticals
 
 The client selects a vertical through:

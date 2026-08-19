@@ -1,5 +1,7 @@
 <?php
 
+use App\Features\Services\ServicesServiceProvider;
+
 return [
 
     /*
@@ -21,7 +23,9 @@ return [
     */
 
     'available' => [
-        // Added as reusable features are implemented.
+        'services' => [
+            'provider' => ServicesServiceProvider::class,
+        ],
     ],
 
     'enabled' => [],

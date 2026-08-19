@@ -17,6 +17,9 @@ docs/
         seo-infrastructure.md
         site-shell-theme.md
 
+    features/
+        services.md
+
     configuration/
         client-configuration.md
 
@@ -27,6 +30,7 @@ docs/
 Use:
 
 - `architecture/` for durable ownership and dependency rules;
+- `features/` for reusable Feature ownership and public runtime contracts;
 - `configuration/` for supported configuration shapes and precedence;
 - `operations/` for repeatable local, staging, deployment, reset, and client-management procedures.
 
@@ -50,6 +54,7 @@ The platform foundation establishes:
 - production-gated indexing, dynamic robots/sitemap output, redirects, page JSON-LD, and Feature SEO contribution seams;
 - old-platform SEO migration inventory and cutover coverage auditing;
 - manifest-driven static client media with responsive AVIF/WebP generation and provider-neutral public URL resolution;
-- a reusable public section library for common content, conversion, process, media, proof, review, and FAQ patterns.
+- a reusable public section library for common content, conversion, process, media, proof, review, and FAQ patterns;
+- the first concrete reusable Feature: a configuration-backed Services catalog with shared setup-validation contribution support.
 
-CMS Features, vertical presets, and Engage Core integrations remain later slices.
+Database-backed CMS editing, additional Features, vertical presets, and Engage Core integrations remain later slices.
