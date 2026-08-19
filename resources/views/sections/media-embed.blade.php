@@ -2,7 +2,7 @@
     $eyebrow = $eyebrow ?? null;
     $title = $title ?? null;
     $content = $content ?? null;
-    $bullets = is_array($bullets ?? null) ? $bullets : [];
+    $embed = $embed ?? null;
     $actions = is_array($actions ?? null) ? $actions : [];
     $themeName = $theme ?? 'default';
     $layoutName = $layout ?? 'default';
@@ -10,13 +10,13 @@
 
 <section
     @if($id) id="{{ $id }}" @endif
-    class="section section-content"
-    data-section-component="content"
+    class="section section-media-embed"
+    data-section-component="media-embed"
     data-section-theme="{{ $themeName }}"
     data-section-layout="{{ $layoutName }}"
 >
-    <div class="site-container section__container">
-        <div class="section__body">
+    <div class="site-container section-media-embed__grid">
+        <div class="section-media-embed__content">
             @if(is_string($eyebrow) && trim($eyebrow) !== '')
                 <p class="section__eyebrow">{{ $eyebrow }}</p>
             @endif
@@ -39,17 +39,23 @@
                 </div>
             @endif
 
-            @if($bullets !== [])
-                <ul class="section__list">
-                    @foreach($bullets as $bullet)
-                        @if(is_string($bullet) && trim($bullet) !== '')
-                            <li>{{ $bullet }}</li>
-                        @endif
-                    @endforeach
-                </ul>
-            @endif
-
             <x-section-actions :actions="$actions" />
         </div>
+
+        @if($embed !== null)
+            @if(! is_array($embed))
+                @php
+                    throw new \InvalidArgumentException('Section media embed [embed] must be null or an array.');
+                @endphp
+            @endif
+
+            <div class="section-media-embed__media">
+                <x-embed-frame
+                    :src="$embed['src'] ?? ''"
+                    :title="$embed['title'] ?? ''"
+                    :loading="$embed['loading'] ?? 'lazy'"
+                />
+            </div>
+        @endif
     </div>
 </section>

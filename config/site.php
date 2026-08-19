@@ -63,6 +63,16 @@ return [
             'primary_contrast' => '#ffffff',
             'border' => '#e5e7eb',
             'focus' => '#2563eb',
+
+            /*
+             * Contrasting section palette used by semantic `inverse` section
+             * themes. Clients may override these without supplying CSS classes.
+             */
+            'inverse_background' => '#111827',
+            'inverse_surface' => '#1f2937',
+            'inverse_text' => '#ffffff',
+            'inverse_muted' => '#d1d5db',
+            'inverse_border' => '#374151',
         ],
 
         'typography' => [

@@ -4,19 +4,20 @@
     $content = $content ?? null;
     $bullets = is_array($bullets ?? null) ? $bullets : [];
     $actions = is_array($actions ?? null) ? $actions : [];
+    $media = $media ?? null;
     $themeName = $theme ?? 'default';
     $layoutName = $layout ?? 'default';
 @endphp
 
 <section
     @if($id) id="{{ $id }}" @endif
-    class="section section-content"
-    data-section-component="content"
+    class="section section-content-split"
+    data-section-component="content-split"
     data-section-theme="{{ $themeName }}"
     data-section-layout="{{ $layoutName }}"
 >
-    <div class="site-container section__container">
-        <div class="section__body">
+    <div class="site-container section-content-split__grid">
+        <div class="section-content-split__content">
             @if(is_string($eyebrow) && trim($eyebrow) !== '')
                 <p class="section__eyebrow">{{ $eyebrow }}</p>
             @endif
@@ -51,5 +52,11 @@
 
             <x-section-actions :actions="$actions" />
         </div>
+
+        @if(is_array($media))
+            <div class="section-content-split__media">
+                <x-section-image :image="$media" />
+            </div>
+        @endif
     </div>
 </section>

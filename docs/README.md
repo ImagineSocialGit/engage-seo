@@ -12,6 +12,7 @@ docs/
         media-images.md
         platform-boundaries.md
         public-rendering.md
+        reusable-sections.md
         seo-infrastructure.md
         site-shell-theme.md
 
@@ -46,6 +47,7 @@ The platform foundation establishes:
 - explicit public page/section client view seams;
 - normalized public site identity, shell, navigation, footer, and semantic theme-token contracts;
 - production-gated indexing, dynamic robots/sitemap output, redirects, page JSON-LD, and Feature SEO contribution seams;
-- manifest-driven static client media with responsive AVIF/WebP generation and provider-neutral public URL resolution.
+- manifest-driven static client media with responsive AVIF/WebP generation and provider-neutral public URL resolution;
+- a reusable public section library for common content, conversion, process, media, proof, review, and FAQ patterns.
 
-Richer reusable section components, CMS Features, and Engage Core integrations remain later slices.
+CMS Features, richer shell/business-data contracts, vertical presets, and Engage Core integrations remain later slices.

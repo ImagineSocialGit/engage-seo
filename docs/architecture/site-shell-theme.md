@@ -185,6 +185,11 @@ colors.primary
 colors.primary_contrast
 colors.border
 colors.focus
+colors.inverse_background
+colors.inverse_surface
+colors.inverse_text
+colors.inverse_muted
+colors.inverse_border
 
 typography.body_font_family
 typography.heading_font_family
@@ -205,6 +210,10 @@ The resolver maps these fixed tokens to fixed CSS custom properties such as:
 ```
 
 Client configuration does not choose arbitrary CSS variable names.
+
+The inverse color tokens provide a semantic contrasting palette for reusable
+sections such as a dark hero on an otherwise light site. Section configuration
+selects semantic themes; it does not inject presentation classes.
 
 Theme token values must be non-blank strings and may not contain characters that could break out of the CSS declaration.
 

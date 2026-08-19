@@ -175,18 +175,44 @@ Platform section keys are registered in:
 config/sections.php
 ```
 
-The first foundation primitive is:
+The reusable platform library currently includes:
 
 ```text
 content
+hero
+content-split
+card-grid
+steps
+cta
+media-embed
+stats
+testimonials
+faq
 ```
 
-Unknown section keys or registered keys whose platform view is missing fail as
+Each registered component declares its platform view and supported layout names.
+Shared semantic section themes are registered separately.
+
+`PageRepository` validates configured theme/layout combinations before launch
+through `setup:validate` and enforces the same contract while normalizing pages
+at runtime.
+
+Unknown section keys, unsupported theme/layout combinations, malformed registry
+definitions, or registered keys whose platform view is missing fail as
 configuration/runtime errors. Public pages never emit debug banners describing
 missing Blade files.
 
-More section components should be added only when real client requirements
-establish their reusable contract.
+The `overrides` field remains part of the normalized section envelope for
+explicit client section overrides. Shared platform sections do not interpret it
+as arbitrary CSS/Tailwind configuration.
+
+See:
+
+```text
+docs/architecture/reusable-sections.md
+```
+
+for the reusable section contracts and presentation boundary.
 
 ## Client view seam
 

@@ -166,11 +166,51 @@ final class PageRepository
                 }
 
                 $component = $section['component'] ?? null;
+                $componentIsRegistered = false;
 
                 if (! is_string($component) || trim($component) === '') {
                     $errors[] = "Page [{$key}] section [{$index}] is missing [component].";
-                } elseif (! $this->sections->registered($component)) {
-                    $errors[] = "Page [{$key}] section [{$index}] references unknown component [{$component}].";
+                } else {
+                    $component = trim($component);
+                    $componentIsRegistered = $this->sections->registered($component);
+
+                    if (! $componentIsRegistered) {
+                        $errors[] = "Page [{$key}] section [{$index}] references unknown component [{$component}].";
+                    }
+                }
+
+                $sectionStringTypesValid = true;
+
+                foreach (['id', 'theme', 'layout'] as $stringKey) {
+                    if (! array_key_exists($stringKey, $section)) {
+                        continue;
+                    }
+
+                    $value = $section[$stringKey];
+
+                    if ($value !== null && ! is_string($value)) {
+                        $errors[] = "Page [{$key}] section [{$index}] [{$stringKey}] must be null or a string.";
+                        $sectionStringTypesValid = false;
+                    }
+                }
+
+                if ($componentIsRegistered && $sectionStringTypesValid) {
+                    $theme = $this->nullableString(
+                        $section['theme'] ?? null,
+                        'Page section [theme]',
+                    );
+                    $layout = $this->nullableString(
+                        $section['layout'] ?? null,
+                        'Page section [layout]',
+                    );
+
+                    if (! $this->sections->supportsTheme($component, $theme)) {
+                        $errors[] = "Page [{$key}] section [{$index}] uses unsupported theme [{$theme}] for component [{$component}].";
+                    }
+
+                    if (! $this->sections->supportsLayout($component, $layout)) {
+                        $errors[] = "Page [{$key}] section [{$index}] uses unsupported layout [{$layout}] for component [{$component}].";
+                    }
                 }
 
                 foreach (['props', 'overrides'] as $arrayKey) {
@@ -262,11 +302,36 @@ final class PageRepository
             );
         }
 
+        $id = $this->nullableString(
+            $section['id'] ?? null,
+            'Page section [id]',
+        );
+        $theme = $this->nullableString(
+            $section['theme'] ?? null,
+            'Page section [theme]',
+        );
+        $layout = $this->nullableString(
+            $section['layout'] ?? null,
+            'Page section [layout]',
+        );
+
+        if (! $this->sections->supportsTheme($component, $theme)) {
+            throw new InvalidArgumentException(
+                "Unsupported Engage SEO section theme [{$theme}] for component [{$component}]."
+            );
+        }
+
+        if (! $this->sections->supportsLayout($component, $layout)) {
+            throw new InvalidArgumentException(
+                "Unsupported Engage SEO section layout [{$layout}] for component [{$component}]."
+            );
+        }
+
         return [
-            'id' => $this->nullableString($section['id'] ?? null),
+            'id' => $id,
             'component' => $component,
-            'theme' => $this->nullableString($section['theme'] ?? null),
-            'layout' => $this->nullableString($section['layout'] ?? null),
+            'theme' => $theme,
+            'layout' => $layout,
             'overrides' => $overrides,
             'props' => $props,
         ];
@@ -295,10 +360,18 @@ final class PageRepository
         return '/'.trim($path, '/');
     }
 
-    private function nullableString(mixed $value): ?string
-    {
-        if (! is_string($value)) {
+    private function nullableString(
+        mixed $value,
+        string $context,
+    ): ?string {
+        if ($value === null) {
             return null;
+        }
+
+        if (! is_string($value)) {
+            throw new InvalidArgumentException(
+                "{$context} must be null or a string."
+            );
         }
 
         $value = trim($value);

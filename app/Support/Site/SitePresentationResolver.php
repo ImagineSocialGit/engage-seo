@@ -19,6 +19,11 @@ final class SitePresentationResolver
             'primary_contrast' => '--site-color-primary-contrast',
             'border' => '--site-color-border',
             'focus' => '--site-color-focus',
+            'inverse_background' => '--site-color-inverse-background',
+            'inverse_surface' => '--site-color-inverse-surface',
+            'inverse_text' => '--site-color-inverse-text',
+            'inverse_muted' => '--site-color-inverse-muted',
+            'inverse_border' => '--site-color-inverse-border',
         ],
         'typography' => [
             'body_font_family' => '--site-font-body',
