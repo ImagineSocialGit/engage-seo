@@ -190,62 +190,70 @@ Unknown Verticals fail validation.
 
 ## Public site shell
 
-Every client scaffold includes:
+The selected client owns public site presentation data in:
 
 ```text
 clients/[CLIENT_KEY]/config/site.php
 ```
 
-This file owns client-specific public presentation data such as:
+This includes:
 
 ```text
-site name
-logo reference and alt fallback
-header/navigation/footer preferences
-navigation items and primary CTA
+site/brand identity
+optional reusable business/contact identity
+utility/compliance bar data
+header/navigation preferences
+structured footer groups, CTA, legal/disclosure text
+social links
+semantic shell themes
 semantic theme-token overrides
+SEO launch/defaults/redirect configuration
 ```
 
-The effective site name resolves from:
-
-```text
-site.name
-client.name
-app.name
-```
-
-A minimal client shape is:
+Example shell shape:
 
 ```php
-<?php
-
-return [
-    'name' => '[CLIENT]',
-
-    'brand' => [
-        'logo' => null,
-        'logo_alt' => null,
+'business' => [
+    'phone' => null,
+    'email' => null,
+    'address' => [
+        'lines' => [],
+        'url' => null,
+        'new_tab' => false,
     ],
+    'social_links' => [],
+],
 
-    'shell' => [
-        'navigation' => [
-            'items' => [
-            ],
-
-            'primary_cta' => null,
-        ],
-
-        'footer' => [
-            'items' => [
-            ],
+'shell' => [
+    'utility_bar' => [
+        'enabled' => false,
+        'theme' => 'inverse',
+        'items' => [],
+    ],
+    'header' => [
+        'enabled' => true,
+        'theme' => 'default',
+    ],
+    'navigation' => [
+        'items' => [],
+        'primary_cta' => null,
+    ],
+    'footer' => [
+        'theme' => 'default',
+        'intro' => null,
+        'groups' => [],
+        'cta' => null,
+        'legal' => [
+            'lines' => [],
+            'links' => [],
         ],
     ],
-];
+],
 ```
 
-The platform provides neutral theme defaults. Clients override only the semantic tokens they need.
+The business shell contract is generic. Client/industry-specific licensing, compliance wording, addresses, CTA copy, and social destinations remain client-owned values.
 
-Do not put large Tailwind class strings into client theme configuration.
+Link contracts may opt into `new_tab`; when they do, the platform renders safe opener isolation. External links are never forced into new tabs automatically.
 
 See:
 
@@ -253,7 +261,7 @@ See:
 docs/architecture/site-shell-theme.md
 ```
 
-for navigation, theme-token, and validation contracts.
+for the complete business identity, utility bar, navigation, footer, theme, URL, and validation contracts.
 
 ## SEO infrastructure
 

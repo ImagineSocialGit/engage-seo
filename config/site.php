@@ -8,6 +8,21 @@ return [
         'logo_alt' => null,
     ],
 
+    /*
+     * Reusable public business identity. These values are optional and are
+     * rendered only when a client configures them.
+     */
+    'business' => [
+        'phone' => null,
+        'email' => null,
+        'address' => [
+            'lines' => [],
+            'url' => null,
+            'new_tab' => false,
+        ],
+        'social_links' => [],
+    ],
+
     'seo' => [
         /*
          * Production indexing is an explicit launch switch.
@@ -37,8 +52,15 @@ return [
     ],
 
     'shell' => [
+        'utility_bar' => [
+            'enabled' => false,
+            'theme' => 'inverse',
+            'items' => [],
+        ],
+
         'header' => [
             'enabled' => true,
+            'theme' => 'default',
         ],
 
         'navigation' => [
@@ -49,7 +71,14 @@ return [
 
         'footer' => [
             'enabled' => true,
-            'items' => [],
+            'theme' => 'default',
+            'intro' => null,
+            'groups' => [],
+            'cta' => null,
+            'legal' => [
+                'lines' => [],
+                'links' => [],
+            ],
         ],
     ],
 
@@ -65,7 +94,7 @@ return [
             'focus' => '#2563eb',
 
             /*
-             * Contrasting section palette used by semantic `inverse` section
+             * Contrasting section/shell palette used by semantic `inverse`
              * themes. Clients may override these without supplying CSS classes.
              */
             'inverse_background' => '#111827',

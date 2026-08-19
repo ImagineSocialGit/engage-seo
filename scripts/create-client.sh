@@ -136,6 +136,17 @@ return [
         'logo_alt' => null,
     ],
 
+    'business' => [
+        'phone' => null,
+        'email' => null,
+        'address' => [
+            'lines' => [],
+            'url' => null,
+            'new_tab' => false,
+        ],
+        'social_links' => [],
+    ],
+
     'seo' => [
         // Enable only when the production site is ready to be indexed.
         'indexing_enabled' => false,
@@ -145,6 +156,18 @@ return [
     ],
 
     'shell' => [
+        'utility_bar' => [
+            'enabled' => false,
+            'theme' => 'inverse',
+            'items' => [
+            ],
+        ],
+
+        'header' => [
+            'enabled' => true,
+            'theme' => 'default',
+        ],
+
         'navigation' => [
             'items' => [
             ],
@@ -153,7 +176,16 @@ return [
         ],
 
         'footer' => [
-            'items' => [
+            'theme' => 'default',
+            'intro' => null,
+            'groups' => [
+            ],
+            'cta' => null,
+            'legal' => [
+                'lines' => [
+                ],
+                'links' => [
+                ],
             ],
         ],
     ],
@@ -181,7 +213,7 @@ cat > "$TEMP_CLIENT_DIR/.env.example" <<'EOF_ENV'
 #   stable client timezone
 #   optional vertical
 #   enabled/disabled Features
-#   public site identity, shell, navigation, and theme overrides
+#   public site identity, business/contact data, shell, navigation, footer, and theme overrides
 #   public static page definitions
 
 ################################
@@ -292,7 +324,7 @@ Engage SEO client repository.
 : Explicit Feature additions/disables.
 
 \`config/site.php\`
-: Public site name, brand assets, shell/navigation/footer configuration, and optional semantic theme-token overrides.
+: Public site name, brand assets, business/contact data, utility/header/navigation/footer configuration, and optional semantic theme-token overrides.
 
 \`config/pages/*.php\`
 : Static public SEO/business page definitions.

@@ -21,6 +21,7 @@
         href="{{ $item['url'] }}"
         class="site-navigation-link"
         @if($item['active']) aria-current="page" @endif
+        @if($item['new_tab']) target="_blank" rel="noopener noreferrer" @endif
     >
         {{ $item['label'] }}
     </a>

@@ -4,14 +4,16 @@
 
 Engage SEO separates public-site structure and presentation configuration from client business content.
 
-The platform owns the shell contract:
+The platform owns a normalized shell contract for:
 
 ```text
 site identity
 brand asset references
-header visibility
-navigation structure
-footer visibility
+reusable business/contact identity
+utility/compliance bar
+header and navigation
+conversion-aware structured footer
+semantic shell/section themes
 semantic theme tokens
 ```
 
@@ -21,7 +23,7 @@ The selected client supplies configuration through:
 clients/{CLIENT_KEY}/config/site.php
 ```
 
-The shell is intentionally smaller than the legacy Slam Dunk theme system. Client configuration describes semantic values and navigation data. It does not store large Tailwind class strings or duplicate platform Blade structure.
+Client configuration describes data and semantic presentation choices. It does not store large Tailwind class strings or duplicate platform Blade structure.
 
 ## Runtime presentation contract
 
@@ -33,16 +35,30 @@ site
     brand
         logo
         logo_alt
+    business
+        phone
+        email
+        address
+        social_links
     shell
+        utility_bar
+            enabled
+            theme
+            items
         header
             enabled
+            theme
         navigation
             enabled
             items
             primary_cta
         footer
             enabled
-            items
+            theme
+            intro
+            groups
+            cta
+            legal
     theme
         colors
         typography
@@ -53,18 +69,9 @@ site
 
 `PublicPageController` passes this contract to the public page view alongside the normalized `page` contract.
 
-Client page-view overrides therefore receive both:
-
-```text
-$page
-$site
-```
-
 ## Site identity and brand
 
-`site.name` is optional.
-
-The effective public site name resolves in this order:
+`site.name` is optional. The effective site name resolves in this order:
 
 ```text
 site.name
@@ -72,7 +79,7 @@ client.name
 app.name
 ```
 
-The brand contract currently supports:
+The brand contract supports:
 
 ```php
 'brand' => [
@@ -81,91 +88,154 @@ The brand contract currently supports:
 ],
 ```
 
-`logo` may be:
+`logo` may be an absolute site path or an absolute HTTP/HTTPS URL. When `logo_alt` is blank or null, the effective site name is used.
 
-- an absolute site path beginning with `/`; or
-- an absolute `http` or `https` URL.
+## Business identity
 
-When `logo_alt` is blank or null, the effective site name is used.
+Reusable business/contact identity lives under `site.business` rather than being embedded directly in footer markup.
 
-Favicon and richer brand-asset metadata remain part of later SEO/media infrastructure rather than this shell foundation.
+All fields are optional:
+
+```php
+'business' => [
+    'phone' => [
+        'label' => '...',
+        'value' => '...',
+        'url' => 'tel:+15555555555',
+    ],
+    'email' => [
+        'label' => '...',
+        'value' => '...',
+        'url' => 'mailto:hello@example.com',
+    ],
+    'address' => [
+        'lines' => [
+            '...',
+            '...',
+        ],
+        'url' => 'https://maps.example.com/...',
+        'new_tab' => true,
+    ],
+    'social_links' => [
+        [
+            'label' => '...',
+            'url' => 'https://social.example/...',
+            'new_tab' => true,
+        ],
+    ],
+],
+```
+
+Phone links must use `tel:`. Email links must use `mailto:`. Social links are limited to HTTP/HTTPS.
+
+Business data is intentionally generic. Mortgage license numbers, contractor licenses, office disclosures, or similar industry-specific text do not belong in this contract merely because one client needs them. Those belong in the configurable utility/footer disclosure surfaces.
+
+## Utility/compliance bar
+
+The optional utility bar appears inside the public header above the primary header row.
+
+```php
+'utility_bar' => [
+    'enabled' => true,
+    'theme' => 'inverse',
+    'items' => [
+        [
+            'text' => '...',
+        ],
+        [
+            'label' => '...',
+            'url' => 'tel:+15555555555',
+        ],
+    ],
+],
+```
+
+An item is either plain text or a link, never both. This makes the bar suitable for licensing/disclosure text, contact shortcuts, or similarly compact business information without creating a mortgage-specific concept.
 
 ## Navigation
 
-Primary navigation configuration lives under:
+Primary navigation remains under `site.shell.navigation`.
 
-```text
-site.shell.navigation
-```
-
-A link item has this shape:
+Link items support:
 
 ```php
 [
     'label' => '...',
     'url' => '/about',
+    'new_tab' => false,
 ]
 ```
 
-A grouped item has this shape:
+Grouped items continue to use `children` instead of `url`.
 
-```php
-[
-    'label' => '...',
-    'children' => [
-        [
-            'label' => '...',
-            'url' => '/service-one',
-        ],
-    ],
-]
-```
+Allowed navigation URL types are absolute site paths, HTTP/HTTPS, `mailto:`, and `tel:`.
 
-An item uses either `url` or `children`, not both.
+`new_tab` is always explicit. When true, the platform renders `target="_blank"` with `rel="noopener noreferrer"`. The platform does not automatically force external links into new tabs.
 
-Navigation URLs may be:
+Internal links receive an `active` flag by comparing their path to the current request path. Absolute HTTP/HTTPS links are also normalized with an `external` flag by comparing their host to `APP_URL`.
+
+## Shell themes
+
+The utility bar, header, and footer support semantic shell themes:
 
 ```text
-/site-path
-https://external.example
-http://external.example
-mailto:...
-tel:...
+default
+inverse
 ```
 
-Other URL schemes are rejected.
+These map to the existing normal/inverse site color tokens. Client configuration selects the semantic theme name, not CSS classes or raw CSS variable names.
 
-The optional primary CTA uses the same link contract:
+## Structured footer
 
-```php
-'primary_cta' => [
-    'label' => '...',
-    'url' => '/contact',
-],
-```
-
-Internal navigation links are normalized with an `active` flag by comparing their URL path to the current public request path. Group items are active when any descendant is active.
-
-The platform header renders desktop and native `<details>`-based mobile navigation without requiring JavaScript.
-
-## Footer
-
-Footer visibility and navigation are configured separately:
+The footer is no longer a single flat navigation list. It supports business-site needs without encoding client-specific wording:
 
 ```php
 'footer' => [
     'enabled' => true,
-    'items' => [
-        // Same link/group contract as primary navigation.
+    'theme' => 'inverse',
+    'intro' => '...',
+    'groups' => [
+        [
+            'label' => '...',
+            'items' => [
+                [
+                    'label' => '...',
+                    'url' => '/...',
+                ],
+            ],
+        ],
+    ],
+    'cta' => [
+        'title' => '...',
+        'description' => '...',
+        'actions' => [
+            [
+                'label' => '...',
+                'url' => '/...',
+            ],
+        ],
+    ],
+    'legal' => [
+        'lines' => [
+            '...',
+        ],
+        'links' => [
+            [
+                'label' => '...',
+                'url' => '/privacy',
+            ],
+        ],
     ],
 ],
 ```
 
-The foundation does not invent client-specific footer copy, contact disclosures, social links, legal language, or business data. Those should be added only when real requirements establish a reusable contract.
+Footer groups require at least one link. A configured footer CTA requires a title and at least one action. Legal/disclosure lines remain plain escaped text; arbitrary HTML is not accepted.
+
+The platform footer also renders configured business contact/address/social data using semantic `address` and navigation landmarks where appropriate.
 
 ## Theme tokens
 
-Theme configuration is semantic:
+Theme configuration remains semantic:
 
 ```text
 colors
@@ -174,95 +244,56 @@ layout
 radius
 ```
 
-The current required tokens are:
+Current color tokens include the normal palette plus:
 
 ```text
-colors.background
-colors.surface
-colors.text
-colors.muted
-colors.primary
-colors.primary_contrast
-colors.border
-colors.focus
 colors.inverse_background
 colors.inverse_surface
 colors.inverse_text
 colors.inverse_muted
 colors.inverse_border
-
-typography.body_font_family
-typography.heading_font_family
-
-layout.content_max_width
-
-radius.control
-radius.surface
 ```
 
-The resolver maps these fixed tokens to fixed CSS custom properties such as:
-
-```text
---site-color-background
---site-color-primary
---site-font-body
---site-content-max-width
-```
-
-Client configuration does not choose arbitrary CSS variable names.
-
-The inverse color tokens provide a semantic contrasting palette for reusable
-sections such as a dark hero on an otherwise light site. Section configuration
-selects semantic themes; it does not inject presentation classes.
-
-Theme token values must be non-blank strings and may not contain characters that could break out of the CSS declaration.
+The resolver maps fixed configuration tokens to fixed CSS custom properties. Client configuration cannot define arbitrary custom-property names or inject CSS declarations through theme values.
 
 ## Client overrides
 
 Normal client customization should happen through `config/site.php`.
 
-The existing explicit client page-view override remains available:
+The explicit client public-page override remains:
 
 ```text
 clients/{CLIENT_KEY}/resources/views/pages/public.blade.php
 ```
 
-This foundation does not automatically replace platform header/footer/navigation Blade files from arbitrary client paths.
+Reusable section overrides remain:
 
-That is deliberate. A new presentation override seam should be added only when a real client requirement cannot be represented cleanly by the shared site contract.
+```text
+clients/{CLIENT_KEY}/resources/views/sections/{component}.blade.php
+```
+
+The platform does not automatically replace header/footer/layout Blade files from arbitrary client paths. Add a new override seam only when a real requirement cannot be represented cleanly by the normalized shared contract.
 
 ## Setup validation
 
-`php artisan setup:validate` validates the effective site presentation configuration.
+`php artisan setup:validate` validates the effective site presentation configuration through `SitePresentationResolver`.
 
 It rejects malformed contracts including:
 
-- invalid site/brand value types;
-- unsupported shell/theme keys;
-- non-boolean enablement flags;
-- malformed navigation lists;
-- navigation items without a URL or children;
-- navigation items containing both a URL and children;
-- unsupported URL schemes;
-- malformed or missing theme token groups;
-- unsupported theme token names;
-- unsafe/blank theme token values.
-
-The client scaffold also includes:
-
-```text
-config/site.php
-```
-
-so every new client begins with the same explicit shell ownership.
+- unsupported site/business/shell keys;
+- malformed phone/email/address/social data;
+- unsafe or unsupported URL schemes;
+- non-boolean enablement and `new_tab` values;
+- malformed utility-bar items;
+- malformed navigation groups;
+- unsupported shell themes;
+- empty configured footer groups;
+- configured footer CTAs without actions;
+- malformed legal/disclosure lists;
+- malformed or unsafe theme-token values.
 
 ## Testing boundary
 
-Site-shell tests cover:
+Site-shell tests cover normalization, active/external link state, safe new-tab behavior, semantic regions, enablement, and malformed contracts.
 
-- normalization and active-state behavior;
-- normalized site data passed to public views;
-- enable/disable behavior for semantic shell regions;
-- validation failures for malformed configuration.
-
-Tests do not assert client-specific wording, visual Tailwind classes, or exact client-facing copy.
+Tests do not assert client-specific language, client-specific licenses/disclosures, visual Tailwind classes, or exact layout styling.

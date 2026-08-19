@@ -40,6 +40,7 @@
                     href="{{ $navigation['primary_cta']['url'] }}"
                     class="site-primary-cta"
                     @if($navigation['primary_cta']['active']) aria-current="page" @endif
+                    @if($navigation['primary_cta']['new_tab']) target="_blank" rel="noopener noreferrer" @endif
                 >
                     {{ $navigation['primary_cta']['label'] }}
                 </a>
@@ -64,6 +65,7 @@
                         href="{{ $navigation['primary_cta']['url'] }}"
                         class="site-primary-cta"
                         @if($navigation['primary_cta']['active']) aria-current="page" @endif
+                        @if($navigation['primary_cta']['new_tab']) target="_blank" rel="noopener noreferrer" @endif
                     >
                         {{ $navigation['primary_cta']['label'] }}
                     </a>

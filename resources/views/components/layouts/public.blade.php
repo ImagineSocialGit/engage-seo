@@ -13,7 +13,17 @@
         </a>
 
         @if($site['shell']['header']['enabled'])
-            <header class="site-header">
+            <header
+                class="site-header shell-region"
+                data-shell-theme="{{ $site['shell']['header']['theme'] }}"
+            >
+                @if(
+                    $site['shell']['utility_bar']['enabled']
+                    && $site['shell']['utility_bar']['items'] !== []
+                )
+                    <x-layouts.site-utility-bar :site="$site" />
+                @endif
+
                 @isset($header)
                     {{ $header }}
                 @else
@@ -27,7 +37,10 @@
         </main>
 
         @if($site['shell']['footer']['enabled'])
-            <footer class="site-footer">
+            <footer
+                class="site-footer shell-region"
+                data-shell-theme="{{ $site['shell']['footer']['theme'] }}"
+            >
                 @isset($footer)
                     {{ $footer }}
                 @else
