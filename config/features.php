@@ -1,5 +1,6 @@
 <?php
 
+use App\Features\Blog\BlogServiceProvider;
 use App\Features\Locations\LocationsServiceProvider;
 use App\Features\Services\ServicesServiceProvider;
 
@@ -29,6 +30,9 @@ return [
         ],
         'locations' => [
             'provider' => LocationsServiceProvider::class,
+        ],
+        'blog' => [
+            'provider' => BlogServiceProvider::class,
         ],
     ],
 

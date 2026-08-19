@@ -18,6 +18,7 @@ docs/
         site-shell-theme.md
 
     features/
+        blog.md
         locations.md
         services.md
 
@@ -27,6 +28,7 @@ docs/
     operations/
         client-lifecycle.md
         environment-pairing.md
+        testing.md
 ```
 
 Use:
@@ -34,7 +36,7 @@ Use:
 - `architecture/` for durable ownership and dependency rules;
 - `features/` for reusable Feature ownership and public runtime contracts;
 - `configuration/` for supported configuration shapes and precedence;
-- `operations/` for repeatable local, staging, deployment, reset, and client-management procedures.
+- `operations/` for repeatable local, staging, deployment, reset, testing, and client-management procedures.
 
 Client-specific business content does not belong in the platform documentation unless it establishes a reusable platform requirement.
 
@@ -58,6 +60,8 @@ The platform foundation establishes:
 - manifest-driven static client media with responsive AVIF/WebP generation and provider-neutral public URL resolution;
 - a reusable public section library for common content, conversion, process, media, proof, review, and FAQ patterns;
 - reusable configuration-backed Services and Locations catalogs using the shared Feature/setup-validation contribution seams;
+- a database-backed Blog / Learning Center public runtime with structured editorial content, categories, publication state, sitemap contribution, and Article structured data;
+- MySQL-based automated database testing through a dedicated guarded `.env.testing` runtime;
 - explicit Engage SEO Sites staging/production environment-pairing and runtime-credential promotion rules.
 
-Database-backed CMS editing, additional Features, vertical presets, and the executable Engage Core integration contract remain later slices.
+Editorial staging/admin editing and promotion, additional Features, vertical presets, and the executable Engage Core integration contract remain later slices.

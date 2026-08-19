@@ -11,6 +11,25 @@
 │   │   └── SetupValidation
 │   │       └── SetupValidationContributor.php
 │   ├── Features
+│   │   ├── Blog
+│   │   │   ├── BlogConfiguration.php
+│   │   │   ├── BlogContentNormalizer.php
+│   │   │   ├── BlogMetaResolver.php
+│   │   │   ├── BlogPresenter.php
+│   │   │   ├── BlogRepository.php
+│   │   │   ├── BlogServiceProvider.php
+│   │   │   ├── BlogSetupValidator.php
+│   │   │   ├── BlogSitemapContributor.php
+│   │   │   ├── BlogViewResolver.php
+│   │   │   ├── database
+│   │   │   │   └── migrations
+│   │   │   │       └── 2026_08_19_000000_create_blog_tables.php
+│   │   │   ├── Http
+│   │   │   │   └── Controllers
+│   │   │   │       └── BlogController.php
+│   │   │   └── Models
+│   │   │       ├── BlogCategory.php
+│   │   │       └── BlogPost.php
 │   │   ├── Locations
 │   │   │   ├── LocationCatalog.php
 │   │   │   └── LocationsServiceProvider.php
@@ -92,6 +111,7 @@
 │   ├── client.php
 │   ├── database.php
 │   ├── features
+│   │   ├── blog.php
 │   │   ├── locations.php
 │   │   └── services.php
 │   ├── features.php
@@ -130,11 +150,13 @@
 │   ├── configuration
 │   │   └── client-configuration.md
 │   ├── features
+│   │   ├── blog.md
 │   │   ├── locations.md
 │   │   └── services.md
 │   ├── operations
 │   │   ├── client-lifecycle.md
-│   │   └── environment-pairing.md
+│   │   ├── environment-pairing.md
+│   │   └── testing.md
 │   └── README.md
 ├── package.json
 ├── package-lock.json
@@ -165,6 +187,13 @@
 │       │   ├── section-actions.blade.php
 │       │   └── section-image.blade.php
 │       ├── features
+│       │   ├── blog
+│       │   │   ├── category.blade.php
+│       │   │   ├── index.blade.php
+│       │   │   ├── partials
+│       │   │   │   ├── content.blade.php
+│       │   │   │   └── post-card.blade.php
+│       │   │   └── show.blade.php
 │       │   ├── locations
 │       │   │   └── catalog.blade.php
 │       │   └── services
@@ -195,9 +224,11 @@
 │   ├── dev-reset-client-database.sh
 │   └── dump-seo-site-state.sh
 ├── tests
+│   ├── DatabaseTestCase.php
 │   ├── Feature
 │   │   ├── ExampleTest.php
 │   │   └── Foundation
+│   │       ├── BlogFeatureFoundationTest.php
 │   │       ├── BusinessSiteShellFoundationTest.php
 │   │       ├── ClientConfigurationFoundationTest.php
 │   │       ├── ClientSetupValidatorTest.php
@@ -218,4 +249,4 @@
 │           └── ConfigMergerTest.php
 └── vite.config.js
 
-66 directories, 153 files
+74 directories, 176 files

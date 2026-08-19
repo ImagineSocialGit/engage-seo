@@ -11,8 +11,8 @@ owns page definitions under:
 clients/{CLIENT_KEY}/config/pages/*.php
 ```
 
-Database-backed Features such as Blog may register their own explicit routes and
-runtime later.
+Database-backed Features may register their own explicit routes and runtime. The
+Blog Feature now owns its archive/category/article route space when enabled.
 
 ## Routing
 
@@ -26,8 +26,9 @@ fallback public page route
 The explicit root route and Laravel fallback route both resolve through the same
 public page controller.
 
-The fallback is intentional. Explicit Feature routes remain separate and should
-take precedence over generic configured pages.
+The fallback is intentional. Explicit Feature routes remain separate and take
+precedence over generic configured pages. Feature setup validation must reject
+configured-page or redirect-source collisions inside Feature-owned route space.
 
 A configured page must declare an absolute path:
 

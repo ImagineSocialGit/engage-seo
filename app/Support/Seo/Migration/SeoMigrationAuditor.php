@@ -4,7 +4,9 @@ namespace App\Support\Seo\Migration;
 
 use App\Support\Pages\PageRepository;
 use App\Support\Seo\RedirectRepository;
+use App\Support\Seo\SeoExtensionRegistry;
 use InvalidArgumentException;
+use Throwable;
 
 final class SeoMigrationAuditor
 {
@@ -12,6 +14,7 @@ final class SeoMigrationAuditor
         private readonly LegacyUrlInventoryRepository $inventory,
         private readonly RedirectRepository $redirects,
         private readonly PageRepository $pages,
+        private readonly SeoExtensionRegistry $extensions,
     ) {
     }
 
@@ -45,10 +48,12 @@ final class SeoMigrationAuditor
 
         $redirectErrors = $this->redirects->validationErrors();
         $redirectConfigurationValid = $redirectErrors === [];
+        [$featurePaths, $featureErrors] = $this->featureIndexablePaths();
 
         $errors = [
             ...$errors,
             ...$redirectErrors,
+            ...$featureErrors,
         ];
 
         foreach ($entries as $entry) {
@@ -69,9 +74,10 @@ final class SeoMigrationAuditor
 
                 $errors = [
                     ...$errors,
-                    ...$this->pageDestinationErrors(
+                    ...$this->destinationErrors(
                         $path,
                         "Preserved legacy URL [{$path}]",
+                        $featurePaths,
                     ),
                 ];
 
@@ -111,9 +117,10 @@ final class SeoMigrationAuditor
                 if ($targetPath !== null) {
                     $errors = [
                         ...$errors,
-                        ...$this->pageDestinationErrors(
+                        ...$this->destinationErrors(
                             $targetPath,
                             "Redirect target [{$targetPath}] for legacy URL [{$path}]",
+                            $featurePaths,
                         ),
                     ];
                 } else {
@@ -137,6 +144,10 @@ final class SeoMigrationAuditor
                 if ($this->pages->resolvePath($path) !== null) {
                     $errors[] = "Retired legacy URL [{$path}] still resolves to a configured public page.";
                 }
+
+                if (array_key_exists($path, $featurePaths)) {
+                    $errors[] = "Retired legacy URL [{$path}] is still owned by an indexable Feature URL.";
+                }
             }
         }
 
@@ -157,6 +168,28 @@ final class SeoMigrationAuditor
     }
 
     /**
+     * @param array<string, string> $featurePaths
+     * @return list<string>
+     */
+    private function destinationErrors(
+        string $path,
+        string $context,
+        array $featurePaths,
+    ): array {
+        $pageErrors = $this->pageDestinationErrors($path, $context);
+
+        if ($pageErrors === []) {
+            return [];
+        }
+
+        if (array_key_exists($path, $featurePaths)) {
+            return [];
+        }
+
+        return $pageErrors;
+    }
+
+    /**
      * @return list<string>
      */
     private function pageDestinationErrors(
@@ -173,7 +206,7 @@ final class SeoMigrationAuditor
 
         if ($page === null) {
             return [
-                "{$context} does not resolve to a configured public page.",
+                "{$context} does not resolve to a configured public page or registered indexable Feature URL.",
             ];
         }
 
@@ -214,5 +247,91 @@ final class SeoMigrationAuditor
         }
 
         return $errors;
+    }
+
+    /**
+     * @return array{0: array<string, string>, 1: list<string>}
+     */
+    private function featureIndexablePaths(): array
+    {
+        $paths = [];
+        $errors = [];
+        $siteHost = strtolower((string) parse_url(
+            (string) config('app.url'),
+            PHP_URL_HOST,
+        ));
+
+        foreach ($this->extensions->sitemapContributors() as $contributor) {
+            try {
+                $entries = $contributor->sitemapEntries();
+            } catch (Throwable $exception) {
+                $errors[] = sprintf(
+                    'SEO migration could not inspect Feature sitemap contributor [%s]: %s',
+                    $contributor::class,
+                    $exception->getMessage(),
+                );
+
+                continue;
+            }
+
+            if (! is_array($entries) || ! array_is_list($entries)) {
+                $errors[] = sprintf(
+                    'SEO migration Feature sitemap contributor [%s] must return a list.',
+                    $contributor::class,
+                );
+
+                continue;
+            }
+
+            foreach ($entries as $entry) {
+                $loc = is_array($entry)
+                    ? ($entry['loc'] ?? null)
+                    : null;
+
+                if (! is_string($loc) || trim($loc) === '') {
+                    $errors[] = sprintf(
+                        'SEO migration Feature sitemap contributor [%s] returned an invalid [loc].',
+                        $contributor::class,
+                    );
+
+                    continue;
+                }
+
+                $host = strtolower((string) parse_url($loc, PHP_URL_HOST));
+                $path = parse_url($loc, PHP_URL_PATH);
+
+                if ($siteHost === ''
+                    || $host !== $siteHost
+                    || ! is_string($path)
+                ) {
+                    $errors[] = sprintf(
+                        'SEO migration Feature sitemap contributor [%s] returned a URL outside the selected site.',
+                        $contributor::class,
+                    );
+
+                    continue;
+                }
+
+                try {
+                    $path = $this->redirects->normalizePath(
+                        $path === '' ? '/' : $path
+                    );
+                } catch (InvalidArgumentException) {
+                    $errors[] = sprintf(
+                        'SEO migration Feature sitemap contributor [%s] returned an invalid URL path.',
+                        $contributor::class,
+                    );
+
+                    continue;
+                }
+
+                $paths[$path] = $loc;
+            }
+        }
+
+        return [
+            $paths,
+            array_values(array_unique($errors)),
+        ];
     }
 }
