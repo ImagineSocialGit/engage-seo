@@ -185,6 +185,10 @@ Do not add speculative environment variable names to documentation before the ex
 
 ## Promotion rule
 
+There are three different kinds of state and they move differently.
+
+### Source-controlled site state
+
 Client source-controlled state may be promoted through the normal repository/deployment workflow, including:
 
 ```text
@@ -198,11 +202,33 @@ resources/images/raw/**
 resources/migration/**
 ```
 
-Runtime environment state is different.
+### Database-backed editorial state
+
+Reviewed database-backed editorial content is not promoted by copying the staging database.
+
+Enabled editorial Features contribute only their reviewed/promotable rows to the versioned editorial snapshot workflow:
+
+```bash
+php artisan editorial:export
+php artisan editorial:validate /path/to/snapshot.json
+php artisan editorial:import /path/to/snapshot.json --force
+```
+
+Normal forward production promotion uses a staging-sourced snapshot. Production creates its own rollback snapshot automatically before replacement. Production snapshots may be restored to production. Staging does not accept editorial snapshot imports because it remains the authoring/review database.
+
+See:
+
+```text
+docs/operations/editorial-promotion.md
+```
+
+### Runtime environment state
+
+Runtime environment state is never part of either source promotion or editorial snapshots.
 
 Do not promote or copy a real staging `.env` into production, and do not promote or copy a real production `.env` into staging.
 
-In particular, future integration destinations, client IDs, signing secrets, tokens, or equivalent credentials are runtime-specific deployment state. They must never be treated as content/configuration state that moves from staging to production.
+In particular, future integration destinations, client IDs, signing secrets, tokens, or equivalent credentials are runtime-specific deployment state. They must never be treated as content/configuration or editorial state that moves from staging to production.
 
 A deployment may use the same committed `.env.example` template in both environments. Each environment must populate its own real `.env` values independently.
 

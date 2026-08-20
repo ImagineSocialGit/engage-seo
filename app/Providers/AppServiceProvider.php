@@ -3,16 +3,23 @@
 namespace App\Providers;
 
 use App\Console\Commands\AuditSeoMigrationCommand;
+use App\Console\Commands\ExportEditorialSnapshotCommand;
+use App\Console\Commands\ImportEditorialSnapshotCommand;
+use App\Console\Commands\ValidateEditorialSnapshotCommand;
 use App\Console\Commands\ValidateSetupCommand;
 use App\Support\Clients\ClientConfigLoader;
+use App\Support\Editorial\EditorialPromotionPolicy;
+use App\Support\Editorial\EditorialPromotionRegistry;
+use App\Support\Editorial\EditorialPromotionService;
+use App\Support\Editorial\EditorialSnapshotCodec;
 use App\Support\Features\FeatureManager;
 use App\Support\Pages\PageMetaResolver;
 use App\Support\Pages\PageRepository;
 use App\Support\Sections\SectionManager;
-use App\Support\Seo\RedirectRepository;
-use App\Support\Seo\SeoExtensionRegistry;
 use App\Support\Seo\Migration\LegacyUrlInventoryRepository;
 use App\Support\Seo\Migration\SeoMigrationAuditor;
+use App\Support\Seo\RedirectRepository;
+use App\Support\Seo\SeoExtensionRegistry;
 use App\Support\Seo\SeoIndexingPolicy;
 use App\Support\Seo\SitemapBuilder;
 use App\Support\Seo\StructuredDataResolver;
@@ -46,6 +53,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(PageViewResolver::class);
         $this->app->singleton(SetupValidationRegistry::class);
         $this->app->singleton(ClientSetupValidator::class);
+        $this->app->singleton(EditorialPromotionRegistry::class);
+        $this->app->singleton(EditorialSnapshotCodec::class);
+        $this->app->singleton(EditorialPromotionPolicy::class);
+        $this->app->singleton(EditorialPromotionService::class);
 
         $this->app->make(ClientConfigLoader::class)->load();
 
@@ -63,6 +74,9 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 AuditSeoMigrationCommand::class,
+                ExportEditorialSnapshotCommand::class,
+                ImportEditorialSnapshotCommand::class,
+                ValidateEditorialSnapshotCommand::class,
                 ValidateSetupCommand::class,
             ]);
         }

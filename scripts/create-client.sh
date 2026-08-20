@@ -396,6 +396,12 @@ For staging/production environment ownership and Engage Core pairing rules, foll
 docs/operations/environment-pairing.md
 \`\`\`
 
+When an enabled Feature stores editorial content in the database, do not copy the staging database into production. Promote reviewed editorial state through:
+
+\`\`\`text
+docs/operations/editorial-promotion.md
+\`\`\`
+
 This repository should use documented Engage SEO override/integration seams. Do not duplicate platform or Engage Core responsibilities inside the client repository.
 EOF_README
 

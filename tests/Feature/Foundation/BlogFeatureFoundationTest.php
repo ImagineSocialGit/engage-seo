@@ -8,6 +8,7 @@ use App\Features\Blog\BlogSetupValidator;
 use App\Features\Blog\BlogSitemapContributor;
 use App\Features\Blog\Models\BlogCategory;
 use App\Features\Blog\Models\BlogPost;
+use App\Support\Editorial\EditorialPromotionRegistry;
 use App\Support\Seo\Migration\SeoMigrationAuditor;
 use App\Support\Seo\SeoExtensionRegistry;
 use App\Support\SetupValidation\SetupValidationRegistry;
@@ -303,6 +304,7 @@ class BlogFeatureFoundationTest extends DatabaseTestCase
         $provider->boot(
             app(SetupValidationRegistry::class),
             app(SeoExtensionRegistry::class),
+            app(EditorialPromotionRegistry::class),
         );
 
         Route::getRoutes()->refreshNameLookups();

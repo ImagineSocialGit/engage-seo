@@ -39,6 +39,7 @@ docs/architecture/seo-infrastructure.md
 docs/architecture/site-shell-theme.md
 docs/configuration/client-configuration.md
 docs/operations/client-lifecycle.md
+docs/operations/editorial-promotion.md
 ```
 
 ## Client repositories
@@ -201,8 +202,29 @@ Refresh:
 
 Both refuse to operate without a selected client and the required safety gates.
 
+## Editorial promotion
+
+Database-backed editorial Features do not publish by copying staging databases into production. Reviewed state moves through a versioned snapshot:
+
+```bash
+# staging
+php artisan editorial:export
+
+# production
+php artisan editorial:validate /path/to/snapshot.json
+php artisan editorial:import /path/to/snapshot.json --force
+```
+
+Production creates a protected rollback snapshot automatically before replacement. Runtime credentials and unrelated database tables are never part of the editorial artifact.
+
+See:
+
+```text
+docs/operations/editorial-promotion.md
+```
+
 ## Current implementation status
 
-The foundation currently establishes client selection/configuration, explicit root/client environment ownership, Feature/Vertical composition, client scaffolding, setup validation, config-owned public page rendering, normalized metadata/section contracts, explicit client view seams, reusable public sections, responsive static media, a normalized business site shell/theme contract, production-gated indexing, dynamic robots/sitemap output, redirects, JSON-LD contribution seams, old-platform SEO migration auditing, documentation, and safe local database lifecycle tooling.
+The foundation currently establishes client selection/configuration, explicit root/client environment ownership, Feature/Vertical composition, client scaffolding, setup validation, config-owned public page rendering, normalized metadata/section contracts, explicit client view seams, reusable public sections, responsive static media, a normalized business site shell/theme contract, production-gated indexing, dynamic robots/sitemap output, redirects, JSON-LD contribution seams, old-platform SEO migration auditing, reusable Services and Locations Features, a database-backed Blog / Learning Center public runtime, versioned staging-to-production editorial promotion, MySQL-based database testing, documentation, and safe local database lifecycle tooling.
 
-CMS Features, vertical defaults, and Engage Core integration implementations are intentionally added in later slices.
+A staging-only browser editorial UI, vertical defaults, and Engage Core integration implementations are intentionally added in later slices.

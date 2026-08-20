@@ -27,6 +27,7 @@ docs/
 
     operations/
         client-lifecycle.md
+        editorial-promotion.md
         environment-pairing.md
         testing.md
 ```
@@ -61,7 +62,8 @@ The platform foundation establishes:
 - a reusable public section library for common content, conversion, process, media, proof, review, and FAQ patterns;
 - reusable configuration-backed Services and Locations catalogs using the shared Feature/setup-validation contribution seams;
 - a database-backed Blog / Learning Center public runtime with structured editorial content, categories, publication state, sitemap contribution, and Article structured data;
+- versioned, checksummed editorial snapshots for reviewed staging-to-production content promotion with target validation and automatic production rollback backups;
 - MySQL-based automated database testing through a dedicated guarded `.env.testing` runtime;
 - explicit Engage SEO Sites staging/production environment-pairing and runtime-credential promotion rules.
 
-Editorial staging/admin editing and promotion, additional Features, vertical presets, and the executable Engage Core integration contract remain later slices.
+A staging-only browser editorial UI, additional Features, vertical presets, and the executable Engage Core integration contract remain later slices.

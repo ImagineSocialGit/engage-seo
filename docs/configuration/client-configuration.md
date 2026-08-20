@@ -222,6 +222,23 @@ docs/features/services.md
 
 for the catalog, section, validation, link, media, and persistence contracts.
 
+### Blog Feature configuration
+
+When the reusable `blog` Feature is enabled, client-owned public Blog/Learning Center configuration may live at:
+
+```text
+clients/[CLIENT_KEY]/config/features/blog.php
+```
+
+The database-backed article/category rows are environment runtime data, but reviewed state is promoted through the platform editorial snapshot workflow rather than by copying the staging database.
+
+See:
+
+```text
+docs/features/blog.md
+docs/operations/editorial-promotion.md
+```
+
 ### Locations Feature configuration
 
 When the reusable `locations` Feature is enabled, client-owned geographic catalog configuration may live at:

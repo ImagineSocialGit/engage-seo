@@ -3,8 +3,13 @@
 │   ├── Console
 │   │   └── Commands
 │   │       ├── AuditSeoMigrationCommand.php
+│   │       ├── ExportEditorialSnapshotCommand.php
+│   │       ├── ImportEditorialSnapshotCommand.php
+│   │       ├── ValidateEditorialSnapshotCommand.php
 │   │       └── ValidateSetupCommand.php
 │   ├── Contracts
+│   │   ├── Editorial
+│   │   │   └── EditorialPromotionContributor.php
 │   │   ├── Seo
 │   │   │   ├── SitemapContributor.php
 │   │   │   └── StructuredDataContributor.php
@@ -14,6 +19,7 @@
 │   │   ├── Blog
 │   │   │   ├── BlogConfiguration.php
 │   │   │   ├── BlogContentNormalizer.php
+│   │   │   ├── BlogEditorialPromotionContributor.php
 │   │   │   ├── BlogMetaResolver.php
 │   │   │   ├── BlogPresenter.php
 │   │   │   ├── BlogRepository.php
@@ -54,6 +60,11 @@
 │   │   │   └── ClientEnvironmentLoader.php
 │   │   ├── Config
 │   │   │   └── ConfigMerger.php
+│   │   ├── Editorial
+│   │   │   ├── EditorialPromotionPolicy.php
+│   │   │   ├── EditorialPromotionRegistry.php
+│   │   │   ├── EditorialPromotionService.php
+│   │   │   └── EditorialSnapshotCodec.php
 │   │   ├── Features
 │   │   │   └── FeatureManager.php
 │   │   ├── Media
@@ -155,6 +166,7 @@
 │   │   └── services.md
 │   ├── operations
 │   │   ├── client-lifecycle.md
+│   │   ├── editorial-promotion.md
 │   │   ├── environment-pairing.md
 │   │   └── testing.md
 │   └── README.md
@@ -232,6 +244,7 @@
 │   │       ├── BusinessSiteShellFoundationTest.php
 │   │       ├── ClientConfigurationFoundationTest.php
 │   │       ├── ClientSetupValidatorTest.php
+│   │       ├── EditorialPromotionFoundationTest.php
 │   │       ├── LocationsFeatureFoundationTest.php
 │   │       ├── MediaFoundationTest.php
 │   │       ├── OldPlatformMigrationFoundationTest.php
@@ -249,4 +262,4 @@
 │           └── ConfigMergerTest.php
 └── vite.config.js
 
-74 directories, 176 files
+76 directories, 187 files

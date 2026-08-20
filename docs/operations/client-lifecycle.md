@@ -345,6 +345,41 @@ Before enabling indexing:
 
 In non-production environments, Engage SEO remains non-indexable even if the client switch is accidentally enabled.
 
+## Database-backed editorial promotion
+
+When an enabled Feature stores reviewed editorial content in the database, do not publish that content by copying the staging database into production.
+
+The canonical workflow is:
+
+```text
+staging review
+    -> editorial snapshot export
+    -> production snapshot validation
+    -> protected rollback backup
+    -> transactional editorial import
+```
+
+Commands:
+
+```bash
+# staging
+php artisan editorial:export
+
+# production
+php artisan editorial:validate /secure/path/client-editorial.json
+php artisan editorial:import /secure/path/client-editorial.json --force
+```
+
+Run production migrations and deploy matching client media/config before validating/importing the snapshot.
+
+The editorial artifact contains Feature-owned content only. It does not move `.env` values, integration credentials, unrelated database tables, or the entire staging database.
+
+See:
+
+```text
+docs/operations/editorial-promotion.md
+```
+
 ## Production safety
 
 Do not enable `DEV_DESTRUCTIVE_COMMANDS_ENABLED` in staging or production.

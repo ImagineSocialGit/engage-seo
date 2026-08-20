@@ -200,19 +200,45 @@ clients/{CLIENT_KEY}/resources/views/features/blog/show.blade.php
 
 The normalized public data contract remains owned by the Feature even when presentation is overridden.
 
-## Production admin boundary
+## Editorial promotion boundary
 
-This batch establishes the **public database-backed Blog runtime**, not the editing/promotion workflow.
+Blog remains a staging-authored, production-served editorial capability. This foundation does not expose a general production CMS login.
 
-It intentionally does not expose a production CMS login.
+Staging and production databases remain separate. Reviewed Blog state moves through the platform editorial snapshot workflow rather than through a database copy.
 
-Staging and production databases remain separate. A later Blog publishing slice must define how reviewed/published editorial state moves from staging to production without copying an entire database or exposing general production administration.
+A Blog post is eligible for promotion when `published_at` is non-null. This includes posts already public on staging and posts deliberately scheduled for a future publication time. Drafts with `published_at=null` remain staging-only and are excluded from the promotion snapshot.
 
-Until that promotion contract exists, do not assume that creating a Blog record in staging automatically creates it in production.
+Only categories attached to promotable posts move with the snapshot. Production therefore receives the exact public/scheduled Blog state rather than staging-only drafting state.
+
+Use:
+
+```bash
+php artisan editorial:export
+php artisan editorial:validate /path/to/snapshot.json
+php artisan editorial:import /path/to/snapshot.json --force
+```
+
+The snapshot preserves Blog timestamps so Article `datePublished` / `dateModified` semantics do not reset merely because content was promoted.
+
+Production import creates an automatic protected rollback snapshot before replacing Blog editorial rows. A production rollback snapshot may be re-imported into production; normal forward promotion must originate from staging. Staging does not accept editorial snapshot imports; it remains the authoring/review database.
+
+The snapshot contains editorial content only. It never carries `.env` values, database credentials, cache/Redis namespaces, future Engage Core integration credentials, or whole-database state.
+
+See:
+
+```text
+docs/operations/editorial-promotion.md
+```
+
+## Staging editing boundary
+
+This slice defines the promotion mechanism, not the browser-based staging editor. Until a staging-only editorial UI is implemented, do not add a general production administration surface merely to create Blog records.
+
+The future editing UI must preserve the same rule: editing occurs outside production, reviewed state is promoted explicitly, and production serves the promoted snapshot.
 
 ## Migration and deployment
 
-After enabling Blog for a selected client, run:
+After enabling Blog for a selected client, run in each environment:
 
 ```bash
 php artisan migrate
@@ -225,7 +251,7 @@ staging Engage SEO Sites -> staging dependencies only
 production Engage SEO Sites -> production dependencies only
 ```
 
-Blog database content is runtime data, not an environment credential and not a substitute for the future explicit editorial promotion contract.
+Deploy code/config/static media first, run target migrations, validate the editorial snapshot against production, then import it. Do not copy the staging database into production.
 
 ## Testing boundary
 

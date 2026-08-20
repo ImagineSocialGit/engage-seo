@@ -7,7 +7,8 @@ Engage SEO automated database tests use MySQL.
 SQLite is not part of the platform testing contract. Database-backed Features
 should be exercised against the same database engine used by deployed Engage SEO
 sites so migration, indexing, foreign-key, query, and persistence behavior are
-validated against MySQL.
+validated against MySQL. Platform database/queue fallback defaults also resolve to
+MySQL rather than silently selecting SQLite when an environment value is absent.
 
 ## Testing environment
 

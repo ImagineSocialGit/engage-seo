@@ -3,6 +3,7 @@
 namespace App\Features\Blog;
 
 use App\Features\Blog\Http\Controllers\BlogController;
+use App\Support\Editorial\EditorialPromotionRegistry;
 use App\Support\Seo\SeoExtensionRegistry;
 use App\Support\SetupValidation\SetupValidationRegistry;
 use Illuminate\Support\Facades\Route;
@@ -26,11 +27,13 @@ final class BlogServiceProvider extends ServiceProvider
         $this->app->singleton(BlogSitemapContributor::class);
         $this->app->singleton(BlogSetupValidator::class);
         $this->app->singleton(BlogViewResolver::class);
+        $this->app->singleton(BlogEditorialPromotionContributor::class);
     }
 
     public function boot(
         SetupValidationRegistry $setupValidation,
         SeoExtensionRegistry $seo,
+        EditorialPromotionRegistry $editorial,
     ): void {
         $this->loadMigrationsFrom(
             __DIR__.'/database/migrations'
@@ -39,6 +42,9 @@ final class BlogServiceProvider extends ServiceProvider
         $setupValidation->register(BlogSetupValidator::class);
         $seo->registerSitemapContributor(
             BlogSitemapContributor::class
+        );
+        $editorial->register(
+            BlogEditorialPromotionContributor::class
         );
 
         try {
