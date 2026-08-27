@@ -87,15 +87,28 @@ class FeatureManager
 
         $availableKeys = array_keys($this->available());
 
+        foreach (array_keys($this->verticals->available()) as $verticalKey) {
+            $unknownDefaults = array_values(array_diff(
+                $this->verticals->defaultFeatures($verticalKey),
+                $availableKeys,
+            ));
+
+            if ($unknownDefaults !== []) {
+                throw new InvalidArgumentException(
+                    "Engage SEO vertical '{$verticalKey}' references unknown Feature(s): "
+                    .implode(', ', $unknownDefaults)
+                );
+            }
+        }
+
         $configuredKeys = array_values(array_unique(array_merge(
-            $this->verticals->defaultFeatures(),
             $this->stringList(config('features.enabled', [])),
             $this->stringList(config('features.disabled', [])),
         )));
 
         $unknown = array_values(array_diff(
             $configuredKeys,
-            $availableKeys
+            $availableKeys,
         ));
 
         if ($unknown !== []) {
@@ -115,12 +128,12 @@ class FeatureManager
         }
 
         $items = array_map(
-            fn (string $item): string => trim($item),
+            static fn (string $item): string => trim($item),
             array_filter(
                 $value,
-                fn (mixed $item): bool => is_string($item)
-                    && trim($item) !== ''
-            )
+                static fn (mixed $item): bool => is_string($item)
+                    && trim($item) !== '',
+            ),
         );
 
         return array_values(array_unique($items));

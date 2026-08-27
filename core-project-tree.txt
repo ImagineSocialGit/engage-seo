@@ -157,7 +157,8 @@
 │   │   ├── public-rendering.md
 │   │   ├── reusable-sections.md
 │   │   ├── seo-infrastructure.md
-│   │   └── site-shell-theme.md
+│   │   ├── site-shell-theme.md
+│   │   └── verticals.md
 │   ├── configuration
 │   │   └── client-configuration.md
 │   ├── features
@@ -252,7 +253,8 @@
 │   │       ├── ReusableSectionsFoundationTest.php
 │   │       ├── SeoInfrastructureFoundationTest.php
 │   │       ├── ServicesFeatureFoundationTest.php
-│   │       └── SiteShellFoundationTest.php
+│   │       ├── SiteShellFoundationTest.php
+│   │       └── VerticalFoundationTest.php
 │   ├── TestCase.php
 │   └── Unit
 │       ├── ExampleTest.php
@@ -262,4 +264,4 @@
 │           └── ConfigMergerTest.php
 └── vite.config.js
 
-76 directories, 187 files
+76 directories, 189 files

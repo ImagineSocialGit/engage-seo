@@ -7,7 +7,7 @@ It is designed for:
 - fast startup for new client sites;
 - separately versioned client repositories;
 - lightweight optional Features such as Blog, Services, Forms, or Locations;
-- optional Vertical defaults such as Construction or Pets;
+- optional built-in Vertical defaults such as Mortgage or Pets;
 - semantic, accessibility-friendly public HTML;
 - strong SEO foundations;
 - optional explicit integration with Engage Core without duplicating CRM responsibilities.
@@ -37,6 +37,7 @@ docs/architecture/platform-boundaries.md
 docs/architecture/public-rendering.md
 docs/architecture/seo-infrastructure.md
 docs/architecture/site-shell-theme.md
+docs/architecture/verticals.md
 docs/configuration/client-configuration.md
 docs/operations/client-lifecycle.md
 docs/operations/editorial-promotion.md
@@ -60,10 +61,17 @@ Create a scaffold with:
 ./scripts/create-client.sh [CLIENT_KEY] [TIMEZONE]
 ```
 
-Optional vertical:
+Optional Vertical:
 
 ```bash
 ./scripts/create-client.sh [CLIENT_KEY] [TIMEZONE] [VERTICAL_KEY]
+```
+
+Built-in Vertical keys:
+
+```text
+mortgage
+pets
 ```
 
 ## Selected client

@@ -261,13 +261,13 @@ for the catalog, grouping, address, section, validation, media, link, and public
 
 ## Verticals
 
-The client selects a vertical through:
+The client selects a Vertical through:
 
 ```text
 client.vertical
 ```
 
-A null value means no vertical.
+A null value means no Vertical.
 
 Platform-registered Verticals live in:
 
@@ -275,9 +275,43 @@ Platform-registered Verticals live in:
 config/verticals.php
 ```
 
-A Vertical may contribute `default_features`, but should not duplicate generic Feature runtime behavior.
+The current built-in keys are:
 
-Unknown Verticals fail validation.
+```text
+mortgage
+pets
+```
+
+The current executable Vertical contract is deliberately narrow:
+
+```php
+'vertical-key' => [
+    'name' => 'Internal name',
+    'default_features' => [
+        'feature-key',
+    ],
+],
+```
+
+Both built-in Verticals currently default to the reusable:
+
+```text
+services
+locations
+blog
+```
+
+The selected client can add Features through `features.enabled` and can remove Vertical defaults through `features.disabled`. The client disable list is final Feature-enablement authority.
+
+Vertical definitions are validated for shape, supported keys, Feature-key syntax, duplicate defaults, and references to registered platform Features. Unknown or malformed Verticals fail validation.
+
+Do not put client copy, specific offerings, locations, licensing/compliance language, claims, integration destinations, or credentials in a Vertical definition.
+
+See:
+
+```text
+docs/architecture/verticals.md
+```
 
 ## Public site shell
 

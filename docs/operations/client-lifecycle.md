@@ -8,16 +8,25 @@ Run:
 ./scripts/create-client.sh [CLIENT_KEY] [TIMEZONE]
 ```
 
-Optional vertical:
+Optional Vertical:
 
 ```bash
 ./scripts/create-client.sh [CLIENT_KEY] [TIMEZONE] [VERTICAL_KEY]
 ```
 
-Example:
+Currently registered built-in Vertical keys:
+
+```text
+mortgage
+pets
+```
+
+Examples:
 
 ```bash
 ./scripts/create-client.sh example-client America/Chicago
+./scripts/create-client.sh example-mortgage-site America/New_York mortgage
+./scripts/create-client.sh example-pet-site America/Chicago pets
 ```
 
 The script:

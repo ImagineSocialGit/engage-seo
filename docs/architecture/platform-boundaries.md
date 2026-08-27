@@ -91,20 +91,17 @@ unless the runtime behavior is genuinely different enough to justify separate ca
 
 Verticals are composition/configuration layers above Features.
 
-A vertical may contribute:
+The current executable Vertical contract is intentionally limited to registered identity plus default Feature composition. Mortgage and Pets are the first built-in Verticals, and both currently compose the generic Services, Locations, and Blog Features.
 
-- default Feature selections;
-- vertical-specific terminology;
-- page/content presets;
-- vertical-specific content fields;
-- section/component presets;
-- recommended information architecture.
+A client may select no Vertical. A client may also add or disable Features independently of Vertical defaults, with the client disable list remaining final Feature-enablement authority.
 
-A vertical does not become a second module/feature system.
+Future terminology, page/content presets, fields, section presets, and information-architecture defaults should be added only after repeated client implementations establish a reusable contract. Client-specific business content does not belong in a Vertical.
 
-A client may select no vertical.
+See:
 
-A client may also add or disable Features independently of vertical defaults.
+```text
+docs/architecture/verticals.md
+```
 
 ## Clients
 

@@ -16,6 +16,7 @@ docs/
         reusable-sections.md
         seo-infrastructure.md
         site-shell-theme.md
+        verticals.md
 
     features/
         blog.md
@@ -49,7 +50,7 @@ The platform foundation establishes:
 - client-specific environment and PHP configuration under `clients/{CLIENT_KEY}`;
 - platform Git isolation for client repositories;
 - lightweight reusable Features;
-- lightweight Verticals that compose shared Features rather than duplicate them;
+- lightweight Mortgage and Pets Verticals that compose shared Services, Locations, and Blog Features while preserving client override authority;
 - safe client scaffold/reset/refresh scripts;
 - setup validation;
 - config-owned static public page resolution;
@@ -66,4 +67,4 @@ The platform foundation establishes:
 - MySQL-based automated database testing through a dedicated guarded `.env.testing` runtime;
 - explicit Engage SEO Sites staging/production environment-pairing and runtime-credential promotion rules.
 
-A staging-only browser editorial UI, additional Features, vertical presets, and the executable Engage Core integration contract remain later slices.
+A staging-only browser editorial UI, additional Features, richer evidence-driven Vertical presets, and the executable Engage Core integration contract remain later slices.
