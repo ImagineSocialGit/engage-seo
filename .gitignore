@@ -21,8 +21,8 @@
 /storage/pail
 /storage/pao
 /vendor
-/clients/*
-!/clients/.gitkeep
+/client/*
+!/client/.gitkeep
 Homestead.json
 Homestead.yaml
 Thumbs.db
