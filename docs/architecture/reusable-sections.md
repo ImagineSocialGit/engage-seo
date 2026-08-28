@@ -9,7 +9,7 @@ Sections are intentionally generic. They describe durable presentation/content p
 The selected client owns business content in:
 
 ```text
-clients/{CLIENT_KEY}/config/pages/*.php
+client/{CLIENT_KEY}/config/pages/*.php
 ```
 
 The platform owns reusable section behavior and default markup under:
@@ -414,7 +414,7 @@ The section does not automatically claim FAQ structured data. Structured data sh
 A selected client may override a registered section at:
 
 ```text
-clients/{CLIENT_KEY}/resources/views/sections/{component}.blade.php
+client/{CLIENT_KEY}/resources/views/sections/{component}.blade.php
 ```
 
 The platform section remains mandatory and must exist even when a client override is present.

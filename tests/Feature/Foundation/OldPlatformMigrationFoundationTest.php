@@ -19,7 +19,7 @@ class OldPlatformMigrationFoundationTest extends TestCase
             .DIRECTORY_SEPARATOR.'engage-seo-old-platform-'.bin2hex(random_bytes(6));
 
         File::ensureDirectoryExists(
-            $this->temporaryRoot.'/clients/migration-test-client/resources/migration'
+            $this->temporaryRoot.'/client/migration-test-client/resources/migration'
         );
 
         config()->set('client.key', 'migration-test-client');
@@ -263,7 +263,7 @@ class OldPlatformMigrationFoundationTest extends TestCase
 
         File::put(
             $this->temporaryRoot
-                .'/clients/migration-test-client/resources/migration/legacy-urls.tsv',
+                .'/client/migration-test-client/resources/migration/legacy-urls.tsv',
             implode(PHP_EOL, $lines).PHP_EOL,
         );
     }

@@ -47,7 +47,7 @@ Client-specific business content does not belong in the platform documentation u
 The platform foundation establishes:
 
 - one selected client through `CLIENT_KEY`;
-- client-specific environment and PHP configuration under `clients/{CLIENT_KEY}`;
+- client-specific environment and PHP configuration under `client/{CLIENT_KEY}`;
 - platform Git isolation for client repositories;
 - lightweight reusable Features;
 - lightweight Mortgage and Pets Verticals that compose shared Services, Locations, and Blog Features while preserving client override authority;

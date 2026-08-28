@@ -20,7 +20,7 @@ semantic theme tokens
 The selected client supplies configuration through:
 
 ```text
-clients/{CLIENT_KEY}/config/site.php
+client/{CLIENT_KEY}/config/site.php
 ```
 
 Client configuration describes data and semantic presentation choices. It does not store large Tailwind class strings or duplicate platform Blade structure.
@@ -263,13 +263,13 @@ Normal client customization should happen through `config/site.php`.
 The explicit client public-page override remains:
 
 ```text
-clients/{CLIENT_KEY}/resources/views/pages/public.blade.php
+client/{CLIENT_KEY}/resources/views/pages/public.blade.php
 ```
 
 Reusable section overrides remain:
 
 ```text
-clients/{CLIENT_KEY}/resources/views/sections/{component}.blade.php
+client/{CLIENT_KEY}/resources/views/sections/{component}.blade.php
 ```
 
 The platform does not automatically replace header/footer/layout Blade files from arbitrary client paths. Add a new override seam only when a real requirement cannot be represented cleanly by the normalized shared contract.

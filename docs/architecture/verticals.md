@@ -75,7 +75,7 @@ For example, the same generic Services Feature may describe loan offerings for o
 A client can disable any Vertical default in:
 
 ```text
-clients/[CLIENT_KEY]/config/features.php
+client/[CLIENT_KEY]/config/features.php
 ```
 
 For example:

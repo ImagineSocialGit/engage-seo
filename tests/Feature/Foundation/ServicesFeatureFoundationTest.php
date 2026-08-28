@@ -231,7 +231,7 @@ class ServicesFeatureFoundationTest extends TestCase
         $this->temporaryRoot = sys_get_temp_dir()
             .DIRECTORY_SEPARATOR.'engage-seo-services-'.bin2hex(random_bytes(6));
 
-        $clientDirectory = $this->temporaryRoot.'/clients/services-test-client';
+        $clientDirectory = $this->temporaryRoot.'/client/services-test-client';
 
         File::ensureDirectoryExists($clientDirectory.'/config/pages');
         File::ensureDirectoryExists($clientDirectory.'/resources/views');

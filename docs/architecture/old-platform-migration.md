@@ -41,7 +41,7 @@ This keeps redirect behavior and migration documentation from drifting apart.
 When a client is replacing an existing public site, enable:
 
 ```php
-// clients/[CLIENT_KEY]/config/seo_migration.php
+// client/[CLIENT_KEY]/config/seo_migration.php
 
 return [
     'enabled' => true,
@@ -54,7 +54,7 @@ The inventory is source-controlled client state.
 Default path:
 
 ```text
-clients/[CLIENT_KEY]/resources/migration/legacy-urls.tsv
+client/[CLIENT_KEY]/resources/migration/legacy-urls.tsv
 ```
 
 The TSV header is exactly:

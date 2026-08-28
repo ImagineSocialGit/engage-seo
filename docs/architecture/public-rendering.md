@@ -8,7 +8,7 @@ Static SEO/business pages are not database records by default. A selected client
 owns page definitions under:
 
 ```text
-clients/{CLIENT_KEY}/config/pages/*.php
+client/{CLIENT_KEY}/config/pages/*.php
 ```
 
 Database-backed Features may register their own explicit routes and runtime. The
@@ -226,7 +226,7 @@ client::
 The selected client view root is:
 
 ```text
-clients/{CLIENT_KEY}/resources/views
+client/{CLIENT_KEY}/resources/views
 ```
 
 The public renderer currently permits these automatic presentation overrides:

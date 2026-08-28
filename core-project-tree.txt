@@ -112,7 +112,6 @@
 │   │   ├── packages.php
 │   │   └── services.php
 │   └── providers.php
-├── clients
 ├── composer.json
 ├── composer.lock
 ├── config
@@ -264,4 +263,4 @@
 │           └── ConfigMergerTest.php
 └── vite.config.js
 
-76 directories, 189 files
+75 directories, 189 files

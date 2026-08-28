@@ -103,7 +103,7 @@ if [[ -z "$CLIENT_KEY_VALUE" ]]; then
     exit 1
 fi
 
-if [[ ! -d "$ROOT_DIR/clients/$CLIENT_KEY_VALUE" ]]; then
+if [[ ! -d "$ROOT_DIR/client/$CLIENT_KEY_VALUE" ]]; then
     echo "Refusing database reset: selected client directory does not exist."
     exit 1
 fi

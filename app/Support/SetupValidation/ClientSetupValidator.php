@@ -55,7 +55,7 @@ final class ClientSetupValidator
         }
 
         $clientDirectory = rtrim($basePath, DIRECTORY_SEPARATOR)
-            .DIRECTORY_SEPARATOR.'clients'
+            .DIRECTORY_SEPARATOR.'client'
             .DIRECTORY_SEPARATOR.$clientKey;
 
         $requiredPaths = [

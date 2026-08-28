@@ -266,7 +266,7 @@ class LocationsFeatureFoundationTest extends TestCase
         $this->temporaryRoot = sys_get_temp_dir()
             .DIRECTORY_SEPARATOR.'engage-seo-locations-'.bin2hex(random_bytes(6));
 
-        $clientDirectory = $this->temporaryRoot.'/clients/locations-test-client';
+        $clientDirectory = $this->temporaryRoot.'/client/locations-test-client';
 
         File::ensureDirectoryExists($clientDirectory.'/config/pages');
         File::ensureDirectoryExists($clientDirectory.'/resources/views');

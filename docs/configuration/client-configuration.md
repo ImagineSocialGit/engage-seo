@@ -13,7 +13,7 @@ A blank `CLIENT_KEY` leaves the application in its generic platform state.
 A selected key resolves to:
 
 ```text
-clients/[CLIENT_KEY]/
+client/[CLIENT_KEY]/
 ```
 
 The key must:
@@ -55,7 +55,7 @@ When a non-cached application boots with a selected client, Engage SEO:
 1. lets Laravel load the process/root environment;
 2. resolves `CLIENT_KEY`;
 3. validates the selected client directory;
-4. parses `clients/[CLIENT_KEY]/.env`;
+4. parses `client/[CLIENT_KEY]/.env`;
 5. rejects environment keys that are not registered as client-owned;
 6. clears every registered client-owned value from the loaded process/root environment;
 7. applies the selected client's values;
@@ -129,7 +129,7 @@ config/**
 The selected client may contribute matching files under:
 
 ```text
-clients/[CLIENT_KEY]/config/**
+client/[CLIENT_KEY]/config/**
 ```
 
 Client configuration merges over platform defaults by config path.
@@ -145,7 +145,7 @@ This avoids accidental duplicate Feature lists, navigation lists, or other order
 Required client file:
 
 ```text
-clients/[CLIENT_KEY]/config/client.php
+client/[CLIENT_KEY]/config/client.php
 ```
 
 Foundation shape:
@@ -168,7 +168,7 @@ The configured key must exactly match the selected `CLIENT_KEY`.
 Client Feature selection lives in:
 
 ```text
-clients/[CLIENT_KEY]/config/features.php
+client/[CLIENT_KEY]/config/features.php
 ```
 
 Shape:
@@ -205,7 +205,7 @@ When the reusable `services` Feature is enabled, client-owned catalog
 configuration may live at:
 
 ```text
-clients/[CLIENT_KEY]/config/features/services.php
+client/[CLIENT_KEY]/config/features/services.php
 ```
 
 This file defines stable service/group keys and client-owned presentation data.
@@ -227,7 +227,7 @@ for the catalog, section, validation, link, media, and persistence contracts.
 When the reusable `blog` Feature is enabled, client-owned public Blog/Learning Center configuration may live at:
 
 ```text
-clients/[CLIENT_KEY]/config/features/blog.php
+client/[CLIENT_KEY]/config/features/blog.php
 ```
 
 The database-backed article/category rows are environment runtime data, but reviewed state is promoted through the platform editorial snapshot workflow rather than by copying the staging database.
@@ -244,7 +244,7 @@ docs/operations/editorial-promotion.md
 When the reusable `locations` Feature is enabled, client-owned geographic catalog configuration may live at:
 
 ```text
-clients/[CLIENT_KEY]/config/features/locations.php
+client/[CLIENT_KEY]/config/features/locations.php
 ```
 
 This file defines stable location/group keys plus client-owned address, fact, image, and link presentation data. A location may represent a physical location or a service area; physical address lines are optional.
@@ -318,7 +318,7 @@ docs/architecture/verticals.md
 The selected client owns public site presentation data in:
 
 ```text
-clients/[CLIENT_KEY]/config/site.php
+client/[CLIENT_KEY]/config/site.php
 ```
 
 This includes:
@@ -457,7 +457,7 @@ for the indexing, robots, sitemap, redirect, structured-data, and Feature contri
 A client replacing an existing public website may enable the migration audit through:
 
 ```text
-clients/[CLIENT_KEY]/config/seo_migration.php
+client/[CLIENT_KEY]/config/seo_migration.php
 ```
 
 Shape:
@@ -506,7 +506,7 @@ docs/architecture/old-platform-migration.md
 Static public page definitions belong under:
 
 ```text
-clients/[CLIENT_KEY]/config/pages/*.php
+client/[CLIENT_KEY]/config/pages/*.php
 ```
 
 Each page definition declares its own public `path`.

@@ -44,7 +44,7 @@ if (! in_array($timezone, timezone_identifiers_list(), true)) {
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CLIENTS_DIR="$ROOT_DIR/clients"
-CLIENT_DIR="$CLIENTS_DIR/$CLIENT_KEY"
+CLIENT_DIR="$CLIENT_ROOT/$CLIENT_KEY"
 TEMP_CLIENT_DIR=""
 
 if [[ ! -f "$ROOT_DIR/artisan" || ! -f "$ROOT_DIR/config/verticals.php" ]]; then
@@ -70,8 +70,8 @@ if [[ -e "$CLIENT_DIR" ]]; then
     exit 1
 fi
 
-mkdir -p "$CLIENTS_DIR"
-TEMP_CLIENT_DIR="$(mktemp -d "$CLIENTS_DIR/.${CLIENT_KEY}.creating.XXXXXX")"
+mkdir -p "$CLIENT_ROOT"
+TEMP_CLIENT_DIR="$(mktemp -d "$CLIENT_ROOT/.${CLIENT_KEY}.creating.XXXXXX")"
 
 cleanup() {
     if [[ -n "$TEMP_CLIENT_DIR" && -d "$TEMP_CLIENT_DIR" ]]; then
@@ -304,8 +304,8 @@ The current SEO platform does not yet define Core API destination or credential 
 
    \`\`\`bash
    sudo install -o "\$(id -un)" -g "$WEB_GROUP" -m 640 \
-     clients/$CLIENT_KEY/.env.example \
-     clients/$CLIENT_KEY/.env
+     client/$CLIENT_KEY/.env.example \
+     client/$CLIENT_KEY/.env
    \`\`\`
 
 2. Populate \`.env\` with the client URL, database identity/credentials, and client-specific namespaces.
@@ -438,15 +438,15 @@ Permissions: directories 2750; files 0640; group $WEB_GROUP
 
 Next:
   sudo install -o "$CURRENT_USER" -g "$WEB_GROUP" -m 640 \
-    clients/$CLIENT_KEY/.env.example \
-    clients/$CLIENT_KEY/.env
+    client/$CLIENT_KEY/.env.example \
+    client/$CLIENT_KEY/.env
 
-  # Populate clients/$CLIENT_KEY/.env
-  # Configure clients/$CLIENT_KEY/config/site.php
+  # Populate client/$CLIENT_KEY/.env
+  # Configure client/$CLIENT_KEY/config/site.php
   # Keep seo.indexing_enabled=false until the production site is ready to launch
-  # Add public page definitions under clients/$CLIENT_KEY/config/pages/
-  # If replacing an old site, configure clients/$CLIENT_KEY/config/seo_migration.php
-  # and clients/$CLIENT_KEY/resources/migration/legacy-urls.tsv
+  # Add public page definitions under client/$CLIENT_KEY/config/pages/
+  # If replacing an old site, configure client/$CLIENT_KEY/config/seo_migration.php
+  # and client/$CLIENT_KEY/resources/migration/legacy-urls.tsv
   # Set CLIENT_KEY=$CLIENT_KEY in the platform root .env
 
   php artisan optimize:clear
@@ -454,6 +454,6 @@ Next:
   php artisan migrate
 
 Optional client repository initialization:
-  cd clients/$CLIENT_KEY
+  cd client/$CLIENT_KEY
   git init
 EOF_DONE

@@ -23,7 +23,7 @@ services
 A client enables it in:
 
 ```text
-clients/[CLIENT_KEY]/config/features.php
+client/[CLIENT_KEY]/config/features.php
 ```
 
 ```php
@@ -50,7 +50,7 @@ When disabled:
 The Feature reads:
 
 ```text
-clients/[CLIENT_KEY]/config/features/services.php
+client/[CLIENT_KEY]/config/features/services.php
 ```
 
 The platform default is:

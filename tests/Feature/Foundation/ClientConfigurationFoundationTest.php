@@ -16,7 +16,7 @@ class ClientConfigurationFoundationTest extends TestCase
     protected function tearDown(): void
     {
         File::deleteDirectory(
-            base_path("clients/{$this->testClientKey}")
+            base_path("client/{$this->testClientKey}")
         );
 
         parent::tearDown();
@@ -25,7 +25,7 @@ class ClientConfigurationFoundationTest extends TestCase
     public function test_client_config_overrides_platform_config(): void
     {
         $clientDirectory = base_path(
-            "clients/{$this->testClientKey}/config"
+            "client/{$this->testClientKey}/config"
         );
 
         File::ensureDirectoryExists($clientDirectory);

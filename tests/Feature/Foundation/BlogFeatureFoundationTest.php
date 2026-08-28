@@ -231,7 +231,7 @@ class BlogFeatureFoundationTest extends DatabaseTestCase
             .DIRECTORY_SEPARATOR.'engage-seo-blog-migration-'.bin2hex(random_bytes(6));
 
         $migrationDirectory = $this->temporaryRoot
-            .'/clients/blog-test-client/resources/migration';
+            .'/client/blog-test-client/resources/migration';
 
         File::ensureDirectoryExists($migrationDirectory);
         File::put(

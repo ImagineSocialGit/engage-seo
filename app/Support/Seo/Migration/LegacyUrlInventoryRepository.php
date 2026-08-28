@@ -76,7 +76,7 @@ final class LegacyUrlInventoryRepository
         $basePath ??= $this->app->basePath();
 
         $inventoryPath = rtrim($basePath, DIRECTORY_SEPARATOR)
-            .DIRECTORY_SEPARATOR.'clients'
+            .DIRECTORY_SEPARATOR.'client'
             .DIRECTORY_SEPARATOR.trim($clientKey)
             .DIRECTORY_SEPARATOR.str_replace(
                 '/',

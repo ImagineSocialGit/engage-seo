@@ -22,7 +22,7 @@ final class ClientViewNamespaceRegistrar
         }
 
         $viewPath = $this->app->basePath(
-            'clients/'.trim($clientKey).'/resources/views'
+            'client/'.trim($clientKey).'/resources/views'
         );
 
         if (! is_dir($viewPath)) {

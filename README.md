@@ -24,7 +24,7 @@ Features
 Verticals
     industry/category defaults composed from Features
 
-clients/[CLIENT_KEY]
+client/[CLIENT_KEY]
     brand, content, feature selection, overrides, deployment values
 ```
 
@@ -48,10 +48,10 @@ docs/operations/editorial-promotion.md
 The platform repository ignores client directories under:
 
 ```text
-clients/
+client/
 ```
 
-except for `clients/.gitkeep`.
+except for `client/.gitkeep`.
 
 Each actual client directory may be its own Git repository.
 
@@ -85,8 +85,8 @@ CLIENT_KEY=[CLIENT_KEY]
 The selected client contributes:
 
 ```text
-clients/[CLIENT_KEY]/.env
-clients/[CLIENT_KEY]/config/**
+client/[CLIENT_KEY]/.env
+client/[CLIENT_KEY]/config/**
 ```
 
 Root `.env` owns process/machine infrastructure. The selected client `.env` owns only explicitly registered client-scoped environment values.
@@ -107,7 +107,7 @@ Rebuild configuration cache deliberately for the selected client when deployment
 Client public-site identity and shell configuration live in:
 
 ```text
-clients/[CLIENT_KEY]/config/site.php
+client/[CLIENT_KEY]/config/site.php
 ```
 
 The platform provides generic semantic header/navigation/footer rendering and neutral theme defaults.
@@ -131,7 +131,7 @@ Theme configuration maps to a fixed set of CSS custom properties rather than sto
 Static public pages are config-owned:
 
 ```text
-clients/[CLIENT_KEY]/config/pages/*.php
+client/[CLIENT_KEY]/config/pages/*.php
 ```
 
 Each page declares an explicit public path and resolves into one normalized page, metadata, and section contract.
@@ -149,7 +149,7 @@ docs/architecture/public-rendering.md
 New clients start with production indexing disabled in:
 
 ```text
-clients/[CLIENT_KEY]/config/site.php
+client/[CLIENT_KEY]/config/site.php
 ```
 
 Engage SEO permits indexing only for a selected production client with the explicit launch switch enabled.

@@ -24,7 +24,7 @@ final class ClientEnvironmentLoader
         }
 
         $clientDirectory = rtrim($basePath, DIRECTORY_SEPARATOR)
-            .DIRECTORY_SEPARATOR.'clients'
+            .DIRECTORY_SEPARATOR.'client'
             .DIRECTORY_SEPARATOR.$clientKey;
 
         if (! is_dir($clientDirectory)) {

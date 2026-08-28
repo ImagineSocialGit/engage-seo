@@ -24,7 +24,7 @@ Do not route future Blog/CMS uploads through this static build merely to reuse i
 A selected client owns raw static imagery under:
 
 ```text
-clients/{CLIENT_KEY}/resources/images/raw/
+client/{CLIENT_KEY}/resources/images/raw/
 ```
 
 Supported source formats are:
@@ -159,7 +159,7 @@ Local generated media resolves under:
 A client that mirrors generated media to another public origin may add:
 
 ```text
-clients/{CLIENT_KEY}/config/media.php
+client/{CLIENT_KEY}/config/media.php
 ```
 
 with:

@@ -17,24 +17,24 @@ class ClientSetupValidatorTest extends TestCase
         $this->temporaryRoot = sys_get_temp_dir()
             .DIRECTORY_SEPARATOR.'engage-seo-setup-validator-'.bin2hex(random_bytes(6));
 
-        File::ensureDirectoryExists($this->temporaryRoot.'/clients/validator-client/config/pages');
-        File::ensureDirectoryExists($this->temporaryRoot.'/clients/validator-client/resources/views');
-        File::ensureDirectoryExists($this->temporaryRoot.'/clients/validator-client/resources/images/raw');
+        File::ensureDirectoryExists($this->temporaryRoot.'/client/validator-client/config/pages');
+        File::ensureDirectoryExists($this->temporaryRoot.'/client/validator-client/resources/views');
+        File::ensureDirectoryExists($this->temporaryRoot.'/client/validator-client/resources/images/raw');
 
         File::put(
-            $this->temporaryRoot.'/clients/validator-client/config/client.php',
+            $this->temporaryRoot.'/client/validator-client/config/client.php',
             "<?php\n\nreturn [\n    'key' => 'validator-client',\n];\n"
         );
         File::put(
-            $this->temporaryRoot.'/clients/validator-client/config/features.php',
+            $this->temporaryRoot.'/client/validator-client/config/features.php',
             "<?php\n\nreturn [];\n"
         );
         File::put(
-            $this->temporaryRoot.'/clients/validator-client/config/site.php',
+            $this->temporaryRoot.'/client/validator-client/config/site.php',
             "<?php\n\nreturn [\n    'name' => 'Validator Test Site',\n];\n"
         );
         File::put(
-            $this->temporaryRoot.'/clients/validator-client/.env.example',
+            $this->temporaryRoot.'/client/validator-client/.env.example',
             "APP_URL=\nDB_DATABASE=\nDB_USERNAME=\nDB_PASSWORD=\n"
         );
 
@@ -61,7 +61,7 @@ class ClientSetupValidatorTest extends TestCase
     public function test_valid_selected_client_setup_passes_validation(): void
     {
         File::put(
-            $this->temporaryRoot.'/clients/validator-client/.env',
+            $this->temporaryRoot.'/client/validator-client/.env',
             implode(PHP_EOL, [
                 'APP_URL=https://validator.example.test',
                 'DB_DATABASE=validator_database',
@@ -89,7 +89,7 @@ class ClientSetupValidatorTest extends TestCase
         );
 
         File::put(
-            $this->temporaryRoot.'/clients/validator-client/.env',
+            $this->temporaryRoot.'/client/validator-client/.env',
             implode(PHP_EOL, [
                 'APP_URL=https://validator.example.test',
                 'DB_DATABASE=validator_database',
@@ -111,7 +111,7 @@ class ClientSetupValidatorTest extends TestCase
     public function test_invalid_page_configuration_fails_validation(): void
     {
         File::put(
-            $this->temporaryRoot.'/clients/validator-client/.env',
+            $this->temporaryRoot.'/client/validator-client/.env',
             implode(PHP_EOL, [
                 'APP_URL=https://validator.example.test',
                 'DB_DATABASE=validator_database',
@@ -139,7 +139,7 @@ class ClientSetupValidatorTest extends TestCase
     public function test_invalid_site_shell_configuration_fails_validation(): void
     {
         File::put(
-            $this->temporaryRoot.'/clients/validator-client/.env',
+            $this->temporaryRoot.'/client/validator-client/.env',
             implode(PHP_EOL, [
                 'APP_URL=https://validator.example.test',
                 'DB_DATABASE=validator_database',
@@ -166,7 +166,7 @@ class ClientSetupValidatorTest extends TestCase
     public function test_enabled_old_platform_migration_is_included_in_setup_validation(): void
     {
         File::put(
-            $this->temporaryRoot.'/clients/validator-client/.env',
+            $this->temporaryRoot.'/client/validator-client/.env',
             implode(PHP_EOL, [
                 'APP_URL=https://validator.example.test',
                 'DB_DATABASE=validator_database',

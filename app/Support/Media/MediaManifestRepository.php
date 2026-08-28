@@ -71,7 +71,7 @@ final class MediaManifestRepository
         $clientKey = trim($clientKey);
         $basePath ??= $this->app->basePath();
         $rawDirectory = rtrim($basePath, DIRECTORY_SEPARATOR)
-            .DIRECTORY_SEPARATOR.'clients'
+            .DIRECTORY_SEPARATOR.'client'
             .DIRECTORY_SEPARATOR.$clientKey
             .DIRECTORY_SEPARATOR.'resources'
             .DIRECTORY_SEPARATOR.'images'

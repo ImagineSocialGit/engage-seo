@@ -108,7 +108,7 @@ docs/architecture/verticals.md
 Client repositories live under:
 
 ```text
-clients/{CLIENT_KEY}/
+client/{CLIENT_KEY}/
 ```
 
 The platform repository ignores client directories so each client may be its own Git repository.

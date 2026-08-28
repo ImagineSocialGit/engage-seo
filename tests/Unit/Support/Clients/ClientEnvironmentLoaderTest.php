@@ -23,7 +23,7 @@ class ClientEnvironmentLoaderTest extends TestCase
         $this->temporaryRoot = sys_get_temp_dir()
             .DIRECTORY_SEPARATOR.'engage-seo-client-env-'.bin2hex(random_bytes(6));
 
-        mkdir($this->temporaryRoot.DIRECTORY_SEPARATOR.'clients', 0777, true);
+        mkdir($this->temporaryRoot.DIRECTORY_SEPARATOR.'client', 0777, true);
 
         $keys = [
             'CLIENT_KEY',
@@ -57,7 +57,7 @@ class ClientEnvironmentLoaderTest extends TestCase
 
     public function test_selected_client_values_replace_stale_client_owned_environment_values(): void
     {
-        $clientDirectory = $this->temporaryRoot.'/clients/example-client';
+        $clientDirectory = $this->temporaryRoot.'/client/example-client';
         mkdir($clientDirectory, 0777, true);
 
         file_put_contents(
@@ -95,7 +95,7 @@ class ClientEnvironmentLoaderTest extends TestCase
 
     public function test_client_environment_rejects_root_owned_or_unknown_keys_before_mutating_environment(): void
     {
-        $clientDirectory = $this->temporaryRoot.'/clients/example-client';
+        $clientDirectory = $this->temporaryRoot.'/client/example-client';
         mkdir($clientDirectory, 0777, true);
 
         file_put_contents(

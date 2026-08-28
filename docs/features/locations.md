@@ -15,7 +15,7 @@ The platform registers `locations` as an optional Feature.
 A client may enable it in:
 
 ```text
-clients/[CLIENT_KEY]/config/features.php
+client/[CLIENT_KEY]/config/features.php
 ```
 
 Example:
@@ -40,7 +40,7 @@ The reusable `locations` section exists only while the Feature provider is enabl
 Client-owned catalog data belongs in:
 
 ```text
-clients/[CLIENT_KEY]/config/features/locations.php
+client/[CLIENT_KEY]/config/features/locations.php
 ```
 
 Platform defaults live in:
@@ -266,7 +266,7 @@ facility pages
 Clients create the SEO pages they actually need under:
 
 ```text
-clients/[CLIENT_KEY]/config/pages/*.php
+client/[CLIENT_KEY]/config/pages/*.php
 ```
 
 Those normal configured pages remain authoritative for:
@@ -310,7 +310,7 @@ The validator does not verify client-specific geographic claims, business covera
 The normal registered-section override seam applies:
 
 ```text
-clients/[CLIENT_KEY]/resources/views/sections/locations.blade.php
+client/[CLIENT_KEY]/resources/views/sections/locations.blade.php
 ```
 
 Clients should override presentation only when necessary. The catalog remains the shared data authority.

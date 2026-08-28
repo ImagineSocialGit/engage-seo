@@ -35,7 +35,7 @@ return [
 Optional client overrides belong at:
 
 ```text
-clients/{CLIENT_KEY}/config/features/blog.php
+client/{CLIENT_KEY}/config/features/blog.php
 ```
 
 ## Public URL contract
@@ -193,9 +193,9 @@ features.blog.show
 A selected client may override them explicitly at:
 
 ```text
-clients/{CLIENT_KEY}/resources/views/features/blog/index.blade.php
-clients/{CLIENT_KEY}/resources/views/features/blog/category.blade.php
-clients/{CLIENT_KEY}/resources/views/features/blog/show.blade.php
+client/{CLIENT_KEY}/resources/views/features/blog/index.blade.php
+client/{CLIENT_KEY}/resources/views/features/blog/category.blade.php
+client/{CLIENT_KEY}/resources/views/features/blog/show.blade.php
 ```
 
 The normalized public data contract remains owned by the Feature even when presentation is overridden.

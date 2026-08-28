@@ -17,7 +17,7 @@ const clientKey = process.argv[2] ?? '';
 
 const rawDirectory = path.join(
     projectRoot,
-    'clients',
+    'client',
     clientKey,
     'resources',
     'images',

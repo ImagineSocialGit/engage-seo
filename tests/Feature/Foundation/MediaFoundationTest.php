@@ -21,14 +21,14 @@ class MediaFoundationTest extends TestCase
             .DIRECTORY_SEPARATOR.'engage-seo-media-'.bin2hex(random_bytes(6));
 
         File::ensureDirectoryExists(
-            $this->temporaryRoot.'/clients/media-test-client/resources/images/raw'
+            $this->temporaryRoot.'/client/media-test-client/resources/images/raw'
         );
         File::ensureDirectoryExists(
             $this->temporaryRoot.'/public/media/assets/hero'
         );
 
         File::put(
-            $this->temporaryRoot.'/clients/media-test-client/resources/images/raw/hero.jpg',
+            $this->temporaryRoot.'/client/media-test-client/resources/images/raw/hero.jpg',
             'raw-image-fixture',
         );
         File::put(
@@ -121,7 +121,7 @@ class MediaFoundationTest extends TestCase
     public function test_stale_raw_source_is_reported_by_manifest_validation(): void
     {
         File::put(
-            $this->temporaryRoot.'/clients/media-test-client/resources/images/raw/hero.jpg',
+            $this->temporaryRoot.'/client/media-test-client/resources/images/raw/hero.jpg',
             'changed-raw-image',
         );
 
@@ -166,7 +166,7 @@ class MediaFoundationTest extends TestCase
     private function writeManifest(string $client = 'media-test-client'): void
     {
         $rawPath = $this->temporaryRoot
-            .'/clients/media-test-client/resources/images/raw/hero.jpg';
+            .'/client/media-test-client/resources/images/raw/hero.jpg';
 
         $manifest = [
             'version' => 1,

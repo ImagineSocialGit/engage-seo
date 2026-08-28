@@ -34,7 +34,7 @@ class ClientConfigLoader
             return null;
         }
 
-        $clientDirectory = $this->app->basePath("clients/{$clientKey}");
+        $clientDirectory = $this->app->basePath("client/{$clientKey}");
         $configDirectory = $clientDirectory.'/config';
 
         if (! is_dir($clientDirectory)) {

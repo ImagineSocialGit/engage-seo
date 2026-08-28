@@ -108,7 +108,7 @@ CLIENT_KEY=example-client
 Selected client runtime file on staging:
 
 ```text
-clients/example-client/.env
+client/example-client/.env
 ```
 
 Example values:
@@ -144,7 +144,7 @@ CLIENT_KEY=example-client
 Selected client runtime file on production:
 
 ```text
-clients/example-client/.env
+client/example-client/.env
 ```
 
 Example values:
@@ -261,7 +261,7 @@ For staging:
 
 1. confirm root `APP_ENV=staging`;
 2. confirm the selected `CLIENT_KEY`;
-3. create a staging-specific `clients/[CLIENT_KEY]/.env`;
+3. create a staging-specific `client/[CLIENT_KEY]/.env`;
 4. confirm `APP_URL` uses the staging public site;
 5. confirm database/cache/Redis namespaces are staging-specific;
 6. when Core integration exists, confirm every Core destination and credential belongs to staging;
@@ -273,7 +273,7 @@ For production:
 
 1. confirm root `APP_ENV=production`;
 2. confirm the selected `CLIENT_KEY`;
-3. create a production-specific `clients/[CLIENT_KEY]/.env` independently of staging;
+3. create a production-specific `client/[CLIENT_KEY]/.env` independently of staging;
 4. confirm `APP_URL` uses the production public site;
 5. confirm database/cache/Redis namespaces are production-specific;
 6. when Core integration exists, confirm every Core destination and credential belongs to production;

@@ -40,14 +40,14 @@ The script:
 - creates disabled-by-default old-platform migration config and a legacy URL inventory template;
 - validates generated PHP;
 - assigns PHP-FPM-readable permissions;
-- atomically publishes `clients/[CLIENT_KEY]`.
+- atomically publishes `client/[CLIENT_KEY]`.
 
 It does not initialize a Git repository or create a remote.
 
 To make the generated client its own repository:
 
 ```bash
-cd clients/[CLIENT_KEY]
+cd client/[CLIENT_KEY]
 git init
 ```
 
@@ -60,8 +60,8 @@ sudo install \
   -o "$(id -un)" \
   -g www-data \
   -m 640 \
-  clients/[CLIENT_KEY]/.env.example \
-  clients/[CLIENT_KEY]/.env
+  client/[CLIENT_KEY]/.env.example \
+  client/[CLIENT_KEY]/.env
 ```
 
 Adjust the group when PHP-FPM uses a different group.
@@ -71,13 +71,13 @@ Populate the client URL, database identity/credentials, and client-specific name
 Configure public site identity/navigation/theme values in:
 
 ```text
-clients/[CLIENT_KEY]/config/site.php
+client/[CLIENT_KEY]/config/site.php
 ```
 
 Add static public pages under:
 
 ```text
-clients/[CLIENT_KEY]/config/pages/
+client/[CLIENT_KEY]/config/pages/
 ```
 
 Then set only the selected key in the platform root `.env`:
@@ -121,7 +121,7 @@ staging Engage SEO Sites -> staging Engage Core only
 production Engage SEO Sites -> production Engage Core only
 ```
 
-Do not copy a real staging `clients/[CLIENT_KEY]/.env` into production. Do not copy a real production `.env` into staging. Build each environment's real file independently from the committed `.env.example` template.
+Do not copy a real staging `client/[CLIENT_KEY]/.env` into production. Do not copy a real production `.env` into staging. Build each environment's real file independently from the committed `.env.example` template.
 
 Current staging root/client examples:
 
@@ -130,7 +130,7 @@ Current staging root/client examples:
 APP_ENV=staging
 CLIENT_KEY=[CLIENT_KEY]
 
-# clients/[CLIENT_KEY]/.env
+# client/[CLIENT_KEY]/.env
 APP_URL=https://staging.domain.com
 DB_DATABASE=client_staging
 DB_USERNAME=client_staging
@@ -146,7 +146,7 @@ Current production root/client examples:
 APP_ENV=production
 CLIENT_KEY=[CLIENT_KEY]
 
-# clients/[CLIENT_KEY]/.env
+# client/[CLIENT_KEY]/.env
 APP_URL=https://domain.com
 DB_DATABASE=client
 DB_USERNAME=client
@@ -195,7 +195,7 @@ Do not duplicate a selected-client-owned key in root `.env`.
 
 Do not promote real environment files between staging and production. Client content/configuration may move through Git/deployment, but runtime URLs, database credentials/namespaces, and future external-integration destinations/credentials must be populated per environment.
 
-The selected-client loader explicitly clears stale values for registered client-owned keys before applying `clients/[CLIENT_KEY]/.env`.
+The selected-client loader explicitly clears stale values for registered client-owned keys before applying `client/[CLIENT_KEY]/.env`.
 
 `setup:validate` reports root/client ownership violations and unsupported client environment keys.
 
@@ -262,13 +262,13 @@ The foundation refresh does not seed client content. A future install/bootstrap 
 The platform repository tracks:
 
 ```text
-clients/.gitkeep
+client/.gitkeep
 ```
 
 but ignores:
 
 ```text
-clients/*
+client/*
 ```
 
 except for that placeholder.
@@ -280,7 +280,7 @@ Each actual client directory may therefore be its own repository without its fil
 When the client replaces an existing public site, enable:
 
 ```php
-// clients/[CLIENT_KEY]/config/seo_migration.php
+// client/[CLIENT_KEY]/config/seo_migration.php
 
 return [
     'enabled' => true,
@@ -291,7 +291,7 @@ return [
 Populate the source-controlled inventory:
 
 ```text
-clients/[CLIENT_KEY]/resources/migration/legacy-urls.tsv
+client/[CLIENT_KEY]/resources/migration/legacy-urls.tsv
 ```
 
 Use one row for every known old public URL.
@@ -329,7 +329,7 @@ New clients start with production indexing disabled:
 The actual client file is:
 
 ```text
-clients/[CLIENT_KEY]/config/site.php
+client/[CLIENT_KEY]/config/site.php
 ```
 
 Before enabling indexing:
