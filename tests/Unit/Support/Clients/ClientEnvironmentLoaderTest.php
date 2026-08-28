@@ -28,6 +28,7 @@ class ClientEnvironmentLoaderTest extends TestCase
         $keys = [
             'CLIENT_KEY',
             ...ClientEnvironmentDefinition::clientOwnedKeys(),
+            'ENGAGE_SEO_FIXTURE_PROVIDER_KEY',
         ];
 
         foreach ($keys as $key) {
@@ -91,6 +92,73 @@ class ClientEnvironmentLoaderTest extends TestCase
             'client_user',
             getenv('DB_USERNAME')
         );
+    }
+
+    public function test_package_declared_client_environment_key_is_allowed_and_applied(): void
+    {
+        $clientDirectory = $this->temporaryRoot.'/client/example-client';
+        mkdir($clientDirectory.'/config', 0777, true);
+
+        file_put_contents(
+            $clientDirectory.'/config/client_packages.php',
+            <<<'PHP'
+<?php
+
+return [
+    'environment_keys' => [
+        'ENGAGE_SEO_FIXTURE_PROVIDER_KEY',
+    ],
+];
+PHP
+        );
+
+        file_put_contents(
+            $clientDirectory.'/.env',
+            implode(PHP_EOL, [
+                'APP_URL=https://client.example.test',
+                'ENGAGE_SEO_FIXTURE_PROVIDER_KEY=fixture-secret',
+                '',
+            ])
+        );
+
+        $this->setEnvironmentValue('CLIENT_KEY', 'example-client');
+        $this->setEnvironmentValue(
+            'ENGAGE_SEO_FIXTURE_PROVIDER_KEY',
+            'stale-value',
+        );
+
+        (new ClientEnvironmentLoader())->load($this->temporaryRoot);
+
+        $this->assertSame(
+            'fixture-secret',
+            getenv('ENGAGE_SEO_FIXTURE_PROVIDER_KEY')
+        );
+    }
+
+    public function test_package_environment_keys_must_use_reserved_namespace(): void
+    {
+        $clientDirectory = $this->temporaryRoot.'/client/example-client';
+        mkdir($clientDirectory.'/config', 0777, true);
+
+        file_put_contents(
+            $clientDirectory.'/config/client_packages.php',
+            <<<'PHP'
+<?php
+
+return [
+    'environment_keys' => [
+        'APP_ENV',
+    ],
+];
+PHP
+        );
+
+        $this->setEnvironmentValue('CLIENT_KEY', 'example-client');
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('ENGAGE_SEO_ namespace');
+
+        (new ClientEnvironmentLoader())->load($this->temporaryRoot);
     }
 
     public function test_client_environment_rejects_root_owned_or_unknown_keys_before_mutating_environment(): void

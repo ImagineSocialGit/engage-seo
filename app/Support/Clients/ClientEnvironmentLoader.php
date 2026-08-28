@@ -33,10 +33,13 @@ final class ClientEnvironmentLoader
             );
         }
 
+        $ownedKeys = ClientEnvironmentDefinition::clientOwnedKeys(
+            $clientDirectory,
+        );
         $environmentPath = $clientDirectory.DIRECTORY_SEPARATOR.'.env';
 
         if (! is_file($environmentPath)) {
-            foreach (ClientEnvironmentDefinition::clientOwnedKeys() as $key) {
+            foreach ($ownedKeys as $key) {
                 $this->clearEnvironmentValue($key);
             }
 
@@ -50,7 +53,7 @@ final class ClientEnvironmentLoader
 
         $unsupportedKeys = array_values(array_diff(
             array_keys($values),
-            ClientEnvironmentDefinition::clientOwnedKeys(),
+            $ownedKeys,
         ));
 
         sort($unsupportedKeys);
@@ -63,7 +66,7 @@ final class ClientEnvironmentLoader
             ));
         }
 
-        foreach (ClientEnvironmentDefinition::clientOwnedKeys() as $key) {
+        foreach ($ownedKeys as $key) {
             $this->clearEnvironmentValue($key);
         }
 

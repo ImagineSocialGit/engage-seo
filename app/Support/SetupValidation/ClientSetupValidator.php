@@ -58,6 +58,15 @@ final class ClientSetupValidator
             .DIRECTORY_SEPARATOR.'client'
             .DIRECTORY_SEPARATOR.$clientKey;
 
+        try {
+            $clientOwnedEnvironmentKeys = ClientEnvironmentDefinition::clientOwnedKeys(
+                $clientDirectory,
+            );
+        } catch (Throwable $exception) {
+            $errors[] = $exception->getMessage();
+            $clientOwnedEnvironmentKeys = ClientEnvironmentDefinition::clientOwnedKeys();
+        }
+
         $requiredPaths = [
             'config/client.php' => 'file',
             'config/features.php' => 'file',
@@ -162,7 +171,7 @@ final class ClientSetupValidator
 
             $rootConflicts = array_values(array_intersect(
                 array_keys($rootValues),
-                ClientEnvironmentDefinition::clientOwnedKeys(),
+                $clientOwnedEnvironmentKeys,
             ));
 
             sort($rootConflicts);
@@ -185,7 +194,7 @@ final class ClientSetupValidator
 
             $unsupportedKeys = array_values(array_diff(
                 array_keys($clientValues),
-                ClientEnvironmentDefinition::clientOwnedKeys(),
+                $clientOwnedEnvironmentKeys,
             ));
 
             sort($unsupportedKeys);
