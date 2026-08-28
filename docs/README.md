@@ -9,6 +9,7 @@ The documentation is intentionally organized around durable platform boundaries 
 ```text
 docs/
     architecture/
+        client-packages.md
         media-images.md
         old-platform-migration.md
         platform-boundaries.md
@@ -49,6 +50,7 @@ The platform foundation establishes:
 - one selected client through `CLIENT_KEY`;
 - client-specific environment and PHP configuration under `client/{CLIENT_KEY}`;
 - platform Git isolation for client repositories;
+- optional selected-client Composer packages for runtime code that should be physically absent from unrelated client deployments;
 - lightweight reusable Features;
 - lightweight Mortgage and Pets Verticals that compose shared Services, Locations, and Blog Features while preserving client override authority;
 - safe client scaffold/reset/refresh scripts;

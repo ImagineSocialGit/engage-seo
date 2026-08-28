@@ -8,6 +8,7 @@ use App\Console\Commands\ImportEditorialSnapshotCommand;
 use App\Console\Commands\ValidateEditorialSnapshotCommand;
 use App\Console\Commands\ValidateSetupCommand;
 use App\Support\Clients\ClientConfigLoader;
+use App\Support\Clients\ClientPackageLoader;
 use App\Support\Editorial\EditorialPromotionPolicy;
 use App\Support\Editorial\EditorialPromotionRegistry;
 use App\Support\Editorial\EditorialPromotionService;
@@ -36,6 +37,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(ClientConfigLoader::class);
+        $this->app->singleton(ClientPackageLoader::class);
         $this->app->singleton(VerticalManager::class);
         $this->app->singleton(FeatureManager::class);
         $this->app->singleton(SeoExtensionRegistry::class);
@@ -58,7 +60,12 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(EditorialPromotionPolicy::class);
         $this->app->singleton(EditorialPromotionService::class);
 
+        $packages = $this->app->make(ClientPackageLoader::class);
+        $packages->loadAutoloader();
+
         $this->app->make(ClientConfigLoader::class)->load();
+
+        $packages->registerProviders();
 
         $features = $this->app->make(FeatureManager::class);
 

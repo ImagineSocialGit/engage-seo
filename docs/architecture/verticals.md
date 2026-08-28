@@ -93,23 +93,53 @@ return [
 
 The client disable list is final Feature-enablement authority.
 
+## Optional Vertical extension packages
+
+The lightweight base Vertical registry does not require every industry-specific runtime capability to live in the Engage SEO platform repository.
+
+When a capability is genuinely Vertical-specific and should be physically absent from unrelated client deployments, it belongs in a private selected-client Composer package.
+
+For example:
+
+```text
+engage-seo/vertical-mortgage
+    mortgage-calculator
+    future mortgage-only integrations
+```
+
+The package may contribute additional Features or other documented extension points when it is installed for a selected client.
+
+Selecting:
+
+```php
+'vertical' => 'mortgage',
+```
+
+does not automatically install a private package. Package installation remains an explicit dependency of the client repository. This keeps the base Vertical contract deterministic while allowing real deployment isolation for industry-only runtime code.
+
+See:
+
+```text
+docs/architecture/client-packages.md
+```
+
 ## What does not belong in a Vertical
 
-Do not put these in platform Vertical definitions:
+Do not put these in platform Vertical definitions or reusable Vertical packages:
 
 ```text
 client branding
 client-facing page copy
 client claims
-specific services/products
-specific locations
+specific client services/products
+specific client locations
 pricing
-staff
+staff biographies
 reviews/testimonials
-NMLS/license/compliance text
-pet-training policies
-application/booking destinations
-provider IDs
+client NMLS/license/compliance text
+pet-training policies unique to one client
+client application/booking destinations
+provider account IDs
 API credentials
 external account identifiers
 ```
@@ -126,7 +156,7 @@ The first Mortgage and Pets client implementations should be used as evidence:
 
 1. keep client-specific material in the client repository;
 2. identify patterns that repeat across multiple clients in the same category;
-3. promote only those repeated patterns into a documented Vertical contract;
+3. promote only those repeated patterns into a documented Vertical contract or private Vertical package;
 4. promote cross-category behavior into a generic Feature instead.
 
 This keeps Vertical code small and prevents client-specific assumptions from hardening into platform architecture.
