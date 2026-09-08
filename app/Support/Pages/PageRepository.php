@@ -26,6 +26,28 @@ final class PageRepository
     }
 
     /**
+     * Resolve one configured page by its stable page key.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function resolveKey(string $key): ?array
+    {
+        $key = trim($key);
+
+        if ($key === '') {
+            return null;
+        }
+
+        $definition = $this->all()[$key] ?? null;
+
+        if (! is_array($definition)) {
+            return null;
+        }
+
+        return $this->normalizePage($key, $definition);
+    }
+
+    /**
      * @return array<string, mixed>|null
      */
     public function resolvePath(string $path): ?array

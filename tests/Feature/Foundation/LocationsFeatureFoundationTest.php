@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Foundation;
 
+use App\Features\Locations\GeographicTargetCatalog;
 use App\Features\Locations\LocationCatalog;
 use App\Features\Locations\LocationsServiceProvider;
 use App\Support\Sections\SectionManager;
@@ -44,20 +45,24 @@ class LocationsFeatureFoundationTest extends TestCase
         );
     }
 
-    public function test_enabled_locations_provider_registers_section_and_setup_validation_contributor(): void
+    public function test_enabled_locations_provider_registers_catalog_and_geographic_target_sections_and_validation_contributors(): void
     {
         $this->bootLocationsFeature();
 
         $this->assertTrue(
             app(SectionManager::class)->registered('locations')
         );
-        $this->assertContains(
-            LocationCatalog::class,
-            array_map(
-                static fn (object $contributor): string => $contributor::class,
-                app(SetupValidationRegistry::class)->contributors(),
-            ),
+        $this->assertTrue(
+            app(SectionManager::class)->registered('geographic-targets')
         );
+
+        $contributors = array_map(
+            static fn (object $contributor): string => $contributor::class,
+            app(SetupValidationRegistry::class)->contributors(),
+        );
+
+        $this->assertContains(LocationCatalog::class, $contributors);
+        $this->assertContains(GeographicTargetCatalog::class, $contributors);
     }
 
     public function test_location_catalog_normalizes_grouped_items_address_facts_and_safe_links(): void
@@ -259,6 +264,298 @@ class LocationsFeatureFoundationTest extends TestCase
         $this->assertNotEmpty($errors);
     }
 
+    public function test_geographic_targets_normalize_hierarchy_page_references_and_service_semantics(): void
+    {
+        $this->bootLocationsFeature();
+
+        config()->set('app.url', 'https://site.example.test');
+        config()->set('pages', [
+            'state-page' => [
+                'path' => '/state-a',
+                'meta' => [
+                    'indexable' => true,
+                ],
+                'sections' => [],
+            ],
+            'city-page' => [
+                'path' => '/city-a',
+                'meta' => [
+                    'indexable' => false,
+                ],
+                'sections' => [],
+            ],
+            'related-page' => [
+                'path' => '/city-b',
+                'sections' => [],
+            ],
+        ]);
+        config()->set('features.locations', [
+            'groups' => [],
+            'items' => [],
+            'targets' => [
+                'state-a' => [
+                    'type' => 'state',
+                    'title' => 'Fixture State',
+                    'summary' => 'Fixture state summary.',
+                    'page' => 'state-page',
+                    'service_area' => true,
+                    'physical_location' => false,
+                    'geography' => [
+                        'country_code' => 'us',
+                        'state_code' => 'aa',
+                    ],
+                ],
+                'city-a' => [
+                    'type' => 'city',
+                    'title' => 'Fixture City A',
+                    'parent' => 'state-a',
+                    'page' => 'city-page',
+                    'service_area' => true,
+                    'physical_location' => false,
+                    'geography' => [
+                        'country_code' => 'US',
+                        'state_code' => 'AA',
+                        'county' => 'Fixture County',
+                        'metro' => 'Fixture Metro',
+                    ],
+                    'related' => [
+                        'city-b',
+                    ],
+                ],
+                'city-b' => [
+                    'type' => 'market',
+                    'title' => 'Fixture Market B',
+                    'parent' => 'state-a',
+                    'page' => 'related-page',
+                    'service_area' => true,
+                    'physical_location' => false,
+                ],
+            ],
+        ]);
+
+        $catalog = app(GeographicTargetCatalog::class);
+        $targets = $catalog->targets();
+
+        $this->assertSame('/state-a', $targets['state-a']['page']['path']);
+        $this->assertTrue($targets['state-a']['page']['indexable']);
+        $this->assertFalse($targets['city-a']['page']['indexable']);
+        $this->assertSame('US', $targets['city-a']['geography']['country_code']);
+        $this->assertSame('AA', $targets['city-a']['geography']['state_code']);
+        $this->assertTrue($targets['city-a']['service_area']);
+        $this->assertFalse($targets['city-a']['physical_location']);
+        $this->assertSame(
+            ['city-a', 'city-b'],
+            array_column($catalog->children('state-a'), 'key'),
+        );
+        $this->assertSame(
+            ['state-a'],
+            array_column($catalog->ancestors('city-a'), 'key'),
+        );
+        $this->assertSame(
+            ['city-b'],
+            array_column($catalog->relatedTargets('city-a'), 'key'),
+        );
+        $this->assertSame('/city-a', $catalog->pagePath('city-a'));
+    }
+
+    public function test_geographic_targets_section_renders_root_and_child_page_links(): void
+    {
+        $this->bootLocationsFeature();
+
+        config()->set('app.url', 'https://site.example.test');
+        config()->set('features.locations', [
+            'groups' => [],
+            'items' => [],
+            'targets' => [
+                'state-a' => [
+                    'type' => 'state',
+                    'title' => 'Fixture State',
+                    'summary' => 'Fixture state summary.',
+                    'page' => 'state-page',
+                    'service_area' => true,
+                    'physical_location' => false,
+                ],
+                'city-a' => [
+                    'type' => 'city',
+                    'title' => 'Fixture City',
+                    'parent' => 'state-a',
+                    'page' => 'city-page',
+                    'service_area' => true,
+                    'physical_location' => false,
+                ],
+            ],
+        ]);
+        config()->set('pages', [
+            'state-page' => [
+                'path' => '/state-a',
+                'sections' => [],
+            ],
+            'city-page' => [
+                'path' => '/city-a',
+                'sections' => [],
+            ],
+            'locations-fixture' => [
+                'path' => '/locations-fixture',
+                'sections' => [
+                    [
+                        'component' => 'geographic-targets',
+                        'layout' => 'two',
+                        'props' => [
+                            'title' => 'Fixture geographic targets',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->get('/locations-fixture')
+            ->assertOk()
+            ->assertSee('data-section-component="geographic-targets"', false)
+            ->assertSee('data-geographic-target="state-a"', false)
+            ->assertSee('href="/state-a"', false)
+            ->assertSee('href="/city-a"', false);
+    }
+
+    public function test_target_only_configuration_does_not_require_legacy_location_items(): void
+    {
+        $this->bootLocationsFeature();
+
+        config()->set('features.locations', [
+            'groups' => [],
+            'items' => [],
+            'targets' => [
+                'region-a' => [
+                    'type' => 'region',
+                    'title' => 'Fixture Region',
+                    'service_area' => true,
+                    'physical_location' => false,
+                ],
+            ],
+        ]);
+
+        $this->assertSame(
+            [],
+            app(LocationCatalog::class)->validationErrors(),
+        );
+    }
+
+    public function test_geographic_target_validation_rejects_unknown_page_references(): void
+    {
+        $this->bootLocationsFeature();
+
+        config()->set('app.url', 'https://site.example.test');
+        config()->set('pages', []);
+        config()->set('features.locations', [
+            'groups' => [],
+            'items' => [],
+            'targets' => [
+                'region-a' => [
+                    'type' => 'region',
+                    'title' => 'Fixture Region',
+                    'page' => 'missing-page',
+                    'service_area' => true,
+                    'physical_location' => false,
+                ],
+            ],
+        ]);
+
+        $errors = app(GeographicTargetCatalog::class)->validationErrors();
+
+        $this->assertNotEmpty($errors);
+    }
+
+    public function test_geographic_target_validation_rejects_parent_cycles(): void
+    {
+        $this->bootLocationsFeature();
+
+        config()->set('features.locations', [
+            'groups' => [],
+            'items' => [],
+            'targets' => [
+                'region-a' => [
+                    'type' => 'region',
+                    'title' => 'Fixture Region A',
+                    'parent' => 'region-b',
+                    'service_area' => true,
+                    'physical_location' => false,
+                ],
+                'region-b' => [
+                    'type' => 'region',
+                    'title' => 'Fixture Region B',
+                    'parent' => 'region-a',
+                    'service_area' => true,
+                    'physical_location' => false,
+                ],
+            ],
+        ]);
+
+        $errors = app(GeographicTargetCatalog::class)->validationErrors();
+
+        $this->assertNotEmpty($errors);
+    }
+
+    public function test_geographic_target_validation_rejects_address_for_nonphysical_target(): void
+    {
+        $this->bootLocationsFeature();
+
+        config()->set('features.locations', [
+            'groups' => [],
+            'items' => [],
+            'targets' => [
+                'market-a' => [
+                    'type' => 'market',
+                    'title' => 'Fixture Market',
+                    'service_area' => true,
+                    'physical_location' => false,
+                    'address' => [
+                        '123 Fixture Street',
+                    ],
+                ],
+            ],
+        ]);
+
+        $errors = app(GeographicTargetCatalog::class)->validationErrors();
+
+        $this->assertNotEmpty($errors);
+    }
+
+    public function test_geographic_target_validation_rejects_unknown_section_selection(): void
+    {
+        $this->bootLocationsFeature();
+
+        config()->set('features.locations', [
+            'groups' => [],
+            'items' => [],
+            'targets' => [
+                'region-a' => [
+                    'type' => 'region',
+                    'title' => 'Fixture Region',
+                    'service_area' => true,
+                    'physical_location' => false,
+                ],
+            ],
+        ]);
+        config()->set('pages', [
+            'locations-fixture' => [
+                'path' => '/locations-fixture',
+                'sections' => [
+                    [
+                        'component' => 'geographic-targets',
+                        'props' => [
+                            'targets' => [
+                                'missing-target',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $errors = app(GeographicTargetCatalog::class)->validationErrors();
+
+        $this->assertNotEmpty($errors);
+    }
+
     public function test_setup_validate_includes_enabled_locations_contributor(): void
     {
         $this->bootLocationsFeature();
@@ -307,6 +604,7 @@ class LocationsFeatureFoundationTest extends TestCase
         config()->set('features.locations', [
             'groups' => [],
             'items' => [],
+            'targets' => [],
         ]);
         config()->set('pages', []);
         config()->set('site.seo.indexing_enabled', false);

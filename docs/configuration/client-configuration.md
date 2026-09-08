@@ -241,15 +241,39 @@ docs/operations/editorial-promotion.md
 
 ### Locations Feature configuration
 
-When the reusable `locations` Feature is enabled, client-owned geographic catalog configuration may live at:
+When the reusable `locations` Feature is enabled, client-owned geographic configuration may live at:
 
 ```text
 client/[CLIENT_KEY]/config/features/locations.php
 ```
 
-This file defines stable location/group keys plus client-owned address, fact, image, and link presentation data. A location may represent a physical location or a service area; physical address lines are optional.
+The Feature has two related client-owned contracts:
 
-The Locations Feature registers the reusable `locations` page section only while the Feature is enabled. Public location-detail URL ownership remains with ordinary configured pages.
+```text
+groups/items
+targets
+```
+
+`groups/items`
+: Reusable presentation catalog for facilities, offices, service areas, and other geographic entries.
+
+`targets`
+: Deliberate geographic targeting hierarchy for states, cities, regions, and markets. Targets may reference ordinary configured page keys, distinguish service areas from physical locations, define parent/child and related-market relationships, and expose narrow structured geographic fields.
+
+The Locations Feature registers:
+
+```text
+locations
+geographic-targets
+```
+
+only while the Feature is enabled.
+
+Geographic targets do **not** create routes or indexable pages. Public page paths, canonical URLs, metadata, indexability, sitemap participation, and migration destinations remain owned by ordinary configured pages under:
+
+```text
+client/[CLIENT_KEY]/config/pages/*.php
+```
 
 See:
 
@@ -257,7 +281,7 @@ See:
 docs/features/locations.md
 ```
 
-for the catalog, grouping, address, section, validation, media, link, and public-page ownership contracts.
+for the complete catalog, target, hierarchy, page-reference, section, validation, and public-page ownership contracts.
 
 ## Verticals
 

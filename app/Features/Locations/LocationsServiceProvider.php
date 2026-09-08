@@ -15,6 +15,7 @@ final class LocationsServiceProvider extends ServiceProvider
         );
 
         $this->app->singleton(LocationCatalog::class);
+        $this->app->singleton(GeographicTargetCatalog::class);
     }
 
     public function boot(
@@ -30,6 +31,17 @@ final class LocationsServiceProvider extends ServiceProvider
             ],
         ]);
 
+        config()->set('sections.available.geographic-targets', [
+            'view' => 'features.locations.geographic-targets',
+            'layouts' => [
+                'default',
+                'two',
+                'three',
+                'four',
+            ],
+        ]);
+
         $setupValidation->register(LocationCatalog::class);
+        $setupValidation->register(GeographicTargetCatalog::class);
     }
 }

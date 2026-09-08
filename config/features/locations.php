@@ -6,15 +6,20 @@ return [
     | Locations Feature
     |--------------------------------------------------------------------------
     |
-    | Client repositories may define a reusable location/service-area catalog
-    | in client/{CLIENT_KEY}/config/features/locations.php.
+    | The Feature supports two related but distinct client-owned contracts:
     |
-    | Group and item keys are stable machine keys. Client-facing names, copy,
-    | physical address lines, facts, images, and links remain client-owned.
+    | - groups/items: reusable presentation catalog for facilities, offices,
+    |   service areas, and other geographic entries;
+    | - targets: deliberate geographic SEO/service-market hierarchy that may
+    |   reference ordinary configured public pages.
+    |
+    | Geographic targets never create public pages or routes automatically.
     |
     */
 
     'groups' => [],
 
     'items' => [],
+
+    'targets' => [],
 ];

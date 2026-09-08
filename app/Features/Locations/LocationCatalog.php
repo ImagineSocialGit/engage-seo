@@ -320,8 +320,12 @@ final class LocationCatalog implements SetupValidationContributor
             return [$exception->getMessage()];
         }
 
-        if ($items === []) {
-            $errors[] = 'Locations Feature is enabled but has no configured location items.';
+        $configuredTargets = config('features.locations.targets', []);
+        $hasGeographicTargets = is_array($configuredTargets)
+            && $configuredTargets !== [];
+
+        if ($items === [] && ! $hasGeographicTargets) {
+            $errors[] = 'Locations Feature is enabled but has no configured location items or geographic targets.';
         }
 
         if ($groups !== []) {
@@ -429,7 +433,7 @@ final class LocationCatalog implements SetupValidationContributor
 
         $unknown = array_values(array_diff(
             array_keys($config),
-            ['groups', 'items'],
+            ['groups', 'items', 'targets'],
         ));
 
         if ($unknown !== []) {
