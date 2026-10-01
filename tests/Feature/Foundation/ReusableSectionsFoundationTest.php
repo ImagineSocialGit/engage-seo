@@ -56,6 +56,19 @@ class ReusableSectionsFoundationTest extends TestCase
         }
     }
 
+    public function test_presentation_v2_layouts_are_registered_as_reusable_section_contracts(): void
+    {
+        $manager = app(SectionManager::class);
+
+        $this->assertTrue($manager->supportsLayout('content', 'statement'));
+        $this->assertTrue($manager->supportsLayout('hero', 'media-dominant-right'));
+        $this->assertTrue($manager->supportsLayout('hero', 'media-dominant-left'));
+        $this->assertTrue($manager->supportsLayout('card-grid', 'editorial'));
+        $this->assertTrue($manager->supportsLayout('card-grid', 'editorial-two'));
+        $this->assertTrue($manager->supportsLayout('stats', 'strip'));
+        $this->assertTrue($manager->supportsLayout('cta', 'inline'));
+    }
+
     public function test_reusable_sections_compose_through_the_normalized_page_contract(): void
     {
         config()->set('app.url', 'https://site.example.test');
@@ -192,6 +205,67 @@ class ReusableSectionsFoundationTest extends TestCase
             ->assertSee('<iframe', false)
             ->assertSee('<details', false)
             ->assertSee('href="/destination"', false);
+    }
+
+    public function test_presentation_v2_layouts_render_through_the_existing_section_envelope(): void
+    {
+        config()->set('pages', [
+            'presentation-v2' => [
+                'path' => '/presentation-v2',
+                'sections' => [
+                    [
+                        'component' => 'hero',
+                        'layout' => 'media-dominant-right',
+                        'props' => [
+                            'title' => 'Fixture hero',
+                        ],
+                    ],
+                    [
+                        'component' => 'content',
+                        'layout' => 'statement',
+                        'props' => [
+                            'title' => 'Fixture statement',
+                        ],
+                    ],
+                    [
+                        'component' => 'card-grid',
+                        'layout' => 'editorial-two',
+                        'props' => [
+                            'items' => [
+                                ['title' => 'Fixture card'],
+                            ],
+                        ],
+                    ],
+                    [
+                        'component' => 'stats',
+                        'layout' => 'strip',
+                        'props' => [
+                            'items' => [
+                                [
+                                    'value' => '1',
+                                    'label' => 'Fixture stat',
+                                ],
+                            ],
+                        ],
+                    ],
+                    [
+                        'component' => 'cta',
+                        'layout' => 'inline',
+                        'props' => [
+                            'title' => 'Fixture CTA',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->get('/presentation-v2')
+            ->assertOk()
+            ->assertSee('data-section-layout="media-dominant-right"', false)
+            ->assertSee('data-section-layout="statement"', false)
+            ->assertSee('data-section-layout="editorial-two"', false)
+            ->assertSee('data-section-layout="strip"', false)
+            ->assertSee('data-section-layout="inline"', false);
     }
 
     public function test_section_registry_rejects_unsupported_theme_and_layout_combinations(): void

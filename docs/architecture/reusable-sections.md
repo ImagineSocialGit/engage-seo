@@ -203,7 +203,10 @@ Layouts:
 default
 narrow
 wide
+statement
 ```
+
+`statement` is intentionally more editorial than the default content block. It gives one short section room for a larger headline and supporting copy without introducing another card or CTA-heavy composition.
 
 ### `hero`
 
@@ -227,8 +230,12 @@ Layouts:
 default
 media-right
 media-left
+media-dominant-right
+media-dominant-left
 centered
 ```
+
+The `media-dominant-*` layouts preserve the same hero content/media contract but allocate more visual weight to the image. Use them when photography should lead the composition instead of treating the image as an equal-sized card beside the copy.
 
 ### `content-split`
 
@@ -275,7 +282,11 @@ two
 three
 four
 balanced-five
+editorial
+editorial-two
 ```
+
+`editorial` renders one flat, divider-led list instead of filled card surfaces. `editorial-two` keeps that treatment in two columns on wider screens. These variants are intended for sites where repeated rounded cards would create too much visual repetition.
 
 `card-grid` replaces the need for separate generic `feature-grid` and `info-grid` platform concepts.
 
@@ -319,7 +330,10 @@ Layouts:
 default
 centered
 split
+inline
 ```
+
+`inline` is a lower-density CTA treatment with divider boundaries. It is appropriate when a page needs one clear next action without turning the CTA into another large promotional band.
 
 ### `media-embed`
 
@@ -360,7 +374,10 @@ Layouts:
 default
 three
 four
+strip
 ```
+
+`strip` presents proof values as a compact divider-led row on wider screens and a simple stacked list on smaller screens. It is intended for factual supporting context that should not read like dashboard cards.
 
 ### `testimonials`
 
@@ -408,6 +425,22 @@ two-column
 ```
 
 The section does not automatically claim FAQ structured data. Structured data should be added only when the page's actual content and SEO policy warrant it.
+
+## Presentation guidance
+
+The reusable library is deliberately broader than one default marketing-site composition. Do not add an eyebrow merely because the prop exists, and do not default every grouped section to filled cards.
+
+Prefer semantic layout choices that match the information hierarchy:
+
+```text
+media-dominant hero    photography is the primary visual anchor
+statement content      one important idea needs room rather than a card grid
+editorial cards        grouped content should read like an editorial list
+stats strip            proof/context should stay compact
+inline CTA              one action is useful but a large CTA band is not
+```
+
+Client-specific Blade overrides remain the escape hatch for genuinely different markup, not the mechanism for avoiding repetitive default styling.
 
 ## Client override seam
 

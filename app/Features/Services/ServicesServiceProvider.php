@@ -26,6 +26,8 @@ final class ServicesServiceProvider extends ServiceProvider
                 'default',
                 'two',
                 'three',
+                'editorial',
+                'editorial-two',
             ],
         ]);
 

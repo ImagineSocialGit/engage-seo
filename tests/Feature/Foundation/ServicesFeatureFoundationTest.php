@@ -48,9 +48,11 @@ class ServicesFeatureFoundationTest extends TestCase
     {
         $this->bootServicesFeature();
 
-        $this->assertTrue(
-            app(SectionManager::class)->registered('services')
-        );
+        $sections = app(SectionManager::class);
+
+        $this->assertTrue($sections->registered('services'));
+        $this->assertTrue($sections->supportsLayout('services', 'editorial'));
+        $this->assertTrue($sections->supportsLayout('services', 'editorial-two'));
         $this->assertContains(
             ServiceCatalog::class,
             array_map(
@@ -132,7 +134,7 @@ class ServicesFeatureFoundationTest extends TestCase
                 'sections' => [
                     [
                         'component' => 'services',
-                        'layout' => 'three',
+                        'layout' => 'editorial-two',
                     ],
                 ],
             ],
@@ -141,6 +143,7 @@ class ServicesFeatureFoundationTest extends TestCase
         $this->get('/services-fixture')
             ->assertOk()
             ->assertSee('data-section-component="services"', false)
+            ->assertSee('data-section-layout="editorial-two"', false)
             ->assertSee('<article class="section-card">', false)
             ->assertSee('<strong>', false)
             ->assertSee('href="/destination"', false);

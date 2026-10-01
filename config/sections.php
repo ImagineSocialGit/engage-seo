@@ -30,6 +30,7 @@ return [
                 'default',
                 'narrow',
                 'wide',
+                'statement',
             ],
         ],
 
@@ -39,6 +40,8 @@ return [
                 'default',
                 'media-right',
                 'media-left',
+                'media-dominant-right',
+                'media-dominant-left',
                 'centered',
             ],
         ],
@@ -60,6 +63,8 @@ return [
                 'three',
                 'four',
                 'balanced-five',
+                'editorial',
+                'editorial-two',
             ],
         ],
 
@@ -78,6 +83,7 @@ return [
                 'default',
                 'centered',
                 'split',
+                'inline',
             ],
         ],
 
@@ -96,6 +102,7 @@ return [
                 'default',
                 'three',
                 'four',
+                'strip',
             ],
         ],
 

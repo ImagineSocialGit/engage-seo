@@ -199,7 +199,11 @@ Supported layouts:
 default
 two
 three
+editorial
+editorial-two
 ```
+
+`editorial` and `editorial-two` use the same Services catalog data while replacing filled card surfaces with a flatter divider-led presentation. They are presentation choices only; they do not change service grouping, facts, links, or catalog ownership.
 
 A normal page may render the complete catalog:
 
