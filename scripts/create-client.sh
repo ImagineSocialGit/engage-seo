@@ -43,7 +43,7 @@ if (! in_array($timezone, timezone_identifiers_list(), true)) {
 ' "$CLIENT_TIMEZONE"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-CLIENT_DIR="$ROOT_DIR/client"
+CLIENT_ROOT="$ROOT_DIR/client"
 CLIENT_DIR="$CLIENT_ROOT/$CLIENT_KEY"
 TEMP_CLIENT_DIR=""
 

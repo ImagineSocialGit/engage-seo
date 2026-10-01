@@ -30,6 +30,7 @@ class BlogFeatureFoundationTest extends DatabaseTestCase
         config()->set('app.url', 'https://site.example.test');
         config()->set('site.name', 'Fixture Site');
         config()->set('features.blog.path', '/blog');
+        config()->set('features.blog.legacy_paths', []);
         config()->set('features.blog.posts_per_page', 12);
         config()->set('features.blog.category_indexable', true);
         config()->set('features.blog.index', [
@@ -260,13 +261,60 @@ class BlogFeatureFoundationTest extends DatabaseTestCase
         $this->assertSame([], $result->errors);
     }
 
+    public function test_legacy_blog_paths_redirect_only_known_published_content(): void
+    {
+        config()->set('features.blog.path', '/resources');
+        config()->set('features.blog.legacy_paths', [
+            '/blog',
+        ]);
+
+        $this->bootBlogFeature();
+        $this->createBlogTables();
+
+        $category = BlogCategory::query()->create([
+            'slug' => 'fixture-category',
+            'name' => 'Fixture Category',
+        ]);
+        $published = $this->createPost(
+            'published-post',
+            now()->subHour(),
+        );
+        $published->categories()->attach($category);
+        $this->createPost('draft-post', null);
+
+        $this->get('/blog')
+            ->assertStatus(301)
+            ->assertRedirect('/resources');
+
+        $this->get('/blog/published-post')
+            ->assertStatus(301)
+            ->assertRedirect('/resources/published-post');
+
+        $this->get('/blog/category/fixture-category')
+            ->assertStatus(301)
+            ->assertRedirect('/resources/category/fixture-category');
+
+        $this->get('/blog/draft-post')
+            ->assertNotFound();
+
+        $this->get('/blog/unknown-post')
+            ->assertNotFound();
+    }
+
     public function test_blog_setup_validation_rejects_static_page_and_redirect_collisions(): void
     {
         $this->bootBlogFeature();
 
+        config()->set('features.blog.legacy_paths', [
+            '/old-learning-center',
+        ]);
         config()->set('pages', [
             'conflict' => [
                 'path' => '/blog/static-page',
+                'sections' => [],
+            ],
+            'legacy-conflict' => [
+                'path' => '/old-learning-center/static-page',
                 'sections' => [],
             ],
         ]);

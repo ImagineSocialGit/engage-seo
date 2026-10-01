@@ -14,6 +14,7 @@ final class BlogMetaResolver
         private readonly BlogConfiguration $configuration,
         private readonly PageMetaResolver $pages,
         private readonly MediaAssetResolver $media,
+        private readonly BlogAuthorResolver $authors,
     ) {
     }
 
@@ -79,6 +80,7 @@ final class BlogMetaResolver
                 ?? $post->published_at?->toAtomString(),
             'publisher' => [
                 '@type' => 'Organization',
+                '@id' => rtrim($this->absoluteUrl('/'), '/').'/#organization',
                 'name' => $this->siteName(),
             ],
         ];
@@ -87,11 +89,36 @@ final class BlogMetaResolver
             $node['description'] = trim($post->excerpt);
         }
 
-        if (is_string($post->author_name) && trim($post->author_name) !== '') {
-            $node['author'] = [
+        $author = $this->authors->resolve($post->author_name);
+
+        if ($author !== null) {
+            $authorNode = [
                 '@type' => 'Person',
-                'name' => trim($post->author_name),
+                'name' => $author['name'],
             ];
+
+            $profile = $author['profile'];
+
+            if (is_array($profile)) {
+                $profileUrl = $profile['url'] ?? null;
+
+                if (is_string($profileUrl) && trim($profileUrl) !== '') {
+                    $authorNode['url'] = $this->absoluteUrl($profileUrl);
+                    $authorNode['@id'] = $this->absoluteUrl($profileUrl).'#person';
+                }
+
+                if (is_string($profile['job_title'] ?? null)) {
+                    $authorNode['jobTitle'] = $profile['job_title'];
+                }
+
+                if (is_array($profile['same_as'] ?? null)
+                    && $profile['same_as'] !== []
+                ) {
+                    $authorNode['sameAs'] = array_values($profile['same_as']);
+                }
+            }
+
+            $node['author'] = $authorNode;
         }
 
         if ($image !== null) {

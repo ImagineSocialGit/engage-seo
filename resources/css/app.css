@@ -41,6 +41,47 @@ html {
     margin-inline: auto;
 }
 
+.page-breadcrumbs {
+    border-bottom: 1px solid var(--site-color-border);
+    background: var(--site-color-surface);
+}
+
+.page-breadcrumbs__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 2.75rem;
+    margin: 0;
+    padding: 0.55rem 0;
+    list-style: none;
+    color: var(--site-color-muted);
+    font-size: 0.82rem;
+    line-height: 1.4;
+}
+
+.page-breadcrumbs__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.page-breadcrumbs__item:not(:last-child)::after {
+    content: '/';
+    color: var(--site-color-border);
+    font-weight: 700;
+}
+
+.page-breadcrumbs__item a {
+    color: inherit;
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.18em;
+}
+
+.page-breadcrumbs__item a:hover {
+    color: var(--site-color-text);
+}
+
 .shell-region {
     --shell-background: var(--site-color-background);
     --shell-surface: var(--site-color-surface);

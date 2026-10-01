@@ -19,13 +19,18 @@ use App\Support\Pages\PageRepository;
 use App\Support\Sections\SectionManager;
 use App\Support\Seo\Migration\LegacyUrlInventoryRepository;
 use App\Support\Seo\Migration\SeoMigrationAuditor;
+use App\Support\Seo\PageBreadcrumbStructuredDataContributor;
+use App\Support\Seo\PageFaqStructuredDataContributor;
+use App\Support\Seo\PagePersonStructuredDataContributor;
 use App\Support\Seo\RedirectRepository;
 use App\Support\Seo\SeoExtensionRegistry;
 use App\Support\Seo\SeoIndexingPolicy;
 use App\Support\Seo\SitemapBuilder;
+use App\Support\Seo\SiteOrganizationStructuredDataContributor;
 use App\Support\Seo\StructuredDataResolver;
 use App\Support\SetupValidation\ClientSetupValidator;
 use App\Support\SetupValidation\SetupValidationRegistry;
+use App\Support\Site\SitePeopleResolver;
 use App\Support\Site\SitePresentationResolver;
 use App\Support\Verticals\VerticalManager;
 use App\Support\Views\ClientViewNamespaceRegistrar;
@@ -50,7 +55,12 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(SitemapBuilder::class);
         $this->app->singleton(StructuredDataResolver::class);
         $this->app->singleton(SectionManager::class);
+        $this->app->singleton(SitePeopleResolver::class);
         $this->app->singleton(SitePresentationResolver::class);
+        $this->app->singleton(SiteOrganizationStructuredDataContributor::class);
+        $this->app->singleton(PagePersonStructuredDataContributor::class);
+        $this->app->singleton(PageBreadcrumbStructuredDataContributor::class);
+        $this->app->singleton(PageFaqStructuredDataContributor::class);
         $this->app->singleton(ClientViewNamespaceRegistrar::class);
         $this->app->singleton(PageViewResolver::class);
         $this->app->singleton(SetupValidationRegistry::class);
@@ -75,8 +85,22 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(
         ClientViewNamespaceRegistrar $clientViews,
+        SeoExtensionRegistry $seo,
     ): void {
         $clientViews->register();
+
+        $seo->registerStructuredDataContributor(
+            SiteOrganizationStructuredDataContributor::class
+        );
+        $seo->registerStructuredDataContributor(
+            PagePersonStructuredDataContributor::class
+        );
+        $seo->registerStructuredDataContributor(
+            PageBreadcrumbStructuredDataContributor::class
+        );
+        $seo->registerStructuredDataContributor(
+            PageFaqStructuredDataContributor::class
+        );
 
         if ($this->app->runningInConsole()) {
             $this->commands([

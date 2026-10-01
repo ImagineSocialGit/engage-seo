@@ -3,6 +3,8 @@
 namespace App\Support\Pages;
 
 use App\Support\Sections\SectionManager;
+use App\Support\Site\SiteLinkNormalizer;
+use App\Support\Site\SitePeopleResolver;
 use InvalidArgumentException;
 
 final class PageRepository
@@ -10,6 +12,8 @@ final class PageRepository
     public function __construct(
         private readonly PageMetaResolver $meta,
         private readonly SectionManager $sections,
+        private readonly SiteLinkNormalizer $links,
+        private readonly SitePeopleResolver $people,
     ) {
     }
 
@@ -160,6 +164,25 @@ final class PageRepository
                 $paths[$normalizedPath] = $key;
             }
 
+            $person = $definition['person'] ?? null;
+
+            if ($person !== null
+                && (! is_string($person) || trim($person) === '')
+            ) {
+                $errors[] = "Page [{$key}] person must be null or a non-blank site person key.";
+            } elseif (is_string($person) && $this->people->find($person) === null) {
+                $errors[] = "Page [{$key}] references unknown site person [{$person}].";
+            }
+
+            try {
+                $this->normalizeBreadcrumbs(
+                    $definition['breadcrumbs'] ?? [],
+                    $normalizedPath,
+                );
+            } catch (InvalidArgumentException $exception) {
+                $errors[] = "Page [{$key}] {$exception->getMessage()}";
+            }
+
             $meta = $definition['meta'] ?? [];
 
             if (! is_array($meta)) {
@@ -285,9 +308,32 @@ final class PageRepository
             $normalizedSections[] = $this->normalizeSection($section);
         }
 
+        $person = $definition['person'] ?? null;
+
+        if ($person !== null) {
+            if (! is_string($person) || trim($person) === '') {
+                throw new InvalidArgumentException(
+                    "Page [{$key}] person must be null or a non-blank site person key."
+                );
+            }
+
+            $person = trim($person);
+
+            if ($this->people->find($person) === null) {
+                throw new InvalidArgumentException(
+                    "Page [{$key}] references unknown site person [{$person}]."
+                );
+            }
+        }
+
         return [
             'key' => $key,
             'path' => $path,
+            'person' => $person,
+            'breadcrumbs' => $this->normalizeBreadcrumbs(
+                $definition['breadcrumbs'] ?? [],
+                $path,
+            ),
             'meta' => $this->meta->resolve($meta, $path),
             'sections' => $normalizedSections,
         ];
@@ -357,6 +403,83 @@ final class PageRepository
             'overrides' => $overrides,
             'props' => $props,
         ];
+    }
+
+    /**
+     * @return list<array{label: string, url: string}>
+     */
+    private function normalizeBreadcrumbs(
+        mixed $value,
+        string $currentPath,
+    ): array {
+        if (! is_array($value) || ! array_is_list($value)) {
+            throw new InvalidArgumentException(
+                'breadcrumbs must be a list.'
+            );
+        }
+
+        $resolved = [];
+
+        foreach ($value as $index => $item) {
+            if (! is_array($item)) {
+                throw new InvalidArgumentException(
+                    "breadcrumb [{$index}] must be an array."
+                );
+            }
+
+            $unknown = array_values(array_diff(
+                array_keys($item),
+                ['label', 'url'],
+            ));
+
+            if ($unknown !== []) {
+                sort($unknown);
+
+                throw new InvalidArgumentException(
+                    "breadcrumb [{$index}] contains unsupported key(s): "
+                    .implode(', ', $unknown).'.'
+                );
+            }
+
+            $label = $this->nullableString(
+                $item['label'] ?? null,
+                "Page breadcrumb [{$index}.label]",
+            );
+            $url = $this->nullableString(
+                $item['url'] ?? null,
+                "Page breadcrumb [{$index}.url]",
+            );
+
+            if ($label === null || $url === null) {
+                throw new InvalidArgumentException(
+                    "breadcrumb [{$index}] requires non-blank [label] and [url]."
+                );
+            }
+
+            $this->links->assertHttpOrPathUrl(
+                $url,
+                "pages.breadcrumbs.{$index}.url",
+            );
+
+            $resolved[] = [
+                'label' => $label,
+                'url' => $url,
+            ];
+        }
+
+        if ($resolved !== []) {
+            $last = $resolved[array_key_last($resolved)];
+
+            if ($this->links->normalizePath($last['url'])
+                !== $this->links->normalizePath($currentPath)
+            ) {
+                throw new InvalidArgumentException(
+                    'breadcrumbs must end with the current page URL.'
+                );
+            }
+        }
+
+        return $resolved;
     }
 
     private function normalizePath(string $path): string

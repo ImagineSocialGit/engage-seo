@@ -15,9 +15,18 @@ return [
 
     'path' => '/blog',
 
+    'legacy_paths' => [],
+
     'posts_per_page' => 12,
 
     'category_indexable' => true,
+
+    /*
+     * Exact public author-name => site.people key mapping. The Blog database
+     * keeps author_name as editorial content; the site person supplies the
+     * reusable public identity/profile URL.
+     */
+    'author_profiles' => [],
 
     'index' => [
         'title' => 'Blog',

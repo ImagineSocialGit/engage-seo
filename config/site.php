@@ -23,6 +23,12 @@ return [
         'social_links' => [],
     ],
 
+    /*
+     * Stable public people used by biography pages, author bylines, and
+     * structured data. Client-specific identity stays in client config.
+     */
+    'people' => [],
+
     'seo' => [
         /*
          * Production indexing is an explicit launch switch.

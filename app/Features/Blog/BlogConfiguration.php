@@ -22,47 +22,52 @@ final class BlogConfiguration
     public function basePath(): string
     {
         $config = $this->configuration();
-        $path = $config['path'] ?? '/blog';
 
-        if (! is_string($path)) {
+        return $this->normalizeBasePath(
+            $config['path'] ?? '/blog',
+            'Blog Feature [path]',
+        );
+    }
+
+    /**
+     * Known previous Blog base paths that should preserve existing article and
+     * category URLs with scoped 301 redirects.
+     *
+     * @return list<string>
+     */
+    public function legacyPaths(): array
+    {
+        $config = $this->configuration();
+        $paths = $config['legacy_paths'] ?? [];
+
+        if (! is_array($paths) || ! array_is_list($paths)) {
             throw new InvalidArgumentException(
-                'Blog Feature [path] must be a string.'
+                'Blog Feature [legacy_paths] must be a list of absolute site paths.'
             );
         }
 
-        $path = trim($path);
+        $resolved = [];
 
-        if ($path === ''
-            || ! str_starts_with($path, '/')
-            || str_starts_with($path, '//')
-            || str_contains($path, '?')
-            || str_contains($path, '#')
-            || str_contains($path, '\\')
-        ) {
-            throw new InvalidArgumentException(
-                'Blog Feature [path] must be an absolute site path without a query string, fragment, or backslash.'
+        foreach ($paths as $index => $path) {
+            $resolved[] = $this->normalizeBasePath(
+                $path,
+                "Blog Feature [legacy_paths.{$index}]",
             );
         }
 
-        $path = $path === '/'
-            ? '/'
-            : '/'.trim($path, '/');
-
-        if (in_array($path, self::RESERVED_BASE_PATHS, true)) {
+        if (count($resolved) !== count(array_unique($resolved))) {
             throw new InvalidArgumentException(
-                "Blog Feature [path] may not use reserved platform path [{$path}]."
+                'Blog Feature [legacy_paths] must not contain duplicates.'
             );
         }
 
-        foreach (explode('/', trim($path, '/')) as $segment) {
-            if (preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $segment) !== 1) {
-                throw new InvalidArgumentException(
-                    'Blog Feature [path] segments must use lowercase letters, numbers, and hyphens.'
-                );
-            }
+        if (in_array($this->basePath(), $resolved, true)) {
+            throw new InvalidArgumentException(
+                'Blog Feature [legacy_paths] may not contain the current Blog path.'
+            );
         }
 
-        return $path;
+        return $resolved;
     }
 
     public function articlePath(string $slug): string
@@ -104,6 +109,52 @@ final class BlogConfiguration
         }
 
         return $value;
+    }
+
+    /**
+     * Map exact public author names stored on Blog posts to stable site person
+     * keys from site.people.
+     *
+     * @return array<string, string>
+     */
+    public function authorProfiles(): array
+    {
+        $config = $this->configuration();
+        $profiles = $config['author_profiles'] ?? [];
+
+        if (! is_array($profiles)) {
+            throw new InvalidArgumentException(
+                'Blog Feature [author_profiles] must be an array.'
+            );
+        }
+
+        if ($profiles !== [] && array_is_list($profiles)) {
+            throw new InvalidArgumentException(
+                'Blog Feature [author_profiles] must map author names to site person keys.'
+            );
+        }
+
+        $resolved = [];
+
+        foreach ($profiles as $authorName => $personKey) {
+            if (! is_string($authorName) || trim($authorName) === '') {
+                throw new InvalidArgumentException(
+                    'Blog Feature [author_profiles] contains an invalid author name.'
+                );
+            }
+
+            if (! is_string($personKey)
+                || preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', trim($personKey)) !== 1
+            ) {
+                throw new InvalidArgumentException(
+                    "Blog Feature [author_profiles.{$authorName}] must be a valid site person key."
+                );
+            }
+
+            $resolved[trim($authorName)] = trim($personKey);
+        }
+
+        return $resolved;
     }
 
     /**
@@ -208,8 +259,10 @@ final class BlogConfiguration
 
         foreach ([
             fn (): string => $this->basePath(),
+            fn (): array => $this->legacyPaths(),
             fn (): int => $this->postsPerPage(),
             fn (): bool => $this->categoryIndexable(),
+            fn (): array => $this->authorProfiles(),
             fn (): array => $this->index(),
         ] as $check) {
             try {
@@ -239,8 +292,10 @@ final class BlogConfiguration
             $config,
             [
                 'path',
+                'legacy_paths',
                 'posts_per_page',
                 'category_indexable',
+                'author_profiles',
                 'index',
             ],
             'Blog Feature configuration',
@@ -296,6 +351,49 @@ final class BlogConfiguration
             ),
             'actions' => $actions,
         ];
+    }
+
+    private function normalizeBasePath(mixed $value, string $context): string
+    {
+        if (! is_string($value)) {
+            throw new InvalidArgumentException(
+                "{$context} must be a string."
+            );
+        }
+
+        $path = trim($value);
+
+        if ($path === ''
+            || ! str_starts_with($path, '/')
+            || str_starts_with($path, '//')
+            || str_contains($path, '?')
+            || str_contains($path, '#')
+            || str_contains($path, '\\')
+        ) {
+            throw new InvalidArgumentException(
+                "{$context} must be an absolute site path without a query string, fragment, or backslash."
+            );
+        }
+
+        $path = $path === '/'
+            ? '/'
+            : '/'.trim($path, '/');
+
+        if (in_array($path, self::RESERVED_BASE_PATHS, true)) {
+            throw new InvalidArgumentException(
+                "{$context} may not use reserved platform path [{$path}]."
+            );
+        }
+
+        foreach (explode('/', trim($path, '/')) as $segment) {
+            if (preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $segment) !== 1) {
+                throw new InvalidArgumentException(
+                    "{$context} segments must use lowercase letters, numbers, and hyphens."
+                );
+            }
+        }
+
+        return $path;
     }
 
     private function slug(string $value, string $context): string

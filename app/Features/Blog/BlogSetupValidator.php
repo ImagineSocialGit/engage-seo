@@ -4,6 +4,7 @@ namespace App\Features\Blog;
 
 use App\Contracts\SetupValidation\SetupValidationContributor;
 use App\Support\Seo\RedirectRepository;
+use App\Support\Site\SitePeopleResolver;
 use InvalidArgumentException;
 
 final class BlogSetupValidator implements SetupValidationContributor
@@ -11,6 +12,7 @@ final class BlogSetupValidator implements SetupValidationContributor
     public function __construct(
         private readonly BlogConfiguration $configuration,
         private readonly RedirectRepository $redirects,
+        private readonly SitePeopleResolver $people,
     ) {
     }
 
@@ -22,7 +24,19 @@ final class BlogSetupValidator implements SetupValidationContributor
             return $errors;
         }
 
+        $people = $this->people->all();
+
+        foreach ($this->configuration->authorProfiles() as $authorName => $personKey) {
+            if (! array_key_exists($personKey, $people)) {
+                $errors[] = "Blog author profile [{$authorName}] references unknown site person [{$personKey}].";
+            }
+        }
+
         $blogPath = $this->configuration->basePath();
+        $routeSpaces = [
+            $blogPath,
+            ...$this->configuration->legacyPaths(),
+        ];
         $pages = config('pages', []);
 
         if (is_array($pages)) {
@@ -43,8 +57,10 @@ final class BlogSetupValidator implements SetupValidationContributor
                     continue;
                 }
 
-                if ($this->routeOwnsPath($blogPath, $path)) {
-                    $errors[] = "Configured page [{$pageKey}] path [{$path}] conflicts with Blog Feature route space [{$blogPath}].";
+                foreach ($routeSpaces as $routeSpace) {
+                    if ($this->routeOwnsPath($routeSpace, $path)) {
+                        $errors[] = "Configured page [{$pageKey}] path [{$path}] conflicts with Blog Feature route space [{$routeSpace}].";
+                    }
                 }
             }
         }
@@ -53,8 +69,10 @@ final class BlogSetupValidator implements SetupValidationContributor
             foreach ($this->redirects->all() as $redirect) {
                 $from = $redirect['from'];
 
-                if ($this->routeOwnsPath($blogPath, $from)) {
-                    $errors[] = "SEO redirect source [{$from}] conflicts with Blog Feature route space [{$blogPath}].";
+                foreach ($routeSpaces as $routeSpace) {
+                    if ($this->routeOwnsPath($routeSpace, $from)) {
+                        $errors[] = "SEO redirect source [{$from}] conflicts with Blog Feature route space [{$routeSpace}].";
+                    }
                 }
             }
         }

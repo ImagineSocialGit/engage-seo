@@ -3,6 +3,7 @@
 namespace App\Features\Blog;
 
 use App\Features\Blog\Http\Controllers\BlogController;
+use App\Features\Blog\Http\Controllers\BlogLegacyRedirectController;
 use App\Support\Editorial\EditorialPromotionRegistry;
 use App\Support\Seo\SeoExtensionRegistry;
 use App\Support\SetupValidation\SetupValidationRegistry;
@@ -21,6 +22,7 @@ final class BlogServiceProvider extends ServiceProvider
 
         $this->app->singleton(BlogConfiguration::class);
         $this->app->singleton(BlogContentNormalizer::class);
+        $this->app->singleton(BlogAuthorResolver::class);
         $this->app->singleton(BlogRepository::class);
         $this->app->singleton(BlogPresenter::class);
         $this->app->singleton(BlogMetaResolver::class);
@@ -48,13 +50,31 @@ final class BlogServiceProvider extends ServiceProvider
         );
 
         try {
-            $path = $this->app->make(BlogConfiguration::class)
-                ->basePath();
+            $configuration = $this->app->make(BlogConfiguration::class);
+            $path = $configuration->basePath();
+            $legacyPaths = $configuration->legacyPaths();
         } catch (InvalidArgumentException) {
             return;
         }
 
-        Route::middleware('web')->group(function () use ($path): void {
+        Route::middleware('web')->group(function () use ($path, $legacyPaths): void {
+            foreach ($legacyPaths as $legacyPath) {
+                Route::get(
+                    $legacyPath,
+                    [BlogLegacyRedirectController::class, 'index'],
+                );
+
+                Route::get(
+                    $legacyPath.'/category/{categorySlug}',
+                    [BlogLegacyRedirectController::class, 'category'],
+                );
+
+                Route::get(
+                    $legacyPath.'/{postSlug}',
+                    [BlogLegacyRedirectController::class, 'show'],
+                );
+            }
+
             Route::get(
                 $path,
                 [BlogController::class, 'index'],

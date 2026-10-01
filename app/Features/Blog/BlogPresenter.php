@@ -11,6 +11,7 @@ final class BlogPresenter
     public function __construct(
         private readonly BlogConfiguration $configuration,
         private readonly BlogContentNormalizer $content,
+        private readonly BlogAuthorResolver $authors,
     ) {
     }
 
@@ -44,6 +45,7 @@ final class BlogPresenter
             'title' => $post->title,
             'excerpt' => $post->excerpt,
             'author_name' => $post->author_name,
+            'author' => $this->authors->resolve($post->author_name),
             'featured' => (bool) $post->featured,
             'image' => $image,
             'published_at' => $post->published_at,

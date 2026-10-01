@@ -189,15 +189,10 @@ class SeoInfrastructureFoundationTest extends TestCase
         $nodes = app(StructuredDataResolver::class)
             ->resolve($page, $site);
 
-        $this->assertCount(2, $nodes);
-        $this->assertSame(
-            'WebPage',
-            $nodes[0]['@type']
-        );
-        $this->assertSame(
-            'Thing',
-            $nodes[1]['@type']
-        );
+        $types = array_column($nodes, '@type');
+
+        $this->assertContains('WebPage', $types);
+        $this->assertContains('Thing', $types);
     }
 }
 

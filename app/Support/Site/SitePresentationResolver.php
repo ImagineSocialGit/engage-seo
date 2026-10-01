@@ -41,6 +41,7 @@ final class SitePresentationResolver
     public function __construct(
         private readonly SiteLinkNormalizer $links,
         private readonly BusinessPresentationResolver $business,
+        private readonly SitePeopleResolver $people,
         private readonly SiteShellResolver $shell,
     ) {
     }
@@ -55,6 +56,7 @@ final class SitePresentationResolver
         return [
             ...$this->identity(),
             'business' => $this->business->resolve($currentPath),
+            'people' => $this->people->all(),
             'shell' => $this->shell->resolve($currentPath),
             'theme' => $this->theme(),
         ];
@@ -70,6 +72,7 @@ final class SitePresentationResolver
         foreach ([
             fn (): array => $this->identity(),
             fn (): array => $this->business->resolve('/'),
+            fn (): array => $this->people->all(),
             fn (): array => $this->shell->resolve('/'),
             fn (): array => $this->theme(),
         ] as $check) {

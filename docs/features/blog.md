@@ -66,6 +66,23 @@ The fixed `category` path segment owns only `/category/{category-slug}`; ordinar
 
 The base path must use lowercase URL-safe segments and may not collide with platform routes, configured static pages, or runtime redirect sources.
 
+When an established Blog/Learning Center namespace is intentionally renamed, configure
+known previous base paths instead of abandoning existing article URLs:
+
+```php
+return [
+    'path' => '/resources',
+    'legacy_paths' => [
+        '/learning-center',
+    ],
+];
+```
+
+A legacy base path owns scoped 301 preservation routes for the old index, category, and
+published article URLs. Published article/category slugs are carried to the current base path.
+Unknown or unpublished old article slugs remain 404s; the legacy namespace is not a catch-all
+redirect to unrelated content.
+
 ## Persistence
 
 The Feature owns:
@@ -170,6 +187,11 @@ featured image
 Article JSON-LD
 ```
 
+Optional `author_profiles` may map the exact `author_name` stored on a Blog post to a
+stable person in `site.people`. When mapped, the visible byline links to the person's public
+profile and Article JSON-LD references that Person URL/ID. Unmapped author names continue to
+render as plain names.
+
 The Feature contributes intended indexable URLs through the existing `SitemapContributor` seam:
 
 ```text
@@ -265,6 +287,8 @@ Generic Blog tests cover:
 - structured content safety;
 - sitemap contribution;
 - old-platform redirect coverage into Feature-owned URLs;
+- scoped legacy Blog namespace redirects;
+- author-profile mapping;
 - route-space/configuration validation.
 
 Tests do not freeze client article titles, marketing wording, visual classes, or exact client-facing copy.

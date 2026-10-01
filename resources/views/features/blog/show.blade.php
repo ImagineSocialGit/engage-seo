@@ -13,8 +13,14 @@
                 @endif
 
                 <div class="blog-article__meta">
-                    @if($post['author_name'])
-                        <span>{{ $post['author_name'] }}</span>
+                    @if($post['author'])
+                        @if(is_array($post['author']['profile']) && $post['author']['profile']['url'])
+                            <a href="{{ $post['author']['profile']['url'] }}">
+                                {{ $post['author']['name'] }}
+                            </a>
+                        @else
+                            <span>{{ $post['author']['name'] }}</span>
+                        @endif
                     @endif
 
                     @if($post['published_at'])
