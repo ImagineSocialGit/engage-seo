@@ -4,6 +4,7 @@ namespace App\Features\Blog;
 
 use App\Features\Blog\Http\Controllers\BlogController;
 use App\Features\Blog\Http\Controllers\BlogLegacyRedirectController;
+use App\Support\Clients\ClientBootstrapRegistry;
 use App\Support\Editorial\EditorialPromotionRegistry;
 use App\Support\Seo\SeoExtensionRegistry;
 use App\Support\SetupValidation\SetupValidationRegistry;
@@ -21,6 +22,7 @@ final class BlogServiceProvider extends ServiceProvider
         );
 
         $this->app->singleton(BlogConfiguration::class);
+        $this->app->singleton(BlogClientBootstrapContributor::class);
         $this->app->singleton(BlogContentNormalizer::class);
         $this->app->singleton(BlogAuthorResolver::class);
         $this->app->singleton(BlogRepository::class);
@@ -34,6 +36,7 @@ final class BlogServiceProvider extends ServiceProvider
 
     public function boot(
         SetupValidationRegistry $setupValidation,
+        ClientBootstrapRegistry $bootstrap,
         SeoExtensionRegistry $seo,
         EditorialPromotionRegistry $editorial,
     ): void {
@@ -42,6 +45,7 @@ final class BlogServiceProvider extends ServiceProvider
         );
 
         $setupValidation->register(BlogSetupValidator::class);
+        $bootstrap->register(BlogClientBootstrapContributor::class);
         $seo->registerSitemapContributor(
             BlogSitemapContributor::class
         );

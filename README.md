@@ -208,7 +208,21 @@ Refresh:
 ./scripts/dev-refresh-client.sh
 ```
 
-Both refuse to operate without a selected client and the required safety gates.
+Refresh runs migrations and then `php artisan client:bootstrap`, restoring any committed one-time client baseline such as historical Blog content.
+
+Both destructive scripts refuse to operate without a selected client and the required safety gates.
+
+Selected-client bootstrap can also be run directly after migrations in staging/production:
+
+```bash
+php artisan client:bootstrap
+```
+
+See:
+
+```text
+docs/operations/client-bootstrap.md
+```
 
 ## Editorial promotion
 

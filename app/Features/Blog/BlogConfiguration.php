@@ -97,6 +97,20 @@ final class BlogConfiguration
         return $value;
     }
 
+    public function recentPostsLimit(): int
+    {
+        $config = $this->configuration();
+        $value = $config['recent_posts_limit'] ?? 5;
+
+        if (! is_int($value) || $value < 0 || $value > 12) {
+            throw new InvalidArgumentException(
+                'Blog Feature [recent_posts_limit] must be an integer between 0 and 12.'
+            );
+        }
+
+        return $value;
+    }
+
     public function categoryIndexable(): bool
     {
         $config = $this->configuration();
@@ -261,6 +275,7 @@ final class BlogConfiguration
             fn (): string => $this->basePath(),
             fn (): array => $this->legacyPaths(),
             fn (): int => $this->postsPerPage(),
+            fn (): int => $this->recentPostsLimit(),
             fn (): bool => $this->categoryIndexable(),
             fn (): array => $this->authorProfiles(),
             fn (): array => $this->index(),
@@ -294,6 +309,7 @@ final class BlogConfiguration
                 'path',
                 'legacy_paths',
                 'posts_per_page',
+                'recent_posts_limit',
                 'category_indexable',
                 'author_profiles',
                 'index',

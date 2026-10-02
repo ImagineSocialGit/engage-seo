@@ -3,11 +3,14 @@
 │   ├── Console
 │   │   └── Commands
 │   │       ├── AuditSeoMigrationCommand.php
+│   │       ├── BootstrapClientCommand.php
 │   │       ├── ExportEditorialSnapshotCommand.php
 │   │       ├── ImportEditorialSnapshotCommand.php
 │   │       ├── ValidateEditorialSnapshotCommand.php
 │   │       └── ValidateSetupCommand.php
 │   ├── Contracts
+│   │   ├── Clients
+│   │   │   └── ClientBootstrapContributor.php
 │   │   ├── Editorial
 │   │   │   └── EditorialPromotionContributor.php
 │   │   ├── Seo
@@ -17,6 +20,8 @@
 │   │       └── SetupValidationContributor.php
 │   ├── Features
 │   │   ├── Blog
+│   │   │   ├── BlogAuthorResolver.php
+│   │   │   ├── BlogClientBootstrapContributor.php
 │   │   │   ├── BlogConfiguration.php
 │   │   │   ├── BlogContentNormalizer.php
 │   │   │   ├── BlogEditorialPromotionContributor.php
@@ -32,11 +37,13 @@
 │   │   │   │       └── 2026_08_19_000000_create_blog_tables.php
 │   │   │   ├── Http
 │   │   │   │   └── Controllers
-│   │   │   │       └── BlogController.php
+│   │   │   │       ├── BlogController.php
+│   │   │   │       └── BlogLegacyRedirectController.php
 │   │   │   └── Models
 │   │   │       ├── BlogCategory.php
 │   │   │       └── BlogPost.php
 │   │   ├── Locations
+│   │   │   ├── GeographicTargetCatalog.php
 │   │   │   ├── LocationCatalog.php
 │   │   │   └── LocationsServiceProvider.php
 │   │   └── Services
@@ -55,9 +62,12 @@
 │   │   └── AppServiceProvider.php
 │   ├── Support
 │   │   ├── Clients
+│   │   │   ├── ClientBootstrapRegistry.php
+│   │   │   ├── ClientBootstrapService.php
 │   │   │   ├── ClientConfigLoader.php
 │   │   │   ├── ClientEnvironmentDefinition.php
-│   │   │   └── ClientEnvironmentLoader.php
+│   │   │   ├── ClientEnvironmentLoader.php
+│   │   │   └── ClientPackageLoader.php
 │   │   ├── Config
 │   │   │   └── ConfigMerger.php
 │   │   ├── Editorial
@@ -81,10 +91,14 @@
 │   │   │   │   ├── LegacyUrlInventoryRepository.php
 │   │   │   │   ├── SeoMigrationAuditor.php
 │   │   │   │   └── SeoMigrationAuditResult.php
+│   │   │   ├── PageBreadcrumbStructuredDataContributor.php
+│   │   │   ├── PageFaqStructuredDataContributor.php
+│   │   │   ├── PagePersonStructuredDataContributor.php
 │   │   │   ├── RedirectRepository.php
 │   │   │   ├── SeoExtensionRegistry.php
 │   │   │   ├── SeoIndexingPolicy.php
 │   │   │   ├── SitemapBuilder.php
+│   │   │   ├── SiteOrganizationStructuredDataContributor.php
 │   │   │   └── StructuredDataResolver.php
 │   │   ├── SetupValidation
 │   │   │   ├── ClientSetupValidator.php
@@ -93,6 +107,7 @@
 │   │   ├── Site
 │   │   │   ├── BusinessPresentationResolver.php
 │   │   │   ├── SiteLinkNormalizer.php
+│   │   │   ├── SitePeopleResolver.php
 │   │   │   ├── SitePresentationResolver.php
 │   │   │   └── SiteShellResolver.php
 │   │   ├── Verticals
@@ -118,6 +133,7 @@
 │   ├── app.php
 │   ├── auth.php
 │   ├── cache.php
+│   ├── client_packages.php
 │   ├── client.php
 │   ├── database.php
 │   ├── features
@@ -145,13 +161,16 @@
 │   ├── migrations
 │   │   ├── 0001_01_01_000000_create_users_table.php
 │   │   ├── 0001_01_01_000001_create_cache_table.php
-│   │   └── 0001_01_01_000002_create_jobs_table.php
+│   │   ├── 0001_01_01_000002_create_jobs_table.php
+│   │   └── 2026_10_02_000003_create_client_bootstrap_runs_table.php
 │   └── seeders
 │       └── DatabaseSeeder.php
 ├── docs
 │   ├── architecture
+│   │   ├── client-packages.md
 │   │   ├── media-images.md
 │   │   ├── old-platform-migration.md
+│   │   ├── people-and-breadcrumbs.md
 │   │   ├── platform-boundaries.md
 │   │   ├── public-rendering.md
 │   │   ├── reusable-sections.md
@@ -165,6 +184,7 @@
 │   │   ├── locations.md
 │   │   └── services.md
 │   ├── operations
+│   │   ├── client-bootstrap.md
 │   │   ├── client-lifecycle.md
 │   │   ├── editorial-promotion.md
 │   │   ├── environment-pairing.md
@@ -177,6 +197,726 @@
 │   ├── favicon.ico
 │   ├── index.php
 │   └── media
+│       ├── assets
+│       │   ├── blog
+│       │   │   ├── content
+│       │   │   │   ├── everything-you-need-to-know-about-asphalt-sealcoating
+│       │   │   │   │   └── 1
+│       │   │   │   │       ├── 320.avif
+│       │   │   │   │       ├── 320.webp
+│       │   │   │   │       ├── 500.avif
+│       │   │   │   │       └── 500.webp
+│       │   │   │   ├── paving-for-accessibility-ensuring-ada-compliance-in-public-and-private-spaces
+│       │   │   │   │   └── 1
+│       │   │   │   │       ├── 320.avif
+│       │   │   │   │       ├── 320.webp
+│       │   │   │   │       ├── 500.avif
+│       │   │   │   │       └── 500.webp
+│       │   │   │   ├── the-advantages-of-asphalt-paving-why-choose-asphalt-for-your-driveway
+│       │   │   │   │   └── 1
+│       │   │   │   │       ├── 320.avif
+│       │   │   │   │       ├── 320.webp
+│       │   │   │   │       ├── 500.avif
+│       │   │   │   │       └── 500.webp
+│       │   │   │   ├── the-benefits-of-asphalt-sealcoating
+│       │   │   │   │   └── 1
+│       │   │   │   │       ├── 320.avif
+│       │   │   │   │       ├── 320.webp
+│       │   │   │   │       ├── 500.avif
+│       │   │   │   │       └── 500.webp
+│       │   │   │   ├── the-benefits-of-asphalt-sealcoating-2
+│       │   │   │   │   └── 1
+│       │   │   │   │       ├── 320.avif
+│       │   │   │   │       ├── 320.webp
+│       │   │   │   │       ├── 500.avif
+│       │   │   │   │       └── 500.webp
+│       │   │   │   ├── the-impact-of-heavy-traffic-on-commercial-asphalt-tips-for-high-volume-areas
+│       │   │   │   │   └── 1
+│       │   │   │   │       ├── 320.avif
+│       │   │   │   │       ├── 320.webp
+│       │   │   │   │       ├── 500.avif
+│       │   │   │   │       └── 500.webp
+│       │   │   │   ├── the-importance-of-proper-drainage-for-your-asphalt-surface
+│       │   │   │   │   └── 1
+│       │   │   │   │       ├── 320.avif
+│       │   │   │   │       ├── 320.webp
+│       │   │   │   │       ├── 500.avif
+│       │   │   │   │       └── 500.webp
+│       │   │   │   ├── the-role-of-proper-drainage-in-asphalt-paving-insights-for-contractors-and-clients
+│       │   │   │   │   └── 1
+│       │   │   │   │       ├── 320.avif
+│       │   │   │   │       ├── 320.webp
+│       │   │   │   │       ├── 500.avif
+│       │   │   │   │       └── 500.webp
+│       │   │   │   ├── tips-for-extending-the-lifespan-of-asphalt-surfaces
+│       │   │   │   │   └── 1
+│       │   │   │   │       ├── 320.avif
+│       │   │   │   │       ├── 320.webp
+│       │   │   │   │       ├── 500.avif
+│       │   │   │   │       └── 500.webp
+│       │   │   │   ├── top-10-signs-its-time-to-repair-your-asphalt-driveway
+│       │   │   │   │   └── 1
+│       │   │   │   │       ├── 320.avif
+│       │   │   │   │       ├── 320.webp
+│       │   │   │   │       ├── 500.avif
+│       │   │   │   │       └── 500.webp
+│       │   │   │   ├── top-5-common-asphalt-paving-problems-and-how-to-prevent-them
+│       │   │   │   │   └── 1
+│       │   │   │   │       ├── 320.avif
+│       │   │   │   │       ├── 320.webp
+│       │   │   │   │       ├── 500.avif
+│       │   │   │   │       └── 500.webp
+│       │   │   │   └── when-is-the-best-time-to-repair-your-driveway
+│       │   │   │       └── 1
+│       │   │   │           ├── 320.avif
+│       │   │   │           ├── 320.webp
+│       │   │   │           ├── 616.avif
+│       │   │   │           └── 616.webp
+│       │   │   └── featured
+│       │   │       ├── asphalt-vs-gravel-why-middle-tennessee-homeowners-are-making-the-switch
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── choosing-between-asphalt-and-concrete-paving-what-you-need-to-know
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── commercial-parking-lot-paving-in-manchester-creating-safe-and-functional-spaces
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── dont-let-april-showers-ruin-your-pavement-solving-drainage-issues-in-middle-tn
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── emergency-pothole-patching-the-difference-between-temporary-cold-mix-and-a-lasting-fix
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── enhancing-curb-appeal-transforming-your-driveway-with-professional-paving-services
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── from-estimate-to-finish-line-what-happens-during-your-paving-project
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── from-wear-to-weather-what-causes-asphalt-paving-to-crack
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── heavy-duty-paving-durable-farm-lanes-and-agricultural-paths-in-tennessee
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── how-long-will-your-paved-driveway-last-factors-to-consider-for-a-long-lasting-investment
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── how-to-choose-the-right-asphalt-mix-for-your-paving-project
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── integrity-in-paving-why-priority-paving-never-asks-for-a-deposit
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── last-call-for-sealcoating-protect-your-pavement-from-tennessees-winter-freeze-thaw-cycle
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── paving-for-tennessee-clay-how-we-build-driveways-to-last-in-murfreesboro
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── paving-in-the-peak-why-summer-is-the-ideal-time-for-your-shelbyville-tn-paving-project
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── preventative-maintenance-why-sealcoating-is-the-best-investment-for-your-tn-home
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── preventing-potholes-cracks-summer-asphalt-maintenance-essentials-for-shelbyville-properties
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── protecting-your-parking-lot-investment-in-smyrna-asphalt-maintenance-tips
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── protect-your-investment-the-benefits-of-regular-sealcoating
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── spring-summer-or-fall-choosing-the-best-time-for-asphalt-paving
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── surviving-tennessees-seasonal-shifts-paving-solutions-for-smyrnas-climate
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── the-importance-of-proper-drainage-for-asphalt-in-shelbyville-tn
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── the-invisible-enemy-how-murfreesboros-winter-weather-destroys-asphalt
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── the-paving-sweet-spot-why-fall-is-the-best-season-for-your-smyrna-tn-paving-project
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── the-post-winter-pavement-audit-5-signs-your-asphalt-needs-spring-service
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── the-pothole-epidemic-why-the-freeze-thaw-cycle-is-destroying-your-murfreesboro-pavement
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── the-right-mix-for-the-heat-why-summer-paving-in-smyrna-requires-a-pro
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       ├── weathering-the-winter-storm-how-weather-affects-paving-projects
+│       │   │       │   ├── 320.avif
+│       │   │       │   ├── 320.webp
+│       │   │       │   ├── 640.avif
+│       │   │       │   ├── 640.webp
+│       │   │       │   ├── 800.avif
+│       │   │       │   └── 800.webp
+│       │   │       └── weather-the-storm-protecting-your-asphalt-driveway
+│       │   │           ├── 320.avif
+│       │   │           ├── 320.webp
+│       │   │           ├── 640.avif
+│       │   │           ├── 640.webp
+│       │   │           ├── 800.avif
+│       │   │           └── 800.webp
+│       │   ├── brand
+│       │   │   ├── 24-7-badge
+│       │   │   │   ├── 150.avif
+│       │   │   │   └── 150.webp
+│       │   │   ├── bbb
+│       │   │   │   ├── 320.avif
+│       │   │   │   ├── 320.webp
+│       │   │   │   ├── 640.avif
+│       │   │   │   ├── 640.webp
+│       │   │   │   ├── 700.avif
+│       │   │   │   └── 700.webp
+│       │   │   ├── bbb-accredited
+│       │   │   │   ├── 320.avif
+│       │   │   │   ├── 320.webp
+│       │   │   │   ├── 640.avif
+│       │   │   │   ├── 640.webp
+│       │   │   │   ├── 700.avif
+│       │   │   │   └── 700.webp
+│       │   │   ├── espn
+│       │   │   │   ├── 256.avif
+│       │   │   │   └── 256.webp
+│       │   │   ├── fox
+│       │   │   │   ├── 231.avif
+│       │   │   │   └── 231.webp
+│       │   │   ├── google
+│       │   │   │   ├── 45.avif
+│       │   │   │   └── 45.webp
+│       │   │   ├── thumbtack
+│       │   │   │   ├── 300.avif
+│       │   │   │   └── 300.webp
+│       │   │   ├── weather-channel
+│       │   │   │   ├── 100.avif
+│       │   │   │   └── 100.webp
+│       │   │   └── yelp
+│       │   │       ├── 175.avif
+│       │   │       └── 175.webp
+│       │   ├── heroes
+│       │   │   └── home-trucks
+│       │   │       ├── 320.avif
+│       │   │       ├── 320.webp
+│       │   │       ├── 400.avif
+│       │   │       └── 400.webp
+│       │   ├── home
+│       │   │   ├── asphalt-road
+│       │   │   │   ├── 1280.avif
+│       │   │   │   ├── 1280.webp
+│       │   │   │   ├── 1600.avif
+│       │   │   │   ├── 1600.webp
+│       │   │   │   ├── 320.avif
+│       │   │   │   ├── 320.webp
+│       │   │   │   ├── 640.avif
+│       │   │   │   ├── 640.webp
+│       │   │   │   ├── 960.avif
+│       │   │   │   └── 960.webp
+│       │   │   ├── billboard-asphalt-services
+│       │   │   │   ├── 1280.avif
+│       │   │   │   ├── 1280.webp
+│       │   │   │   ├── 1600.avif
+│       │   │   │   ├── 1600.webp
+│       │   │   │   ├── 320.avif
+│       │   │   │   ├── 320.webp
+│       │   │   │   ├── 640.avif
+│       │   │   │   ├── 640.webp
+│       │   │   │   ├── 960.avif
+│       │   │   │   └── 960.webp
+│       │   │   ├── billboard-with-customer
+│       │   │   │   ├── 1280.avif
+│       │   │   │   ├── 1280.webp
+│       │   │   │   ├── 1600.avif
+│       │   │   │   ├── 1600.webp
+│       │   │   │   ├── 320.avif
+│       │   │   │   ├── 320.webp
+│       │   │   │   ├── 640.avif
+│       │   │   │   ├── 640.webp
+│       │   │   │   ├── 960.avif
+│       │   │   │   └── 960.webp
+│       │   │   ├── city-of-award
+│       │   │   │   ├── 1230.avif
+│       │   │   │   ├── 1230.webp
+│       │   │   │   ├── 320.avif
+│       │   │   │   ├── 320.webp
+│       │   │   │   ├── 640.avif
+│       │   │   │   ├── 640.webp
+│       │   │   │   ├── 960.avif
+│       │   │   │   └── 960.webp
+│       │   │   ├── highway-billboard
+│       │   │   │   ├── 320.avif
+│       │   │   │   ├── 320.webp
+│       │   │   │   ├── 640.avif
+│       │   │   │   ├── 640.webp
+│       │   │   │   ├── 750.avif
+│       │   │   │   └── 750.webp
+│       │   │   └── paving-project
+│       │   │       ├── 1242.avif
+│       │   │       ├── 1242.webp
+│       │   │       ├── 320.avif
+│       │   │       ├── 320.webp
+│       │   │       ├── 640.avif
+│       │   │       ├── 640.webp
+│       │   │       ├── 960.avif
+│       │   │       └── 960.webp
+│       │   ├── legacy
+│       │   │   ├── asphalt-paving-contractor-in-college-grove-tn
+│       │   │   │   ├── asphalt-paving-contractor-in-college-grove_prioritypavingfranklin
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 500.avif
+│       │   │   │   │   └── 500.webp
+│       │   │   │   ├── asphalt-paving-contractor-in-college-grove_prioritypavingfranklin-1
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 500.avif
+│       │   │   │   │   └── 500.webp
+│       │   │   │   ├── asphalt-paving-contractor-in-college-grove_prioritypavingfranklin-2
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 500.avif
+│       │   │   │   │   └── 500.webp
+│       │   │   │   └── asphalt-paving-contractor-in-college-grove_prioritypavingfranklin-3
+│       │   │   │       ├── 320.avif
+│       │   │   │       ├── 320.webp
+│       │   │   │       ├── 500.avif
+│       │   │   │       └── 500.webp
+│       │   │   ├── asphalt-paving-contractor-in-franklin-tn
+│       │   │   │   ├── asphalt-paving-contractor-in-franklin_prioritypavingfranklin
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 500.avif
+│       │   │   │   │   └── 500.webp
+│       │   │   │   ├── asphalt-paving-contractor-in-franklin_prioritypavingfranklin-1
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 500.avif
+│       │   │   │   │   └── 500.webp
+│       │   │   │   ├── asphalt-paving-contractor-in-franklin_prioritypavingfranklin-2
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 500.avif
+│       │   │   │   │   └── 500.webp
+│       │   │   │   └── asphalt-paving-contractor-in-franklin_prioritypavingfranklin-3
+│       │   │   │       ├── 320.avif
+│       │   │   │       ├── 320.webp
+│       │   │   │       ├── 500.avif
+│       │   │   │       └── 500.webp
+│       │   │   ├── asphalt-paving-contractor-in-thompsons-station-tn
+│       │   │   │   ├── asphalt-paving-contractor-in-thompsons-station_prioritypavingfranklin
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 500.avif
+│       │   │   │   │   └── 500.webp
+│       │   │   │   ├── asphalt-paving-contractor-in-thompsons-station_prioritypavingfranklin-1
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 500.avif
+│       │   │   │   │   └── 500.webp
+│       │   │   │   ├── asphalt-paving-contractor-in-thompsons-station_prioritypavingfranklin-2
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 500.avif
+│       │   │   │   │   └── 500.webp
+│       │   │   │   └── asphalt-paving-contractor-in-thompsons-station_prioritypavingfranklin-3
+│       │   │   │       ├── 320.avif
+│       │   │   │       ├── 320.webp
+│       │   │   │       ├── 500.avif
+│       │   │   │       └── 500.webp
+│       │   │   ├── asphalt-paving-in-nashville-tn
+│       │   │   │   ├── asphalt-paving-nashville-1
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 640.avif
+│       │   │   │   │   ├── 640.webp
+│       │   │   │   │   ├── 700.avif
+│       │   │   │   │   └── 700.webp
+│       │   │   │   ├── asphalt-services-nashville-tn-1
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 640.avif
+│       │   │   │   │   ├── 640.webp
+│       │   │   │   │   ├── 700.avif
+│       │   │   │   │   └── 700.webp
+│       │   │   │   └── parking-lot2-nashville-tn-1
+│       │   │   │       ├── 320.avif
+│       │   │   │       ├── 320.webp
+│       │   │   │       ├── 494.avif
+│       │   │   │       └── 494.webp
+│       │   │   ├── paving
+│       │   │   │   ├── asphalt2-700x933
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 640.avif
+│       │   │   │   │   ├── 640.webp
+│       │   │   │   │   ├── 700.avif
+│       │   │   │   │   └── 700.webp
+│       │   │   │   ├── asphalt3-700x933
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 640.avif
+│       │   │   │   │   ├── 640.webp
+│       │   │   │   │   ├── 700.avif
+│       │   │   │   │   └── 700.webp
+│       │   │   │   ├── asphalt-700x933
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 640.avif
+│       │   │   │   │   ├── 640.webp
+│       │   │   │   │   ├── 700.avif
+│       │   │   │   │   └── 700.webp
+│       │   │   │   ├── billboard-asphalt-services
+│       │   │   │   │   ├── 1280.avif
+│       │   │   │   │   ├── 1280.webp
+│       │   │   │   │   ├── 1600.avif
+│       │   │   │   │   ├── 1600.webp
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 640.avif
+│       │   │   │   │   ├── 640.webp
+│       │   │   │   │   ├── 960.avif
+│       │   │   │   │   └── 960.webp
+│       │   │   │   └── img_0623-700x700
+│       │   │   │       ├── 320.avif
+│       │   │   │       ├── 320.webp
+│       │   │   │       ├── 640.avif
+│       │   │   │       ├── 640.webp
+│       │   │   │       ├── 700.avif
+│       │   │   │       └── 700.webp
+│       │   │   ├── paving-construction
+│       │   │   │   ├── img_2823-1-1-150x150
+│       │   │   │   │   ├── 150.avif
+│       │   │   │   │   └── 150.webp
+│       │   │   │   ├── img_2824-1-1-150x150
+│       │   │   │   │   ├── 150.avif
+│       │   │   │   │   └── 150.webp
+│       │   │   │   ├── paving-construction
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 640.avif
+│       │   │   │   │   ├── 640.webp
+│       │   │   │   │   ├── 768.avif
+│       │   │   │   │   └── 768.webp
+│       │   │   │   └── resized_2-1-1-150x150
+│       │   │   │       ├── 150.avif
+│       │   │   │       └── 150.webp
+│       │   │   ├── paving-contractor-in-manchester-tn
+│       │   │   │   ├── asphalt-backlot-manchester-tn
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 450.avif
+│       │   │   │   │   └── 450.webp
+│       │   │   │   ├── asphalt-paving-services-manchester-tn
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 600.avif
+│       │   │   │   │   └── 600.webp
+│       │   │   │   ├── asphalt-surface-manchester-tn
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 600.avif
+│       │   │   │   │   └── 600.webp
+│       │   │   │   └── commercial-asphalt-manchester-tn
+│       │   │   │       ├── 320.avif
+│       │   │   │       ├── 320.webp
+│       │   │   │       ├── 600.avif
+│       │   │   │       └── 600.webp
+│       │   │   ├── paving-contractor-in-shelbyville-tn
+│       │   │   │   ├── parking-lot-shelbyville-tn
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 600.avif
+│       │   │   │   │   └── 600.webp
+│       │   │   │   ├── smooth-parking-shelbyville-tn
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 600.avif
+│       │   │   │   │   └── 600.webp
+│       │   │   │   ├── smooth-professional-paving-shelbyville-tn
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 600.avif
+│       │   │   │   │   └── 600.webp
+│       │   │   │   └── winter-paving-shelbyville-tn
+│       │   │   │       ├── 320.avif
+│       │   │   │       ├── 320.webp
+│       │   │   │       ├── 600.avif
+│       │   │   │       └── 600.webp
+│       │   │   ├── paving-contractor-in-smyrna-tn
+│       │   │   │   ├── asphalt-paving-smyrn-tn
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 600.avif
+│       │   │   │   │   └── 600.webp
+│       │   │   │   ├── parking-lot-lines-smyrn-tn
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 600.avif
+│       │   │   │   │   └── 600.webp
+│       │   │   │   ├── paved-driveway-1
+│       │   │   │   │   ├── 1000.avif
+│       │   │   │   │   ├── 1000.webp
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 640.avif
+│       │   │   │   │   ├── 640.webp
+│       │   │   │   │   ├── 960.avif
+│       │   │   │   │   └── 960.webp
+│       │   │   │   └── sealcoating-smyrn-tn
+│       │   │   │       ├── 320.avif
+│       │   │   │       ├── 320.webp
+│       │   │   │       ├── 600.avif
+│       │   │   │       └── 600.webp
+│       │   │   ├── paving-repair
+│       │   │   │   └── paving-repair
+│       │   │   │       ├── 320.avif
+│       │   │   │       ├── 320.webp
+│       │   │   │       ├── 640.avif
+│       │   │   │       ├── 640.webp
+│       │   │   │       ├── 768.avif
+│       │   │   │       └── 768.webp
+│       │   │   ├── paving-resurfacing
+│       │   │   │   ├── billboard-residential-paving
+│       │   │   │   │   ├── 1280.avif
+│       │   │   │   │   ├── 1280.webp
+│       │   │   │   │   ├── 1600.avif
+│       │   │   │   │   ├── 1600.webp
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 640.avif
+│       │   │   │   │   ├── 640.webp
+│       │   │   │   │   ├── 960.avif
+│       │   │   │   │   └── 960.webp
+│       │   │   │   ├── parking-lot2-700x340
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 640.avif
+│       │   │   │   │   ├── 640.webp
+│       │   │   │   │   ├── 700.avif
+│       │   │   │   │   └── 700.webp
+│       │   │   │   ├── parking-lot3-700x340
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 640.avif
+│       │   │   │   │   ├── 640.webp
+│       │   │   │   │   ├── 700.avif
+│       │   │   │   │   └── 700.webp
+│       │   │   │   ├── parking-lot-700x340
+│       │   │   │   │   ├── 320.avif
+│       │   │   │   │   ├── 320.webp
+│       │   │   │   │   ├── 640.avif
+│       │   │   │   │   ├── 640.webp
+│       │   │   │   │   ├── 700.avif
+│       │   │   │   │   └── 700.webp
+│       │   │   │   └── paving-resurfacing
+│       │   │   │       ├── 320.avif
+│       │   │   │       ├── 320.webp
+│       │   │   │       ├── 640.avif
+│       │   │   │       ├── 640.webp
+│       │   │   │       ├── 768.avif
+│       │   │   │       └── 768.webp
+│       │   │   └── shared
+│       │   │       └── asphalt-road
+│       │   │           ├── 1280.avif
+│       │   │           ├── 1280.webp
+│       │   │           ├── 1600.avif
+│       │   │           ├── 1600.webp
+│       │   │           ├── 320.avif
+│       │   │           ├── 320.webp
+│       │   │           ├── 640.avif
+│       │   │           ├── 640.webp
+│       │   │           ├── 960.avif
+│       │   │           └── 960.webp
+│       │   └── pages
+│       │       ├── college-grove
+│       │       │   ├── 320.avif
+│       │       │   ├── 320.webp
+│       │       │   ├── 500.avif
+│       │       │   └── 500.webp
+│       │       ├── contact
+│       │       │   ├── 320.avif
+│       │       │   ├── 320.webp
+│       │       │   ├── 550.avif
+│       │       │   └── 550.webp
+│       │       ├── franklin
+│       │       │   ├── 320.avif
+│       │       │   ├── 320.webp
+│       │       │   ├── 500.avif
+│       │       │   └── 500.webp
+│       │       ├── manchester
+│       │       │   ├── 320.avif
+│       │       │   ├── 320.webp
+│       │       │   ├── 600.avif
+│       │       │   └── 600.webp
+│       │       ├── nashville
+│       │       │   ├── 320.avif
+│       │       │   ├── 320.webp
+│       │       │   ├── 640.avif
+│       │       │   ├── 640.webp
+│       │       │   ├── 700.avif
+│       │       │   └── 700.webp
+│       │       ├── paving
+│       │       │   ├── 320.avif
+│       │       │   ├── 320.webp
+│       │       │   ├── 640.avif
+│       │       │   ├── 640.webp
+│       │       │   ├── 700.avif
+│       │       │   └── 700.webp
+│       │       ├── paving-construction
+│       │       │   ├── 320.avif
+│       │       │   ├── 320.webp
+│       │       │   ├── 640.avif
+│       │       │   ├── 640.webp
+│       │       │   ├── 768.avif
+│       │       │   └── 768.webp
+│       │       ├── paving-repair
+│       │       │   ├── 320.avif
+│       │       │   ├── 320.webp
+│       │       │   ├── 640.avif
+│       │       │   ├── 640.webp
+│       │       │   ├── 768.avif
+│       │       │   └── 768.webp
+│       │       ├── paving-resurfacing
+│       │       │   ├── 320.avif
+│       │       │   ├── 320.webp
+│       │       │   ├── 640.avif
+│       │       │   ├── 640.webp
+│       │       │   ├── 768.avif
+│       │       │   └── 768.webp
+│       │       ├── shelbyville
+│       │       │   ├── 320.avif
+│       │       │   ├── 320.webp
+│       │       │   ├── 600.avif
+│       │       │   └── 600.webp
+│       │       ├── smyrna
+│       │       │   ├── 320.avif
+│       │       │   ├── 320.webp
+│       │       │   ├── 600.avif
+│       │       │   └── 600.webp
+│       │       └── thompsons-station
+│       │           ├── 320.avif
+│       │           ├── 320.webp
+│       │           ├── 500.avif
+│       │           └── 500.webp
+│       └── manifest.json
 ├── README.md
 ├── resources
 │   ├── css
@@ -195,6 +935,7 @@
 │       │   │   ├── site-footer.blade.php
 │       │   │   ├── site-header.blade.php
 │       │   │   └── site-utility-bar.blade.php
+│       │   ├── page-breadcrumbs.blade.php
 │       │   ├── responsive-image.blade.php
 │       │   ├── section-actions.blade.php
 │       │   └── section-image.blade.php
@@ -207,7 +948,8 @@
 │       │   │   │   └── post-card.blade.php
 │       │   │   └── show.blade.php
 │       │   ├── locations
-│       │   │   └── catalog.blade.php
+│       │   │   ├── catalog.blade.php
+│       │   │   └── geographic-targets.blade.php
 │       │   └── services
 │       │       └── catalog.blade.php
 │       ├── pages
@@ -232,8 +974,11 @@
 ├── scripts
 │   ├── build-client-images.mjs
 │   ├── create-client.sh
+│   ├── dev-link-package.sh
 │   ├── dev-refresh-client.sh
 │   ├── dev-reset-client-database.sh
+│   ├── dev-unlink-package.sh
+│   ├── dump-client-files.sh
 │   └── dump-seo-site-state.sh
 ├── tests
 │   ├── DatabaseTestCase.php
@@ -242,12 +987,15 @@
 │   │   └── Foundation
 │   │       ├── BlogFeatureFoundationTest.php
 │   │       ├── BusinessSiteShellFoundationTest.php
+│   │       ├── ClientBootstrapFoundationTest.php
 │   │       ├── ClientConfigurationFoundationTest.php
+│   │       ├── ClientPackageFoundationTest.php
 │   │       ├── ClientSetupValidatorTest.php
 │   │       ├── EditorialPromotionFoundationTest.php
 │   │       ├── LocationsFeatureFoundationTest.php
 │   │       ├── MediaFoundationTest.php
 │   │       ├── OldPlatformMigrationFoundationTest.php
+│   │       ├── PeopleAndBreadcrumbSeoFoundationTest.php
 │   │       ├── PublicPageRenderingFoundationTest.php
 │   │       ├── ReusableSectionsFoundationTest.php
 │   │       ├── SeoInfrastructureFoundationTest.php
@@ -263,4 +1011,4 @@
 │           └── ConfigMergerTest.php
 └── vite.config.js
 
-75 directories, 189 files
+221 directories, 791 files

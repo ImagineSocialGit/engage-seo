@@ -42,10 +42,11 @@ final class BlogController extends Controller
             )->map(
                 fn ($post): array => $presenter->post($post)
             )->values()->all(),
-            'categories' => $repository->publishedCategories()
-                ->map(
-                    fn ($category): array => $presenter->category($category)
-                )->values()->all(),
+            ...$this->sidebarData(
+                $configuration,
+                $repository,
+                $presenter,
+            ),
             'posts' => $posts,
         ]);
     }
@@ -79,6 +80,11 @@ final class BlogController extends Controller
             'blog' => $configuration->index(),
             'blogPath' => $configuration->basePath(),
             'category' => $presenter->category($category),
+            ...$this->sidebarData(
+                $configuration,
+                $repository,
+                $presenter,
+            ),
             'posts' => $posts,
         ]);
     }
@@ -103,7 +109,33 @@ final class BlogController extends Controller
             'site' => $sitePresentation->resolve($path),
             'blog' => $configuration->index(),
             'blogPath' => $configuration->basePath(),
+            ...$this->sidebarData(
+                $configuration,
+                $repository,
+                $presenter,
+            ),
             'post' => $presenter->post($post, true),
         ]);
+    }
+
+    /**
+     * @return array{categories: list<array<string, mixed>>, recentPosts: list<array<string, mixed>>}
+     */
+    private function sidebarData(
+        BlogConfiguration $configuration,
+        BlogRepository $repository,
+        BlogPresenter $presenter,
+    ): array {
+        return [
+            'categories' => $repository->publishedCategories()
+                ->map(
+                    fn ($category): array => $presenter->category($category)
+                )->values()->all(),
+            'recentPosts' => $repository->recentPosts(
+                $configuration->recentPostsLimit(),
+            )->map(
+                fn ($post): array => $presenter->post($post)
+            )->values()->all(),
+        ];
     }
 }

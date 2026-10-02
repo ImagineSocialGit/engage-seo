@@ -19,6 +19,8 @@ return [
 
     'posts_per_page' => 12,
 
+    'recent_posts_limit' => 5,
+
     'category_indexable' => true,
 
     /*

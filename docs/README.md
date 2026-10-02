@@ -28,6 +28,7 @@ docs/
         client-configuration.md
 
     operations/
+        client-bootstrap.md
         client-lifecycle.md
         editorial-promotion.md
         environment-pairing.md
@@ -53,7 +54,7 @@ The platform foundation establishes:
 - optional selected-client Composer packages for runtime code that should be physically absent from unrelated client deployments;
 - lightweight reusable Features;
 - lightweight Mortgage and Pets Verticals that compose shared Services, Locations, and Blog Features while preserving client override authority;
-- safe client scaffold/reset/refresh scripts;
+- safe client scaffold/reset/refresh scripts and immutable selected-client bootstrap;
 - setup validation;
 - config-owned static public page resolution;
 - normalized metadata and section contracts;

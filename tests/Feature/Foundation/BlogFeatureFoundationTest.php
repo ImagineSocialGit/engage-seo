@@ -2,12 +2,14 @@
 
 namespace Tests\Feature\Foundation;
 
+use App\Features\Blog\BlogClientBootstrapContributor;
 use App\Features\Blog\BlogContentNormalizer;
 use App\Features\Blog\BlogServiceProvider;
 use App\Features\Blog\BlogSetupValidator;
 use App\Features\Blog\BlogSitemapContributor;
 use App\Features\Blog\Models\BlogCategory;
 use App\Features\Blog\Models\BlogPost;
+use App\Support\Clients\ClientBootstrapRegistry;
 use App\Support\Editorial\EditorialPromotionRegistry;
 use App\Support\Seo\Migration\SeoMigrationAuditor;
 use App\Support\Seo\SeoExtensionRegistry;
@@ -32,6 +34,7 @@ class BlogFeatureFoundationTest extends DatabaseTestCase
         config()->set('features.blog.path', '/blog');
         config()->set('features.blog.legacy_paths', []);
         config()->set('features.blog.posts_per_page', 12);
+        config()->set('features.blog.recent_posts_limit', 5);
         config()->set('features.blog.category_indexable', true);
         config()->set('features.blog.index', [
             'title' => 'Fixture archive',
@@ -80,6 +83,14 @@ class BlogFeatureFoundationTest extends DatabaseTestCase
             array_map(
                 static fn (object $contributor): string => $contributor::class,
                 app(SeoExtensionRegistry::class)->sitemapContributors(),
+            ),
+        );
+
+        $this->assertContains(
+            BlogClientBootstrapContributor::class,
+            array_map(
+                static fn (object $contributor): string => $contributor::class,
+                app(ClientBootstrapRegistry::class)->keyedContributors(),
             ),
         );
 
@@ -184,6 +195,50 @@ class BlogFeatureFoundationTest extends DatabaseTestCase
             ->assertOk()
             ->assertSee('href="/blog/first-post"', false)
             ->assertDontSee('href="/blog/second-post"', false);
+    }
+
+    public function test_blog_surfaces_receive_shared_sidebar_collections(): void
+    {
+        $this->bootBlogFeature();
+        $this->createBlogTables();
+
+        $category = BlogCategory::query()->create([
+            'slug' => 'fixture-category',
+            'name' => 'Fixture Category',
+        ]);
+
+        for ($index = 1; $index <= 6; $index++) {
+            $post = $this->createPost(
+                "post-{$index}",
+                now()->subMinutes($index),
+            );
+
+            $post->categories()->attach($category);
+        }
+
+        foreach ([
+            '/blog',
+            '/blog/category/fixture-category',
+            '/blog/post-1',
+        ] as $path) {
+            $this->get($path)
+                ->assertOk()
+                ->assertViewHas(
+                    'categories',
+                    static fn (array $categories): bool => count($categories) === 1
+                        && ($categories[0]['slug'] ?? null) === 'fixture-category',
+                )
+                ->assertViewHas(
+                    'recentPosts',
+                    static fn (array $posts): bool => array_column($posts, 'slug') === [
+                        'post-1',
+                        'post-2',
+                        'post-3',
+                        'post-4',
+                        'post-5',
+                    ],
+                );
+        }
     }
 
     public function test_sitemap_contribution_excludes_drafts_and_nonindexable_posts(): void
@@ -332,6 +387,67 @@ class BlogFeatureFoundationTest extends DatabaseTestCase
         $this->assertNotEmpty($errors);
     }
 
+    public function test_blog_client_bootstrap_initializes_only_empty_editorial_state(): void
+    {
+        $this->bootBlogFeature();
+        $this->createBlogTables();
+
+        $payload = [
+            'version' => 1,
+            'categories' => [
+                [
+                    'slug' => 'fixture-category',
+                    'name' => 'Fixture Category',
+                    'description' => null,
+                    'meta_title' => null,
+                    'meta_description' => null,
+                    'indexable' => true,
+                    'sort_order' => 10,
+                    'created_at' => '2026-01-01T12:00:00+00:00',
+                    'updated_at' => '2026-01-01T12:00:00+00:00',
+                ],
+            ],
+            'posts' => [
+                [
+                    'slug' => 'fixture-post',
+                    'title' => 'Fixture post',
+                    'excerpt' => 'Fixture excerpt',
+                    'content' => [
+                        [
+                            'type' => 'paragraph',
+                            'text' => 'Fixture body.',
+                        ],
+                    ],
+                    'author_name' => null,
+                    'featured' => false,
+                    'featured_image_asset' => null,
+                    'featured_image_alt' => null,
+                    'meta_title' => null,
+                    'meta_description' => null,
+                    'indexable' => true,
+                    'published_at' => '2026-01-01T12:00:00+00:00',
+                    'created_at' => '2026-01-01T12:00:00+00:00',
+                    'updated_at' => '2026-01-01T12:00:00+00:00',
+                    'category_slugs' => [
+                        'fixture-category',
+                    ],
+                ],
+            ],
+        ];
+
+        $contributor = app(BlogClientBootstrapContributor::class);
+
+        $this->assertSame([], $contributor->validationErrors($payload));
+
+        $contributor->apply($payload);
+
+        $this->assertSame(1, BlogPost::query()->count());
+        $this->assertSame(1, BlogCategory::query()->count());
+        $this->assertNotEmpty(
+            $contributor->validationErrors($payload)
+        );
+    }
+
     public function test_blog_content_rejects_unknown_block_types(): void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -351,6 +467,7 @@ class BlogFeatureFoundationTest extends DatabaseTestCase
         $provider->register();
         $provider->boot(
             app(SetupValidationRegistry::class),
+            app(ClientBootstrapRegistry::class),
             app(SeoExtensionRegistry::class),
             app(EditorialPromotionRegistry::class),
         );

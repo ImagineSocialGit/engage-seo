@@ -4,6 +4,7 @@ namespace Tests;
 
 use Illuminate\Support\Env;
 use RuntimeException;
+use Tests\Support\TestingEnvironment;
 
 abstract class DatabaseTestCase extends TestCase
 {
@@ -46,6 +47,23 @@ abstract class DatabaseTestCase extends TestCase
         if ($database === '') {
             throw new RuntimeException(
                 'Database-backed tests require DB_DATABASE in .env.testing.'
+            );
+        }
+
+        $bootstrapDatabase = trim((string) Env::get(
+            TestingEnvironment::DATABASE_SENTINEL,
+            '',
+        ));
+
+        if ($bootstrapDatabase === '') {
+            throw new RuntimeException(
+                'Database-backed tests require DB_DATABASE to be loaded from .env.testing by the PHPUnit bootstrap.'
+            );
+        }
+
+        if (! hash_equals($bootstrapDatabase, $database)) {
+            throw new RuntimeException(
+                'Effective test DB_DATABASE does not match the database loaded from .env.testing.'
             );
         }
 

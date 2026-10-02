@@ -15,6 +15,7 @@ else
 fi
 
 php artisan migrate --force
+php artisan client:bootstrap
 
 echo
 echo "Selected Engage SEO client database refreshed."

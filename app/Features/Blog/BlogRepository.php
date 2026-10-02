@@ -50,6 +50,23 @@ final class BlogRepository
     /**
      * @return Collection<int, BlogPost>
      */
+    public function recentPosts(int $limit): Collection
+    {
+        if ($limit < 1) {
+            return new Collection();
+        }
+
+        return $this->publishedPostsQuery()
+            ->with('categories')
+            ->orderByDesc('published_at')
+            ->orderByDesc('id')
+            ->limit($limit)
+            ->get();
+    }
+
+    /**
+     * @return Collection<int, BlogPost>
+     */
     public function featuredPosts(int $limit): Collection
     {
         if ($limit < 1) {

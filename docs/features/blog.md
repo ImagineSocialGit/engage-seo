@@ -121,6 +121,15 @@ Categories are many-to-many with posts.
 
 The default public index shows category navigation for categories that contain published posts.
 
+All three public Blog surfaces receive the same normalized sidebar-support data:
+
+```text
+categories
+recentPosts
+```
+
+`recent_posts_limit` controls the number of most recently published posts in that collection and defaults to `5`. A value of `0` disables the recent-post collection. Client views may use these values for archive/article sidebars without querying Eloquent from Blade.
+
 ## Featured content
 
 Posts may set:
@@ -222,6 +231,40 @@ client/{CLIENT_KEY}/resources/views/features/blog/show.blade.php
 
 The normalized public data contract remains owned by the Feature even when presentation is overridden.
 
+## Selected-client bootstrap
+
+Existing sites often need historical Blog content to exist immediately in every fresh environment.
+
+When Blog is enabled, the Feature registers the `blog` selected-client bootstrap contributor. Client-owned initial state belongs at:
+
+```text
+client/{CLIENT_KEY}/bootstrap/blog.php
+```
+
+The payload uses the same validated Blog section shape as editorial promotion:
+
+```text
+version
+categories
+posts
+```
+
+Run it only after migrations and after static media referenced by the payload has been built/deployed:
+
+```bash
+php artisan client:bootstrap
+```
+
+The Blog contributor requires empty Blog editorial tables on first application and reuses the existing Blog snapshot validation/application contract. The generic bootstrap runner records the source version/checksum and skips an identical rerun.
+
+Bootstrap never becomes an ongoing synchronization mechanism. Once Blog editorial rows exist, later reviewed changes move through the editorial promotion workflow or an explicit data migration.
+
+See:
+
+```text
+docs/operations/client-bootstrap.md
+```
+
 ## Editorial promotion boundary
 
 Blog remains a staging-authored, production-served editorial capability. This foundation does not expose a general production CMS login.
@@ -260,11 +303,14 @@ The future editing UI must preserve the same rule: editing occurs outside produc
 
 ## Migration and deployment
 
-After enabling Blog for a selected client, run in each environment:
+After enabling Blog for a selected client, run in each fresh environment:
 
 ```bash
 php artisan migrate
+php artisan client:bootstrap
 ```
+
+If the client has no Blog bootstrap source, the second command is a no-op for Blog.
 
 The normal environment rules still apply:
 

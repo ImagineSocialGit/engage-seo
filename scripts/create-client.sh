@@ -97,6 +97,7 @@ if [[ -n "$VERTICAL_KEY" ]]; then
     VERTICAL_VALUE="'$VERTICAL_KEY'"
 fi
 
+mkdir -p "$TEMP_CLIENT_DIR/bootstrap"
 mkdir -p "$TEMP_CLIENT_DIR/config/pages"
 mkdir -p "$TEMP_CLIENT_DIR/resources/views/pages"
 mkdir -p "$TEMP_CLIENT_DIR/resources/views/sections"
@@ -267,6 +268,7 @@ EOF_GITIGNORE
 
 printf 'path\toutcome\ttarget\tnotes\n' > "$TEMP_CLIENT_DIR/resources/migration/legacy-urls.tsv"
 
+touch "$TEMP_CLIENT_DIR/bootstrap/.gitkeep"
 touch "$TEMP_CLIENT_DIR/config/pages/.gitkeep"
 touch "$TEMP_CLIENT_DIR/resources/views/pages/.gitkeep"
 touch "$TEMP_CLIENT_DIR/resources/views/sections/.gitkeep"
@@ -358,7 +360,16 @@ The current SEO platform does not yet define Core API destination or credential 
    php artisan migrate
    \`\`\`
 
+10. Apply any source-controlled initial client state:
+
+   \`\`\`bash
+   php artisan client:bootstrap
+   \`\`\`
+
 ## Ownership
+
+\`bootstrap/*.php\`
+: Optional source-controlled one-time initial state for registered bootstrap contributors.
 
 \`config/client.php\`
 : Client identity, timezone, and optional vertical.
@@ -452,6 +463,7 @@ Next:
   php artisan optimize:clear
   php artisan setup:validate
   php artisan migrate
+  php artisan client:bootstrap
 
 Optional client repository initialization:
   cd client/$CLIENT_KEY

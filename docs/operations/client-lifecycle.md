@@ -35,7 +35,7 @@ The script:
 - validates the timezone;
 - validates the optional registered vertical;
 - creates the scaffold in a temporary directory;
-- creates the public page and supported client-view directories;
+- creates the bootstrap, public page, media, migration, and supported client-view directories;
 - creates the client site-shell configuration;
 - creates disabled-by-default old-platform migration config and a legacy URL inventory template;
 - validates generated PHP;
@@ -245,7 +245,7 @@ Run:
 ./scripts/dev-refresh-client.sh
 ```
 
-This performs the same safety-gated reset, then runs migrations.
+This performs the same safety-gated reset, runs migrations, then applies the selected client's source-controlled initial state through `client:bootstrap`.
 
 Use:
 
@@ -255,7 +255,13 @@ Use:
 
 for deliberate local non-interactive operation.
 
-The foundation refresh does not seed client content. A future install/bootstrap contract may extend this once durable CMS/client-state ownership exists.
+Client bootstrap is initial-state only and immutable after application. An identical rerun is skipped; later editorial changes use the Feature's reviewed promotion workflow or an explicit data migration rather than rewriting bootstrap source.
+
+See:
+
+```text
+docs/operations/client-bootstrap.md
+```
 
 ## Git isolation
 
@@ -353,6 +359,28 @@ Before enabling indexing:
    ```
 
 In non-production environments, Engage SEO remains non-indexable even if the client switch is accidentally enabled.
+
+## Source-controlled initial client state
+
+A selected client may provide one-time initial database state under:
+
+```text
+client/[CLIENT_KEY]/bootstrap/
+```
+
+Run after migrations in each fresh environment:
+
+```bash
+php artisan client:bootstrap
+```
+
+Bootstrap is contributor-owned, version/checksum tracked, and deliberately refuses to replace already-initialized state. It is appropriate for migration baselines such as historical Blog content, not ongoing editing.
+
+See:
+
+```text
+docs/operations/client-bootstrap.md
+```
 
 ## Database-backed editorial promotion
 

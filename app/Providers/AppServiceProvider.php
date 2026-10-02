@@ -3,10 +3,13 @@
 namespace App\Providers;
 
 use App\Console\Commands\AuditSeoMigrationCommand;
+use App\Console\Commands\BootstrapClientCommand;
 use App\Console\Commands\ExportEditorialSnapshotCommand;
 use App\Console\Commands\ImportEditorialSnapshotCommand;
 use App\Console\Commands\ValidateEditorialSnapshotCommand;
 use App\Console\Commands\ValidateSetupCommand;
+use App\Support\Clients\ClientBootstrapRegistry;
+use App\Support\Clients\ClientBootstrapService;
 use App\Support\Clients\ClientConfigLoader;
 use App\Support\Clients\ClientPackageLoader;
 use App\Support\Editorial\EditorialPromotionPolicy;
@@ -41,6 +44,8 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->singleton(ClientBootstrapRegistry::class);
+        $this->app->singleton(ClientBootstrapService::class);
         $this->app->singleton(ClientConfigLoader::class);
         $this->app->singleton(ClientPackageLoader::class);
         $this->app->singleton(VerticalManager::class);
@@ -105,6 +110,7 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 AuditSeoMigrationCommand::class,
+                BootstrapClientCommand::class,
                 ExportEditorialSnapshotCommand::class,
                 ImportEditorialSnapshotCommand::class,
                 ValidateEditorialSnapshotCommand::class,
