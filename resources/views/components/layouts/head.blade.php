@@ -40,7 +40,6 @@
         <meta name="twitter:image" content="{{ $meta['twitter']['image'] }}">
     @endif
 
-
     @foreach($meta['structured_data'] as $node)
         <script type="application/ld+json">{!! json_encode(
             $node,
@@ -62,4 +61,6 @@
     </style>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    @stack('site-head')
 </head>

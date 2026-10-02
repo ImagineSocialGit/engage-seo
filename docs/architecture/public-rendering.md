@@ -114,6 +114,7 @@ description
 canonical
 indexable
 image
+image_asset
 open_graph
 twitter
 structured_data
@@ -151,7 +152,13 @@ robots=noindex,nofollow
 ```
 
 Open Graph and Twitter values inherit the normalized page metadata unless they
-are explicitly overridden.
+are explicitly overridden. Static client imagery may be supplied through the
+explicit `image_asset` key (or `site.seo.default_image_asset`) so social/search
+preview images resolve through the manifest-driven media pipeline rather than
+hardcoded generated filenames.
+
+Indexable pages emit `index,follow,max-image-preview:large`; blocked pages remain
+`noindex,nofollow`.
 
 `structured_data` is a list of associative-array JSON-LD nodes. Registered
 Feature contributors may append additional nodes before the page renders.

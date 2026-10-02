@@ -2,6 +2,7 @@
 
 namespace App\Support\Pages;
 
+use App\Support\Media\MediaAssetResolver;
 use App\Support\Seo\SeoIndexingPolicy;
 use InvalidArgumentException;
 
@@ -9,6 +10,7 @@ final class PageMetaResolver
 {
     public function __construct(
         private readonly SeoIndexingPolicy $indexing,
+        private readonly MediaAssetResolver $media,
     ) {
     }
 
@@ -46,8 +48,7 @@ final class PageMetaResolver
             $requestedIndexable
         );
 
-        $image = $this->stringValue($meta['image'] ?? null)
-            ?? $this->stringValue(config('site.seo.default_image'));
+        $image = $this->image($meta);
 
         $openGraph = $meta['open_graph'] ?? [];
 
@@ -87,7 +88,7 @@ final class PageMetaResolver
             'canonical' => $canonical,
             'indexable' => $indexable,
             'robots' => $indexable
-                ? 'index,follow'
+                ? 'index,follow,max-image-preview:large'
                 : 'noindex,nofollow',
             'open_graph' => [
                 'type' => $this->stringValue($openGraph['type'] ?? null)
@@ -115,6 +116,62 @@ final class PageMetaResolver
             ],
             'structured_data' => array_values($structuredData),
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $meta
+     */
+    private function image(array $meta): ?string
+    {
+        $direct = $this->stringValue($meta['image'] ?? null)
+            ?? $this->stringValue(config('site.seo.default_image'));
+
+        $asset = $this->stringValue($meta['image_asset'] ?? null)
+            ?? $this->stringValue(config('site.seo.default_image_asset'));
+
+        if ($this->stringValue($meta['image'] ?? null) !== null) {
+            return $direct;
+        }
+
+        if ($asset !== null) {
+            $resolved = $this->media->resolve($asset);
+            $url = $resolved['fallback']['url'] ?? null;
+
+            if (! is_string($url) || trim($url) === '') {
+                throw new InvalidArgumentException(
+                    "Page meta image asset [{$asset}] did not resolve to a public fallback URL."
+                );
+            }
+
+            return $this->absolutePublicUrl($url);
+        }
+
+        return $direct;
+    }
+
+    private function absolutePublicUrl(string $value): string
+    {
+        $value = trim($value);
+
+        if (preg_match('#^https?://#i', $value) === 1) {
+            return $value;
+        }
+
+        if (! str_starts_with($value, '/')) {
+            throw new InvalidArgumentException(
+                'Resolved page metadata image URL must be absolute http/https or an absolute site path.'
+            );
+        }
+
+        $baseUrl = $this->stringValue(config('app.url'));
+
+        if ($baseUrl === null) {
+            throw new InvalidArgumentException(
+                'Application URL must be configured before resolving page metadata image assets.'
+            );
+        }
+
+        return rtrim($baseUrl, '/').$value;
     }
 
     private function canonical(mixed $configured, string $path): string

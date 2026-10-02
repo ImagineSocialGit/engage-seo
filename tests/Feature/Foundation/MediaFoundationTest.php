@@ -5,6 +5,7 @@ namespace Tests\Feature\Foundation;
 use App\Support\Media\MediaAssetResolver;
 use App\Support\Media\MediaManifestRepository;
 use App\Support\Media\MediaUrlResolver;
+use App\Support\Pages\PageMetaResolver;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\File;
 use Tests\TestCase;
@@ -99,6 +100,35 @@ class MediaFoundationTest extends TestCase
         $this->assertSame(
             'https://cdn.example.test/client-assets/assets/hero/1280.webp',
             $asset['fallback']['url'],
+        );
+    }
+
+    public function test_page_metadata_can_resolve_a_manifest_media_asset_for_social_previews(): void
+    {
+        config()->set('app.url', 'https://site.example.test');
+        config()->set('app.env', 'production');
+        config()->set('site.seo.indexing_enabled', true);
+        config()->set('site.seo.default_image_asset', 'hero');
+
+        $meta = app(PageMetaResolver::class)->resolve(
+            [
+                'title' => 'Example page',
+                'description' => 'Example description',
+            ],
+            '/example',
+        );
+
+        $this->assertSame(
+            'https://site.example.test/media/assets/hero/1280.webp',
+            $meta['open_graph']['image'],
+        );
+        $this->assertSame(
+            'https://site.example.test/media/assets/hero/1280.webp',
+            $meta['twitter']['image'],
+        );
+        $this->assertSame(
+            'index,follow,max-image-preview:large',
+            $meta['robots'],
         );
     }
 

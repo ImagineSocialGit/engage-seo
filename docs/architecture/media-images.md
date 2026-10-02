@@ -228,11 +228,27 @@ Additional HTML attributes supplied to the component are forwarded to the fallba
 
 ## SEO metadata boundary
 
-The existing page metadata contract currently accepts public image URLs for Open Graph/Twitter defaults and overrides.
+The page metadata contract supports both direct public image URLs and an explicit static-media asset key.
 
-This media foundation does not silently reinterpret every metadata string as a media asset key. A later reusable section/client implementation may resolve a known media asset through `MediaAssetResolver` and pass its public URL deliberately.
+Page-level configuration may use:
 
-Keeping that boundary explicit avoids creating two ambiguous meanings for one metadata field.
+```php
+'meta' => [
+    'image_asset' => 'heroes/home',
+],
+```
+
+and site-wide client configuration may use:
+
+```php
+'seo' => [
+    'default_image_asset' => 'heroes/home',
+],
+```
+
+`image_asset` is deliberately separate from the existing `image` URL field. The platform resolves the asset through `MediaAssetResolver`, uses the generated WebP fallback, converts a local `/media/...` URL to an absolute `APP_URL` URL, and feeds the result to Open Graph/Twitter metadata.
+
+A directly configured `image` URL still takes precedence. Engage SEO therefore does not reinterpret arbitrary metadata strings as asset keys, and CDN-backed media continues to work through the normal media `base_url` contract.
 
 ## Testing boundary
 
