@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Support\Pages\PageRepository;
+use App\Support\Pages\FeedbackPreviewResolver;
 use App\Support\Seo\RedirectRepository;
 use App\Support\Seo\StructuredDataResolver;
 use App\Support\Site\SitePresentationResolver;
@@ -21,6 +22,7 @@ final class PublicPageController extends Controller
         SitePresentationResolver $sitePresentation,
         RedirectRepository $redirects,
         StructuredDataResolver $structuredData,
+        FeedbackPreviewResolver $feedbackPreview,
     ): View|RedirectResponse {
         $path = '/'.ltrim($request->path(), '/');
 
@@ -50,6 +52,7 @@ final class PublicPageController extends Controller
             return view($views->resolve(), [
                 'page' => $page,
                 'site' => $site,
+                'feedbackPreview' => $feedbackPreview->resolve($page, $request),
             ]);
         }
 
