@@ -1,102 +1,158 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -Eeuo pipefail
 
-CLIENT_KEY="${1:-}"
-CLIENT_TIMEZONE="${2:-}"
-VERTICAL_KEY="${3:-}"
-WEB_GROUP="${ENGAGE_SEO_WEB_GROUP:-www-data}"
+usage() {
+    cat <<'USAGE'
+Usage:
+  ./scripts/create-client.sh client-key timezone [vertical-key] [options]
 
-if [[ -z "$CLIENT_KEY" || -z "$CLIENT_TIMEZONE" ]]; then
-    echo "Usage: ./scripts/create-client.sh client-key timezone [vertical-key]"
-    echo "Example: ./scripts/create-client.sh example-client America/Chicago"
-    echo "Example: ./scripts/create-client.sh builder-co America/New_York construction"
-    echo
-    echo "Optional:"
-    echo "  ENGAGE_SEO_WEB_GROUP=www-data"
-    exit 1
-fi
+Options:
+  --name "Client Name"    Use the actual client organization name.
+  --vertical KEY          Equivalent to the optional positional vertical-key.
+  -h, --help              Show this help.
 
-if [[ ! "$CLIENT_KEY" =~ ^[a-z0-9][a-z0-9_-]*$ ]]; then
-    echo "Client key must start with a lowercase letter or number and contain only lowercase letters, numbers, hyphens, and underscores."
-    exit 1
-fi
+Environment overrides:
+  ENGAGE_SEO_WEB_GROUP=www-data
+  ENGAGE_SEO_GITHUB_OWNER=ImagineSocialGit
 
-if ! command -v php >/dev/null 2>&1; then
-    echo "PHP is required."
-    exit 1
-fi
+Creates a separate private GitHub client repository and provisions the local
+client database and runtime. Never creates or edits staging/production state.
+On partial failure, re-run only the recovery command printed by the script.
 
-if ! getent group "$WEB_GROUP" >/dev/null 2>&1; then
-    echo "Web server group does not exist: $WEB_GROUP"
-    echo "Set ENGAGE_SEO_WEB_GROUP when the PHP-FPM group is not www-data."
-    exit 1
-fi
-
-php -r '
-$timezone = $argv[1] ?? "";
-
-if (! in_array($timezone, timezone_identifiers_list(), true)) {
-    fwrite(STDERR, "Invalid timezone: {$timezone}\n");
-    exit(1);
+Example:
+  ./scripts/create-client.sh holly-hatcher-ef-seo America/Chicago \
+    --name "Holly Hatcher Education Foundation"
+USAGE
 }
-' "$CLIENT_TIMEZONE"
+
+fail() { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
+
+CLIENT_KEY=""
+CLIENT_TIMEZONE=""
+CLIENT_NAME=""
+VERTICAL_KEY=""
+WEB_GROUP="${ENGAGE_SEO_WEB_GROUP:-www-data}"
+GITHUB_OWNER="${ENGAGE_SEO_GITHUB_OWNER:-ImagineSocialGit}"
+
+while (($#)); do
+    case "$1" in
+        --name)
+            [[ $# -ge 2 ]] || fail '--name requires a value.'
+            CLIENT_NAME="$2"
+            shift 2
+            ;;
+        --vertical)
+            [[ $# -ge 2 ]] || fail '--vertical requires a value.'
+            if [[ -n "$VERTICAL_KEY" ]]; then
+                fail 'Vertical was specified more than once.'
+            fi
+            VERTICAL_KEY="$2"
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        --*) fail "Unknown option: $1" ;;
+        *)
+            if [[ -z "$CLIENT_KEY" ]]; then
+                CLIENT_KEY="$1"
+            elif [[ -z "$CLIENT_TIMEZONE" ]]; then
+                CLIENT_TIMEZONE="$1"
+            elif [[ -z "$VERTICAL_KEY" ]]; then
+                VERTICAL_KEY="$1"
+            else
+                fail "Unexpected positional argument: $1"
+            fi
+            shift
+            ;;
+    esac
+done
+
+[[ -n "$CLIENT_KEY" && -n "$CLIENT_TIMEZONE" ]] || { usage >&2; exit 2; }
+[[ "$CLIENT_KEY" =~ ^[a-z0-9][a-z0-9_-]*$ ]] || fail 'Invalid client key.'
+[[ -z "$VERTICAL_KEY" || "$VERTICAL_KEY" =~ ^[a-z0-9][a-z0-9_-]*$ ]] \
+    || fail 'Invalid vertical key.'
+[[ "$GITHUB_OWNER" =~ ^[A-Za-z0-9][A-Za-z0-9-]*$ ]] || fail 'Invalid GitHub owner.'
+[[ -z "$CLIENT_NAME" || ( "$CLIENT_NAME" != *$'\n'* && "$CLIENT_NAME" != *$'\r'* ) ]] \
+    || fail 'Client name must be a single line.'
+
+for executable in php git gh getent; do
+    command -v "$executable" >/dev/null 2>&1 || fail "Missing command: $executable"
+done
+getent group "$WEB_GROUP" >/dev/null 2>&1 || fail "Missing PHP-FPM group: $WEB_GROUP"
+php -r '$t=$argv[1]; if (!in_array($t, timezone_identifiers_list(), true)) { fwrite(STDERR,"Invalid timezone\n"); exit(1); }' "$CLIENT_TIMEZONE"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CLIENT_ROOT="$ROOT_DIR/client"
 CLIENT_DIR="$CLIENT_ROOT/$CLIENT_KEY"
 TEMP_CLIENT_DIR=""
+GITHUB_REPOSITORY="$GITHUB_OWNER/$CLIENT_KEY"
+GITHUB_SSH_URL="git@github.com:$GITHUB_REPOSITORY.git"
+LOCAL_BOOTSTRAP="$ROOT_DIR/scripts/bootstrap-client-local.sh"
 
-if [[ ! -f "$ROOT_DIR/artisan" || ! -f "$ROOT_DIR/config/verticals.php" ]]; then
-    echo "Run this script from an Engage SEO checkout."
-    exit 1
-fi
+[[ -f "$ROOT_DIR/artisan" && -f "$ROOT_DIR/config/verticals.php" ]] \
+    || fail 'Run from an Engage SEO checkout.'
+[[ -f "$ROOT_DIR/vendor/autoload.php" && -f "$ROOT_DIR/.env" ]] \
+    || fail 'Install root PHP dependencies and create local root .env first.'
+[[ -f "$LOCAL_BOOTSTRAP" ]] || fail 'Local bootstrap helper is missing.'
+[[ ! -e "$CLIENT_DIR" && ! -L "$CLIENT_DIR" ]] || fail "Client already exists: $CLIENT_DIR"
+
+# Refuse external repository writes unless this checkout is a local dev environment.
+php -r '
+require $argv[1]."/vendor/autoload.php";
+$env = Dotenv\Dotenv::createArrayBacked($argv[1], ".env")->safeLoad();
+if (($env["APP_ENV"] ?? null) !== "local") {
+    fwrite(STDERR, "Client creation requires root APP_ENV=local.\n");
+    exit(1);
+}
+' "$ROOT_DIR"
 
 if [[ -n "$VERTICAL_KEY" ]]; then
     php -r '
-$config = require $argv[1];
-$key = $argv[2] ?? "";
-$available = $config["available"] ?? [];
-
-if (! is_array($available) || ! array_key_exists($key, $available)) {
-    fwrite(STDERR, "Unknown Engage SEO vertical: {$key}\n");
-    exit(1);
-}
-' "$ROOT_DIR/config/verticals.php" "$VERTICAL_KEY"
+    $config = require $argv[1];
+    $key = $argv[2];
+    if (!isset($config["available"][$key])) {
+        fwrite(STDERR, "Unknown Engage SEO vertical: {$key}\n");
+        exit(1);
+    }
+    ' "$ROOT_DIR/config/verticals.php" "$VERTICAL_KEY"
 fi
 
-if [[ -e "$CLIENT_DIR" ]]; then
-    echo "Client already exists: $CLIENT_DIR"
-    exit 1
+gh auth status --hostname github.com >/dev/null 2>&1 \
+    || fail 'GitHub CLI not authenticated. Run gh auth login.'
+if gh repo view "$GITHUB_REPOSITORY" --json nameWithOwner >/dev/null 2>&1; then
+    fail "Remote repository already exists: $GITHUB_REPOSITORY"
 fi
+GIT_AUTHOR_NAME="$(git -C "$ROOT_DIR" config user.name 2>/dev/null || true)"
+GIT_AUTHOR_EMAIL="$(git -C "$ROOT_DIR" config user.email 2>/dev/null || true)"
+[[ -n "$GIT_AUTHOR_NAME" && -n "$GIT_AUTHOR_EMAIL" ]] \
+    || fail 'Git user.name and user.email must be configured.'
 
 mkdir -p "$CLIENT_ROOT"
 TEMP_CLIENT_DIR="$(mktemp -d "$CLIENT_ROOT/.${CLIENT_KEY}.creating.XXXXXX")"
-
 cleanup() {
     if [[ -n "$TEMP_CLIENT_DIR" && -d "$TEMP_CLIENT_DIR" ]]; then
-        rm -rf "$TEMP_CLIENT_DIR"
+        rm -rf -- "$TEMP_CLIENT_DIR"
     fi
 }
-
 trap cleanup EXIT
 
-CLIENT_NAME="$(
-    echo "$CLIENT_KEY" \
-        | tr '_-' '  ' \
-        | awk '{
+if [[ -z "$CLIENT_NAME" ]]; then
+    CLIENT_NAME="$(
+        echo "$CLIENT_KEY" | tr '_-' '  ' | awk '{
             for (i = 1; i <= NF; i++) {
                 $i = toupper(substr($i, 1, 1)) substr($i, 2)
             }
         } 1'
-)"
-
-VERTICAL_VALUE="null"
-
-if [[ -n "$VERTICAL_KEY" ]]; then
-    VERTICAL_VALUE="'$VERTICAL_KEY'"
+    )"
 fi
-
+CLIENT_NAME_PHP="$(php -r 'echo var_export($argv[1], true);' "$CLIENT_NAME")"
+VERTICAL_VALUE="null"
+if [[ -n "$VERTICAL_KEY" ]]; then
+    VERTICAL_VALUE="$(php -r 'echo var_export($argv[1], true);' "$VERTICAL_KEY")"
+fi
 mkdir -p "$TEMP_CLIENT_DIR/bootstrap"
 mkdir -p "$TEMP_CLIENT_DIR/config/pages"
 mkdir -p "$TEMP_CLIENT_DIR/resources/views/pages"
@@ -108,7 +164,7 @@ cat > "$TEMP_CLIENT_DIR/config/client.php" <<EOF_CLIENT
 <?php
 
 return [
-    'name' => '$CLIENT_NAME',
+    'name' => $CLIENT_NAME_PHP,
     'key' => '$CLIENT_KEY',
     'timezone' => '$CLIENT_TIMEZONE',
     'vertical' => $VERTICAL_VALUE,
@@ -140,7 +196,7 @@ cat > "$TEMP_CLIENT_DIR/config/site.php" <<EOF_SITE
 <?php
 
 return [
-    'name' => '$CLIENT_NAME',
+    'name' => $CLIENT_NAME_PHP,
 
     'brand' => [
         'logo' => null,
@@ -262,6 +318,8 @@ EOF_ENV
 
 cat > "$TEMP_CLIENT_DIR/.gitignore" <<'EOF_GITIGNORE'
 /.env
+/.env.*
+!/.env.example
 .DS_Store
 Thumbs.db
 EOF_GITIGNORE
@@ -277,13 +335,17 @@ touch "$TEMP_CLIENT_DIR/resources/images/raw/.gitkeep"
 cat > "$TEMP_CLIENT_DIR/README.md" <<EOF_README
 # $CLIENT_NAME
 
-Engage SEO client repository.
+Engage SEO client repository: \`$GITHUB_REPOSITORY\`
 
 ## Identity
 
 - Client key: \`$CLIENT_KEY\`
 - Timezone: \`$CLIENT_TIMEZONE\`
 - Vertical: \`${VERTICAL_KEY:-none}\`
+
+## Private repository
+
+\`$GITHUB_SSH_URL\`
 
 ## Deployment environments
 
@@ -302,69 +364,18 @@ The current SEO platform does not yet define Core API destination or credential 
 
 ## Local setup
 
-1. Create the client environment:
+The client creation workflow initializes the private repository, generates the
+local client environment, provisions an isolated MySQL database, migrates and
+bootstraps the selected client, validates configuration, and selects it locally.
+If local bootstrap failed after repository creation, resume without recreating
+source or GitHub:
 
-   \`\`\`bash
-   sudo install -o "\$(id -un)" -g "$WEB_GROUP" -m 640 \
-     client/$CLIENT_KEY/.env.example \
-     client/$CLIENT_KEY/.env
-   \`\`\`
+\`\`\`bash
+./scripts/bootstrap-client-local.sh $CLIENT_KEY
+\`\`\`
 
-2. Populate \`.env\` with the client URL, database identity/credentials, and client-specific namespaces.
-
-3. Configure site identity, navigation, footer, SEO launch state, redirects, and optional theme overrides in:
-
-   \`\`\`text
-   config/site.php
-   \`\`\`
-
-4. Add public static page definitions under:
-
-   \`\`\`text
-   config/pages/*.php
-   \`\`\`
-
-5. If this client replaces an existing public site, enable the old-platform SEO migration audit in:
-
-   \`\`\`text
-   config/seo_migration.php
-   \`\`\`
-
-   Then populate:
-
-   \`\`\`text
-   resources/migration/legacy-urls.tsv
-   \`\`\`
-
-6. Set this in the Engage SEO platform root \`.env\`:
-
-   \`\`\`env
-   CLIENT_KEY=$CLIENT_KEY
-   \`\`\`
-
-7. Clear cached configuration:
-
-   \`\`\`bash
-   php artisan optimize:clear
-   \`\`\`
-
-8. Validate the selected client:
-
-   \`\`\`bash
-   php artisan setup:validate
-   \`\`\`
-
-9. Run migrations when the client database is ready:
-
-   \`\`\`bash
-   php artisan migrate
-   \`\`\`
-
-10. Apply any source-controlled initial client state:
-
-   \`\`\`bash
-   php artisan client:bootstrap
-   \`\`\`
+The same source repository is deployed separately to staging and production.
+Runtime credentials and selected-client environments remain uncommitted.
 
 ## Ownership
 
@@ -422,50 +433,57 @@ php -l "$TEMP_CLIENT_DIR/config/seo_migration.php" >/dev/null
 php -l "$TEMP_CLIENT_DIR/config/site.php" >/dev/null
 
 if ! chgrp -R "$WEB_GROUP" "$TEMP_CLIENT_DIR" 2>/dev/null; then
-    if ! command -v sudo >/dev/null 2>&1; then
-        echo "Unable to assign the client directory to group '$WEB_GROUP'."
-        echo "Install sudo, run as root, or add the current user to that group."
-        exit 1
-    fi
-
+    command -v sudo >/dev/null 2>&1 || fail 'sudo is required to set client filesystem group.'
     sudo chgrp -R "$WEB_GROUP" "$TEMP_CLIENT_DIR"
 fi
-
 find "$TEMP_CLIENT_DIR" -type d -exec chmod 2750 {} +
 find "$TEMP_CLIENT_DIR" -type f -exec chmod 0640 {} +
 
-mv "$TEMP_CLIENT_DIR" "$CLIENT_DIR"
+# Commit while the scaffold is still unpublished. A remote-creation failure
+# therefore cannot leave a half-created client at client/<key>.
+git -C "$TEMP_CLIENT_DIR" init -q
+git -C "$TEMP_CLIENT_DIR" config user.name "$GIT_AUTHOR_NAME"
+git -C "$TEMP_CLIENT_DIR" config user.email "$GIT_AUTHOR_EMAIL"
+git -C "$TEMP_CLIENT_DIR" add .
+git -C "$TEMP_CLIENT_DIR" commit -q -m 'feat: initialize SEO client'
+git -C "$TEMP_CLIENT_DIR" branch -M main
+
+printf 'Creating private GitHub repository: %s\n' "$GITHUB_REPOSITORY"
+gh repo create "$GITHUB_REPOSITORY" --private \
+    || fail 'GitHub repository creation failed. No client scaffold was published.'
+git -C "$TEMP_CLIENT_DIR" remote add origin "$GITHUB_SSH_URL"
+
+if ! git -C "$TEMP_CLIENT_DIR" push -u origin main; then
+    # Do not delete the newly created remote: keep local source with the matching
+    # commit intact and give an exact retry command.
+    mv -- "$TEMP_CLIENT_DIR" "$CLIENT_DIR"
+    TEMP_CLIENT_DIR=""
+    trap - EXIT
+    printf 'Repository created but initial push failed. Local source preserved: %s\n' "$CLIENT_DIR" >&2
+    printf 'Retry: git -C client/%s push -u origin main\n' "$CLIENT_KEY" >&2
+    exit 1
+fi
+
+mv -- "$TEMP_CLIENT_DIR" "$CLIENT_DIR"
 TEMP_CLIENT_DIR=""
 trap - EXIT
 
-CURRENT_USER="$(id -un)"
+if ! bash "$LOCAL_BOOTSTRAP" "$CLIENT_KEY"; then
+    printf '\nClient source and private GitHub repository remain intact.\n' >&2
+    printf 'After correcting the local setup issue, retry:\n' >&2
+    printf '  ./scripts/bootstrap-client-local.sh %s\n' "$CLIENT_KEY" >&2
+    exit 1
+fi
 
 cat <<EOF_DONE
 Created Engage SEO client: $CLIENT_DIR
 Name: $CLIENT_NAME
 Timezone: $CLIENT_TIMEZONE
 Vertical: ${VERTICAL_KEY:-none}
+Repository: $GITHUB_SSH_URL
+Branch: main (private)
 Permissions: directories 2750; files 0640; group $WEB_GROUP
+Local bootstrap: ready
 
-Next:
-  sudo install -o "$CURRENT_USER" -g "$WEB_GROUP" -m 640 \
-    client/$CLIENT_KEY/.env.example \
-    client/$CLIENT_KEY/.env
-
-  # Populate client/$CLIENT_KEY/.env
-  # Configure client/$CLIENT_KEY/config/site.php
-  # Keep seo.indexing_enabled=false until the production site is ready to launch
-  # Add public page definitions under client/$CLIENT_KEY/config/pages/
-  # If replacing an old site, configure client/$CLIENT_KEY/config/seo_migration.php
-  # and client/$CLIENT_KEY/resources/migration/legacy-urls.tsv
-  # Set CLIENT_KEY=$CLIENT_KEY in the platform root .env
-
-  php artisan optimize:clear
-  php artisan setup:validate
-  php artisan migrate
-  php artisan client:bootstrap
-
-Optional client repository initialization:
-  cd client/$CLIENT_KEY
-  git init
+Next: configure branding, public pages, media, and SEO launch state.
 EOF_DONE
