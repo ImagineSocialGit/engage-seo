@@ -2,7 +2,6 @@
 
 use App\Features\Blog\BlogServiceProvider;
 use App\Features\Forms\FormsServiceProvider;
-use App\Features\Donations\DonationsServiceProvider;
 use App\Features\Locations\LocationsServiceProvider;
 use App\Features\Services\ServicesServiceProvider;
 
@@ -13,7 +12,6 @@ return [
         'locations' => ['provider' => LocationsServiceProvider::class],
         'blog' => ['provider' => BlogServiceProvider::class],
         'forms' => ['provider' => FormsServiceProvider::class],
-        'donations' => ['provider' => DonationsServiceProvider::class],
     ],
     'enabled' => [],
     'disabled' => [],

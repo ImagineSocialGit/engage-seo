@@ -5,11 +5,6 @@ return [
     'base_url' => env('ENGAGE_SEO_CORE_FORMS_URL'),
     'client_key' => env('ENGAGE_SEO_CORE_FORMS_CLIENT_ID'),
     'signing_secret' => env('ENGAGE_SEO_CORE_FORMS_SIGNING_SECRET'),
-    'donations' => [
-        'base_url' => env('ENGAGE_SEO_CORE_DONATIONS_URL'),
-        'client_id' => env('ENGAGE_SEO_CORE_DONATIONS_CLIENT_ID'),
-        'signing_secret' => env('ENGAGE_SEO_CORE_DONATIONS_SIGNING_SECRET'),
-    ],
     'forms' => [
         'path' => '/forms',
         'timeout_seconds' => 5,
