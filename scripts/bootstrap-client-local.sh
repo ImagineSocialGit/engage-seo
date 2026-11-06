@@ -196,8 +196,12 @@ unset SQL DB_PASSWORD_VALUE SECRET
 cd "$ROOT_DIR"
 # The explicit process CLIENT_KEY overrides the root selection until final
 # success. Never migrate or bootstrap the previously selected client.
-CLIENT_KEY="$CLIENT_KEY" php artisan optimize:clear --no-ansi
+# Clear only compiled configuration before migrations. A brand-new client
+# database does not yet have a database-backed cache table, so running
+# optimize:clear (which invokes cache:clear) here would fail prematurely.
+CLIENT_KEY="$CLIENT_KEY" php artisan config:clear --no-ansi
 CLIENT_KEY="$CLIENT_KEY" php artisan migrate --force --no-ansi
+CLIENT_KEY="$CLIENT_KEY" php artisan optimize:clear --no-ansi
 CLIENT_KEY="$CLIENT_KEY" php artisan client:bootstrap --no-ansi
 CLIENT_KEY="$CLIENT_KEY" php artisan setup:validate --no-ansi
 

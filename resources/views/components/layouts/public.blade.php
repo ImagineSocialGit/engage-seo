@@ -1,3 +1,4 @@
+
 @props([
     'meta',
     'site',
@@ -47,6 +48,12 @@
                     <x-layouts.site-footer :site="$site" />
                 @endisset
             </footer>
+        @endif
+
+        @if(app(\App\Support\Development\SourceTooltipResolver::class)->enabled())
+            @include('components.layouts.source-tooltips', [
+                'sourceLocations' => app(\App\Support\Development\SourceTooltipResolver::class)->forCurrentRequest(),
+            ])
         @endif
     </body>
 </html>
