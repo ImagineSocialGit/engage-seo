@@ -6,12 +6,14 @@ use App\Console\Commands\AuditSeoMigrationCommand;
 use App\Console\Commands\BootstrapClientCommand;
 use App\Console\Commands\ExportEditorialSnapshotCommand;
 use App\Console\Commands\ImportEditorialSnapshotCommand;
+use App\Console\Commands\InspectSeoCredentialRecipientCommand;
 use App\Console\Commands\ValidateEditorialSnapshotCommand;
 use App\Console\Commands\ValidateSetupCommand;
 use App\Support\Clients\ClientBootstrapRegistry;
 use App\Support\Clients\ClientBootstrapService;
 use App\Support\Clients\ClientConfigLoader;
 use App\Support\Clients\ClientPackageLoader;
+use App\Support\Deployment\Credentials\SeoCredentialRecipientInspector;
 use App\Support\Editorial\EditorialPromotionPolicy;
 use App\Support\Editorial\EditorialPromotionRegistry;
 use App\Support\Editorial\EditorialPromotionService;
@@ -48,6 +50,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(ClientBootstrapService::class);
         $this->app->singleton(ClientConfigLoader::class);
         $this->app->singleton(ClientPackageLoader::class);
+        $this->app->singleton(SeoCredentialRecipientInspector::class);
         $this->app->singleton(VerticalManager::class);
         $this->app->singleton(FeatureManager::class);
         $this->app->singleton(SeoExtensionRegistry::class);
@@ -115,6 +118,7 @@ class AppServiceProvider extends ServiceProvider
                 ImportEditorialSnapshotCommand::class,
                 ValidateEditorialSnapshotCommand::class,
                 ValidateSetupCommand::class,
+                InspectSeoCredentialRecipientCommand::class,
             ]);
         }
     }
