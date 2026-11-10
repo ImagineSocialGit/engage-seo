@@ -200,3 +200,41 @@ If package frontend assets become large or numerous, add a documented host build
 The platform tests the generic selected-client package loader and provider contract.
 
 Each private package owns tests for its own reusable behavior. Client repositories should not add tests that freeze client-facing copy.
+## Read-only package lifecycle evidence (batch 10D3)
+
+SEO provides a source-level audit through its own `scripts/package.sh` command:
+
+```bash
+cd /var/www/engage-seo
+./scripts/package.sh audit CLIENT_KEY
+./scripts/package.sh audit CLIENT_KEY --json
+./scripts/package.sh audit CLIENT_KEY --source /var/www/engage-seo-nonprofit
+```
+
+`--source` is repeatable and checks explicitly supplied package checkouts against
+client Composer requirements. The command reports the presence and structural
+validity of `composer.json`, `composer.lock`, locked package entries, client vendor
+autoload and runtime package paths (with development-only dependencies allowed to
+be absent from `composer install --no-dev`), and client PHP configuration file
+presence. When
+source metadata exists, it checks Composer/descriptor identity and declared
+SEO platform suitability. It never executes PHP configuration to infer
+providers, or selects a client by reading its `.env`.
+
+SEO's client configuration is PHP, not a generated JSON registration manifest.
+`config/client_packages.php`, feature selection, vertical defaults, and
+migration registration therefore remain **not evaluated** in this source-level
+audit. Their existence is not proof of activation or readiness. The existing
+`ClientPackageLoader`, `FeatureManager`, `VerticalManager`, bootstrap commands
+and setup validation remain authoritative for runtime state. The audit does not
+invoke Composer, update lockfiles, load providers, modify environments,
+activate features, migrate schemas, or deploy applications. A missing lock,
+client autoloader or required package path is a structural error, not a repair
+request. A package without an optional `engage-package.json` descriptor may be
+valid legacy source and is reported with a warning rather than invented metadata.
+
+`./scripts/dev-link-package.sh` and `./scripts/dev-unlink-package.sh` remain
+local-only editing tools. Production selected-client dependencies continue to
+be pinned by committed Composer locks; operational installation/provisioning
+will be coordinated by Infrastructure after the relevant platform contracts
+have been verified.
