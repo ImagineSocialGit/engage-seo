@@ -8,6 +8,8 @@ use App\Console\Commands\ExportEditorialSnapshotCommand;
 use App\Console\Commands\ImportEditorialSnapshotCommand;
 use App\Console\Commands\InspectSeoCredentialRecipientCommand;
 use App\Console\Commands\InspectSeoCredentialInstallationCommand;
+use App\Console\Commands\InspectSeoCredentialRuntimeCommand;
+use App\Support\Deployment\Credentials\SeoCredentialRuntimeProbe;
 use App\Console\Commands\ValidateEditorialSnapshotCommand;
 use App\Console\Commands\ValidateSetupCommand;
 use App\Support\Clients\ClientBootstrapRegistry;
@@ -56,6 +58,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(ClientPackageLoader::class);
         $this->app->singleton(SeoCredentialRecipientInspector::class);
         $this->app->singleton(SeoCredentialInstallationRegistry::class);
+        $this->app->singleton(SeoCredentialRuntimeProbe::class);
         $this->app->singleton(SeoCredentialInstallationContract::class);
         $this->app->singleton(SeoSelectedCredentialEnvironment::class);
         $this->app->singleton(VerticalManager::class);
@@ -127,6 +130,7 @@ class AppServiceProvider extends ServiceProvider
                 ValidateSetupCommand::class,
                 InspectSeoCredentialRecipientCommand::class,
                 InspectSeoCredentialInstallationCommand::class,
+                InspectSeoCredentialRuntimeCommand::class,
             ]);
         }
     }

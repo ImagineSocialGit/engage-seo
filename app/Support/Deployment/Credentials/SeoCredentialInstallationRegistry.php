@@ -32,4 +32,14 @@ final class SeoCredentialInstallationRegistry
     {
         return $this->definitions[$purpose] ?? null;
     }
+
+    /** @return list<SeoInternalCredentialDefinition> */
+    public function all(): array
+    {
+        $definitions = $this->definitions;
+        ksort($definitions, SORT_STRING);
+
+        return array_values($definitions);
+    }
+
 }
