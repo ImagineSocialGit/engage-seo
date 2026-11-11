@@ -26,6 +26,8 @@ final class SeoCredentialRuntimeCommandTest extends TestCase
         $report = json_decode(Artisan::output(), true, 512, JSON_THROW_ON_ERROR);
         self::assertSame(1, $code);
         self::assertSame('blocked', $report['status']);
+        self::assertSame('target_selection', $report['phase']);
+        self::assertSame(['runtime_target_identity_mismatch'], $report['findings']);
         self::assertArrayNotHasKey('proof', $report);
         self::assertFalse($report['writes_allowed']);
     }

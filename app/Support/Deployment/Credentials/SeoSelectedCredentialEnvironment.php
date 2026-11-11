@@ -5,7 +5,9 @@ namespace App\Support\Deployment\Credentials;
 use App\Support\Clients\ClientEnvironmentDefinition;
 use RuntimeException;
 
-/** Private, read-only selected-client dotenv snapshot, never a public report. */
+/** Read-only runtime snapshot: owner-only 0600 or authorized-group-readable 0640.
+ * Creation owns group assignment; this reader never chmods/chgrps configuration.
+ */
 final class SeoSelectedCredentialEnvironment
 {
     /** @return array<string, string> */
@@ -41,12 +43,39 @@ final class SeoSelectedCredentialEnvironment
             throw new RuntimeException('Unsafe selected SEO environment file.');
         }
         $stat = lstat($path);
-        if (! is_array($stat) || ($stat['mode'] & 0777) !== 0600
+        if (! is_array($stat) || ! in_array($stat['mode'] & 07777, [0600, 0640], true)
+            || ($stat['uid'] ?? null) !== fileowner($directory)
             || ($stat['nlink'] ?? 0) !== 1 || ($stat['size'] ?? 0) > 1048576
         ) {
             throw new RuntimeException('Selected SEO environment file is not private.');
         }
-        $data = file_get_contents($path);
+        $stream = @fopen($path, 'rb');
+        if ($stream === false) {
+            throw new RuntimeException('Unsafe selected SEO environment file.');
+        }
+        try {
+            $opened = fstat($stream);
+            $identity = ['dev', 'ino', 'mode', 'uid', 'gid', 'nlink', 'size', 'mtime', 'ctime'];
+            foreach ($identity as $field) {
+                if (! is_array($opened) || ($opened[$field] ?? null) !== ($stat[$field] ?? null)) {
+                    throw new RuntimeException('Unsafe selected SEO environment file.');
+                }
+            }
+            $data = stream_get_contents($stream, 1048577);
+            $after = fstat($stream);
+            clearstatcache(true, $path);
+            $current = @lstat($path);
+            foreach ($identity as $field) {
+                if (! is_array($after) || ! is_array($current)
+                    || ($after[$field] ?? null) !== $stat[$field]
+                    || ($current[$field] ?? null) !== $stat[$field]
+                ) {
+                    throw new RuntimeException('Unsafe selected SEO environment file.');
+                }
+            }
+        } finally {
+            fclose($stream);
+        }
         if (! is_string($data) || strlen($data) > 1048576 || str_contains($data, "\r")
             || str_contains($data, "\0")
         ) {

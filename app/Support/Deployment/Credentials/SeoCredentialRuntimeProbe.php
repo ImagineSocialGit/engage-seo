@@ -40,8 +40,9 @@ final class SeoCredentialRuntimeProbe
                 'status' => 'runtime_bindings_declared',
                 'bindings' => $bindings,
             ];
-        } catch (Throwable) {
-            throw new RuntimeException('credential_runtime_inventory_failed');
+        } catch (Throwable $error) {
+            throw $error instanceof SeoCredentialRuntimeFailure
+                ? $error : new SeoCredentialRuntimeFailure('runtime_registry_unavailable');
         }
     }
 
@@ -130,9 +131,11 @@ final class SeoCredentialRuntimeProbe
         $origin = $runtime['site_origin'] ?? null;
         if (! is_string($client) || preg_match('/\A[a-z][a-z0-9_-]{0,127}\z/D', $client) !== 1
             || ! in_array($environment, ['local', 'staging', 'production'], true)
-            || ! is_string($origin) || ! $this->validOrigin($origin, $environment)
         ) {
-            throw new RuntimeException();
+            throw new SeoCredentialRuntimeFailure('runtime_context_invalid');
+        }
+        if (! is_string($origin) || ! $this->validOrigin($origin, $environment)) {
+            throw new SeoCredentialRuntimeFailure('runtime_origin_invalid');
         }
     }
 
@@ -145,7 +148,7 @@ final class SeoCredentialRuntimeProbe
             || count(array_unique($keys)) !== count($keys)
             || count(array_intersect([$definition->identityKey, $definition->secretKey, $definition->originKey], $keys)) !== 3
         ) {
-            throw new RuntimeException();
+            throw new SeoCredentialRuntimeFailure('runtime_binding_ownership_invalid');
         }
     }
 

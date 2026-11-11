@@ -5,10 +5,10 @@ namespace App\Console\Commands;
 use App\Support\Clients\ClientEnvironmentDefinition;
 use App\Support\Deployment\Credentials\SeoCredentialInstallationRegistry;
 use App\Support\Deployment\Credentials\SeoCredentialRuntimeProbe;
+use App\Support\Deployment\Credentials\SeoCredentialRuntimeFailure;
 use App\Support\Deployment\Credentials\SeoSelectedCredentialEnvironment;
 use Dotenv\Dotenv;
 use Illuminate\Console\Command;
-use RuntimeException;
 use Throwable;
 
 /** Console-only runtime evidence from package-owned configuration declarations. */
@@ -29,6 +29,7 @@ final class InspectSeoCredentialRuntimeCommand extends Command
         SeoCredentialInstallationRegistry $registry,
         SeoSelectedCredentialEnvironment $environment,
     ): int {
+        $stage = 'target_selection';
         try {
             $client = (string) $this->option('expected-client');
             if (preg_match('/\A[a-z][a-z0-9_-]{0,127}\z/D', $client) !== 1
@@ -36,9 +37,10 @@ final class InspectSeoCredentialRuntimeCommand extends Command
                 || app()->environment() !== $this->option('expected-environment')
                 || ! in_array(app()->environment(), ['local', 'staging', 'production'], true)
             ) {
-                throw new RuntimeException();
+                throw new SeoCredentialRuntimeFailure('runtime_target_identity_mismatch');
             }
             // Validate selected-client directories before loading ownership PHP.
+            $stage = 'selected_environment';
             $persisted = $environment->read(base_path(), $client);
             $runtime = [
                 'client_key' => config('client.key'),
@@ -50,10 +52,12 @@ final class InspectSeoCredentialRuntimeCommand extends Command
                 if ($this->argument('purpose') !== null || $this->option('challenge') !== null
                     || $this->option('caller-id') !== null
                 ) {
-                    throw new RuntimeException();
+                    throw new SeoCredentialRuntimeFailure('runtime_inventory_arguments_invalid');
                 }
+                $stage = 'runtime_inventory';
                 $result = $probe->inventory($runtime);
             } else {
+                $stage = 'runtime_proof';
                 $purpose = (string) $this->argument('purpose');
                 $definition = $registry->find($purpose);
                 $runtime['binding'] = $definition === null ? null : config($definition->configurationPath);
@@ -61,10 +65,11 @@ final class InspectSeoCredentialRuntimeCommand extends Command
                 $result = $probe->prove($purpose, (string) $this->option('caller-id'),
                     (string) $this->option('challenge'), $runtime, $persisted, $root);
             }
-        } catch (Throwable) {
+        } catch (Throwable $error) {
             $result = [
                 'schema' => 1, 'platform' => 'seo', 'status' => 'blocked',
-                'findings' => ['runtime_inspection_unavailable'],
+                'phase' => $stage,
+                'findings' => [SeoCredentialRuntimeFailure::finding($error, $stage)],
                 'credential_equality_verified' => false,
                 'network_verified' => false, 'writes_allowed' => false,
             ];

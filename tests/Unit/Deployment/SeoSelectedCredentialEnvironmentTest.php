@@ -62,6 +62,56 @@ SOURCE
         self::assertSame(0600, fileperms($this->root.'/client/fixture-seo/.env') & 0777);
     }
 
+    public function test_group_readable_runtime_file_preserves_its_mode_group_and_contents(): void
+    {
+        $this->write("APP_URL=http://fixture-seo.test\nENGAGE_SEO_CORE_DONATIONS_CLIENT_ID=fixture-caller\n");
+        $file = $this->root.'/client/fixture-seo/.env';
+        chmod($file, 0640);
+        clearstatcache(true, $file);
+        $before = lstat($file);
+        $bytes = file_get_contents($file);
+        $values = (new SeoSelectedCredentialEnvironment())->read($this->root, 'fixture-seo');
+        self::assertSame('fixture-caller', $values['ENGAGE_SEO_CORE_DONATIONS_CLIENT_ID']);
+        clearstatcache(true, $file);
+        $after = lstat($file);
+        self::assertSame(0640, $after['mode'] & 07777);
+        self::assertSame($before['gid'], $after['gid']);
+        self::assertSame($before['ino'], $after['ino']);
+        self::assertSame($bytes, file_get_contents($file));
+    }
+
+    public function test_world_read_and_group_write_modes_are_rejected_without_changes(): void
+    {
+        $this->write("APP_URL=http://fixture-seo.test\n");
+        $file = $this->root.'/client/fixture-seo/.env';
+        foreach ([0644, 0660, 0664, 0666] as $mode) {
+            chmod($file, $mode);
+            clearstatcache(true, $file);
+            try {
+                (new SeoSelectedCredentialEnvironment())->read($this->root, 'fixture-seo');
+                self::fail('Unsafe runtime access must be rejected.');
+            } catch (RuntimeException) {
+                self::assertSame($mode, fileperms($file) & 07777);
+            }
+        }
+    }
+
+    public function test_hard_linked_group_readable_environment_is_rejected(): void
+    {
+        $this->write("APP_URL=http://fixture-seo.test\n");
+        $file = $this->root.'/client/fixture-seo/.env';
+        chmod($file, 0640);
+        $link = $this->root.'/linked.env';
+        link($file, $link);
+        clearstatcache(true, $file);
+        try {
+            $this->expectException(RuntimeException::class);
+            (new SeoSelectedCredentialEnvironment())->read($this->root, 'fixture-seo');
+        } finally {
+            unlink($link);
+        }
+    }
+
     public function test_duplicate_key_is_rejected(): void
     {
         $this->write("ENGAGE_SEO_CORE_DONATIONS_CLIENT_ID=x\nENGAGE_SEO_CORE_DONATIONS_CLIENT_ID=y\n");
