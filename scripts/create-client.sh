@@ -33,6 +33,7 @@ CLIENT_TIMEZONE=""
 CLIENT_NAME=""
 VERTICAL_KEY=""
 WEB_GROUP="${ENGAGE_SEO_WEB_GROUP:-www-data}"
+WEB_USER="${ENGAGE_SEO_WEB_USER:-www-data}"
 GITHUB_OWNER="${ENGAGE_SEO_GITHUB_OWNER:-ImagineSocialGit}"
 
 while (($#)); do
@@ -78,13 +79,14 @@ done
 [[ -z "$CLIENT_NAME" || ( "$CLIENT_NAME" != *$'\n'* && "$CLIENT_NAME" != *$'\r'* ) ]] \
     || fail 'Client name must be a single line.'
 
-for executable in php git gh getent; do
+for executable in php python3 git gh getent sudo; do
     command -v "$executable" >/dev/null 2>&1 || fail "Missing command: $executable"
 done
 getent group "$WEB_GROUP" >/dev/null 2>&1 || fail "Missing PHP-FPM group: $WEB_GROUP"
 php -r '$t=$argv[1]; if (!in_array($t, timezone_identifiers_list(), true)) { fwrite(STDERR,"Invalid timezone\n"); exit(1); }' "$CLIENT_TIMEZONE"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PERMISSIONS_HELPER="$ROOT_DIR/scripts/operations/lib/client_environment_permissions.py"
 CLIENT_ROOT="$ROOT_DIR/client"
 CLIENT_DIR="$CLIENT_ROOT/$CLIENT_KEY"
 TEMP_CLIENT_DIR=""
@@ -97,6 +99,15 @@ LOCAL_BOOTSTRAP="$ROOT_DIR/scripts/bootstrap-client-local.sh"
 [[ -f "$ROOT_DIR/vendor/autoload.php" && -f "$ROOT_DIR/.env" ]] \
     || fail 'Install root PHP dependencies and create local root .env first.'
 [[ -f "$LOCAL_BOOTSTRAP" ]] || fail 'Local bootstrap helper is missing.'
+
+# Root .env is a prerequisite for this platform's source-creation workflow.
+# Prepare it before contacting GitHub or creating client source; do not
+# preserve legacy world-readable/group-writable modes.
+python3 "$PERMISSIONS_HELPER" prepare-root \
+    --root "$ROOT_DIR" --runtime-group "$WEB_GROUP" --runtime-user "$WEB_USER" \
+    || fail 'Local SEO root environment permission preparation failed.'
+sudo -u "$WEB_USER" test -r "$ROOT_DIR/.env" \
+    || fail 'The PHP-FPM identity cannot read the root environment.'
 [[ ! -e "$CLIENT_DIR" && ! -L "$CLIENT_DIR" ]] || fail "Client already exists: $CLIENT_DIR"
 
 # Refuse external repository writes unless this checkout is a local dev environment.

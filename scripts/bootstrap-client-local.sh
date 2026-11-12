@@ -70,6 +70,7 @@ ROOT_ENV="$ROOT_DIR/.env"
 CLIENT_DIR="$ROOT_DIR/client/$CLIENT_KEY"
 CLIENT_ENV="$CLIENT_DIR/.env"
 CLIENT_ENV_EXAMPLE="$CLIENT_DIR/.env.example"
+PERMISSIONS_HELPER="$ROOT_DIR/scripts/operations/lib/client_environment_permissions.py"
 
 [[ -f "$ROOT_DIR/artisan" && -f "$ROOT_DIR/vendor/autoload.php" ]] \
     || fail 'Engage SEO must have installed PHP dependencies.'
@@ -77,6 +78,21 @@ CLIENT_ENV_EXAMPLE="$CLIENT_DIR/.env.example"
 [[ -f "$CLIENT_DIR/config/client.php" && -f "$CLIENT_ENV_EXAMPLE" ]] \
     || fail 'The client scaffold is missing.'
 [[ ! -L "$CLIENT_DIR" && ! -L "$CLIENT_ENV" ]] || fail 'Refusing symlinked client paths.'
+
+# Reconcile only the selected runtime paths before reading configuration or
+# touching MySQL. This does not read or rewrite .env contents.
+python3 "$PERMISSIONS_HELPER" prepare-client \
+    --root "$ROOT_DIR" --client "$CLIENT_KEY" \
+    --runtime-user "$WEB_USER" --runtime-group "$WEB_GROUP" \
+    || fail 'Local SEO runtime permissions preflight failed.'
+sudo -u "$WEB_USER" test -r "$ROOT_ENV" \
+    || fail 'The PHP-FPM identity cannot read the root .env.'
+sudo -u "$WEB_USER" test -x "$CLIENT_DIR" \
+    || fail 'The PHP-FPM identity cannot traverse the selected client directory.'
+if [[ -e "$CLIENT_ENV" ]]; then
+    sudo -u "$WEB_USER" test -r "$CLIENT_ENV" \
+        || fail 'The PHP-FPM identity cannot read the selected-client .env.'
+fi
 
 # Read only non-secret platform values. Do not source .env into a shell.
 mapfile -t PLATFORM < <(php -r '
@@ -162,6 +178,15 @@ PY
     trap - EXIT
     CREATED_ENV=true
 fi
+
+# Verify the newly created runtime file too; do not proceed to MySQL grants on
+# an environment that the actual service identity cannot read.
+python3 "$PERMISSIONS_HELPER" verify-client \
+    --root "$ROOT_DIR" --client "$CLIENT_KEY" \
+    --runtime-user "$WEB_USER" --runtime-group "$WEB_GROUP" \
+    || fail 'SEO client runtime permissions changed unexpectedly.'
+sudo -u "$WEB_USER" test -r "$CLIENT_ENV" \
+    || fail 'The PHP-FPM identity cannot read the client .env.'
 
 # Get the credential only in-process, never on stdout. No SQL or password
 # values are passed in command-line arguments.
@@ -256,6 +281,11 @@ if updated != current:
     finally:
         Path(temp).unlink(missing_ok=True)
 PY
+    python3 "$PERMISSIONS_HELPER" verify-root \
+        --root "$ROOT_DIR" --runtime-user "$WEB_USER" --runtime-group "$WEB_GROUP" \
+        || fail 'Root .env permissions changed during selected-client update.'
+    sudo -u "$WEB_USER" test -r "$ROOT_ENV" \
+        || fail 'The PHP-FPM identity cannot read the updated root .env.'
 fi
 
 printf '\nEngage SEO local client ready\n'
