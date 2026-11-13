@@ -6,6 +6,7 @@ use App\Features\Blog\BlogEditorialPromotionContributor;
 use App\Features\Blog\BlogServiceProvider;
 use App\Features\Blog\Models\BlogCategory;
 use App\Features\Blog\Models\BlogPost;
+use App\Support\Clients\ClientBootstrapRegistry;
 use App\Support\Editorial\EditorialPromotionPolicy;
 use App\Support\Editorial\EditorialPromotionRegistry;
 use App\Support\Editorial\EditorialPromotionService;
@@ -246,6 +247,7 @@ class EditorialPromotionFoundationTest extends DatabaseTestCase
         $provider->register();
         $provider->boot(
             app(SetupValidationRegistry::class),
+            app(ClientBootstrapRegistry::class),
             app(SeoExtensionRegistry::class),
             app(EditorialPromotionRegistry::class),
         );
