@@ -102,7 +102,9 @@ class PackageOperatorCommandTest(unittest.TestCase):
         self.assertIn("audit CLIENT_KEY", result.stdout)
         self.assertIn("link CLIENT_KEY", result.stdout)
         self.assertIn("unlink CLIENT_KEY", result.stdout)
-        self.assertNotIn("package.sh update", result.stdout)
+        self.assertIn("package.sh update", result.stdout)
+        self.assertIn("package.sh repair", result.stdout)
+        self.assertIn("--confirm-plan", result.stdout)
 
 
 if __name__ == "__main__":
