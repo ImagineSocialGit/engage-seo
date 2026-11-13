@@ -8,6 +8,7 @@
         "media:build": "node scripts/build-client-images.mjs"
     },
     "devDependencies": {
+        "@alpinejs/mask": "^3.14.9",
         "@tailwindcss/vite": "^4.0.0",
         "alpinejs": "^3.14.9",
         "concurrently": "^10.0.3",
