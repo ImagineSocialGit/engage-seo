@@ -2,6 +2,14 @@
 
 use Illuminate\Support\Str;
 use Pdo\Mysql;
+use App\Support\Deployment\RedisTransportConfiguration;
+
+$redisTransport = RedisTransportConfiguration::forEnvironment(
+    (string) env('APP_ENV', 'local'),
+    (string) env('REDIS_SCHEME', 'tcp'),
+    (string) env('REDIS_HOST', '127.0.0.1'),
+    env('REDIS_TLS_CA'),
+);
 
 return [
 
@@ -61,6 +69,7 @@ return [
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 Mysql::ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                Mysql::ATTR_SSL_VERIFY_SERVER_CERT => true,
             ]) : [],
         ],
 
@@ -81,6 +90,7 @@ return [
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 Mysql::ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                Mysql::ATTR_SSL_VERIFY_SERVER_CERT => true,
             ]) : [],
         ],
 
@@ -156,6 +166,8 @@ return [
         'default' => [
             'url' => env('REDIS_URL'),
             'host' => env('REDIS_HOST', '127.0.0.1'),
+            'scheme' => $redisTransport['scheme'],
+            'context' => $redisTransport['context'],
             'username' => env('REDIS_USERNAME'),
             'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),
@@ -169,6 +181,8 @@ return [
         'cache' => [
             'url' => env('REDIS_URL'),
             'host' => env('REDIS_HOST', '127.0.0.1'),
+            'scheme' => $redisTransport['scheme'],
+            'context' => $redisTransport['context'],
             'username' => env('REDIS_USERNAME'),
             'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),
