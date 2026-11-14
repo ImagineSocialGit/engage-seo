@@ -51,6 +51,15 @@ class ClientConfigLoader
 
         foreach ($this->configFiles($configDirectory) as $file) {
             $configKey = $this->configKey($configDirectory, $file);
+
+            // Staging authentication is a root-owned security boundary. Do not
+            // let a selected-client PHP config replace its runtime credentials.
+            if ($configKey === 'staging' || str_starts_with($configKey, 'staging.')) {
+                throw new RuntimeException(
+                    'Client configuration cannot override root-owned staging access.',
+                );
+            }
+
             $clientConfig = require $file;
 
             if (! is_array($clientConfig)) {
