@@ -3,6 +3,7 @@
 namespace App\Features\Locations;
 
 use App\Support\SetupValidation\SetupValidationRegistry;
+use App\Support\Deployment\SeoDeploymentPlanRegistry;
 use Illuminate\Support\ServiceProvider;
 
 final class LocationsServiceProvider extends ServiceProvider
@@ -21,6 +22,10 @@ final class LocationsServiceProvider extends ServiceProvider
     public function boot(
         SetupValidationRegistry $setupValidation,
     ): void {
+        $this->app->make(SeoDeploymentPlanRegistry::class)->register(
+            self::class, 'locations', [], [], [], [],
+        );
+
         config()->set('sections.available.locations', [
             'view' => 'features.locations.catalog',
             'layouts' => [

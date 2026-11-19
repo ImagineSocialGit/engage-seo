@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Console\Commands\AuditSeoMigrationCommand;
+use App\Console\Commands\InspectSeoDeploymentPlanCommand;
 use App\Console\Commands\BootstrapClientCommand;
 use App\Console\Commands\ExportEditorialSnapshotCommand;
 use App\Console\Commands\ImportEditorialSnapshotCommand;
@@ -10,6 +11,7 @@ use App\Console\Commands\InspectSeoCredentialRecipientCommand;
 use App\Console\Commands\InspectSeoCredentialInstallationCommand;
 use App\Console\Commands\InspectSeoCredentialRuntimeCommand;
 use App\Support\Deployment\Credentials\SeoCredentialRuntimeProbe;
+use App\Support\Deployment\SeoDeploymentPlanRegistry;
 use App\Console\Commands\ValidateEditorialSnapshotCommand;
 use App\Console\Commands\ValidateSetupCommand;
 use App\Support\Clients\ClientBootstrapRegistry;
@@ -59,6 +61,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(SeoCredentialRecipientInspector::class);
         $this->app->singleton(SeoCredentialInstallationRegistry::class);
         $this->app->singleton(SeoCredentialRuntimeProbe::class);
+        $this->app->singleton(SeoDeploymentPlanRegistry::class);
         $this->app->singleton(SeoCredentialInstallationContract::class);
         $this->app->singleton(SeoSelectedCredentialEnvironment::class);
         $this->app->singleton(VerticalManager::class);
@@ -131,6 +134,7 @@ class AppServiceProvider extends ServiceProvider
                 InspectSeoCredentialRecipientCommand::class,
                 InspectSeoCredentialInstallationCommand::class,
                 InspectSeoCredentialRuntimeCommand::class,
+                InspectSeoDeploymentPlanCommand::class,
             ]);
         }
     }

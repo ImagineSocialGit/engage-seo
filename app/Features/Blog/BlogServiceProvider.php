@@ -8,6 +8,7 @@ use App\Support\Clients\ClientBootstrapRegistry;
 use App\Support\Editorial\EditorialPromotionRegistry;
 use App\Support\Seo\SeoExtensionRegistry;
 use App\Support\SetupValidation\SetupValidationRegistry;
+use App\Support\Deployment\SeoDeploymentPlanRegistry;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use InvalidArgumentException;
@@ -40,6 +41,10 @@ final class BlogServiceProvider extends ServiceProvider
         SeoExtensionRegistry $seo,
         EditorialPromotionRegistry $editorial,
     ): void {
+        $this->app->make(SeoDeploymentPlanRegistry::class)->register(
+            self::class, 'blog', [], [], [], ['schema.migrate', 'routes.revalidate'],
+        );
+
         $this->loadMigrationsFrom(
             __DIR__.'/database/migrations'
         );
