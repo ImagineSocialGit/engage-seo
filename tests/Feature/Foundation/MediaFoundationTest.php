@@ -183,6 +183,69 @@ class MediaFoundationTest extends TestCase
         $this->assertNotEmpty($errors);
     }
 
+    public function test_foreign_shared_manifest_does_not_block_an_empty_new_client(): void
+    {
+        File::ensureDirectoryExists(
+            $this->temporaryRoot.'/client/empty-second-client/resources/images/raw'
+        );
+        config()->set('client.key', 'empty-second-client');
+        config()->set('media.manifest_path', 'public/media/manifest.json');
+
+        $errors = app(MediaManifestRepository::class)
+            ->validationErrors($this->temporaryRoot);
+
+        $this->assertSame([], $errors);
+
+        // Use the fixture's absolute path for runtime asset resolution;
+        // the application base path is not this temporary fixture directory.
+        config()->set(
+            'media.manifest_path',
+            $this->temporaryRoot.'/public/media/manifest.json',
+        );
+
+        // Read-time ownership remains strict; bootstrap acceptance must never
+        // let the second client resolve the first client's media assets.
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('does not belong to the selected client');
+        app(MediaAssetResolver::class)->resolve('hero');
+    }
+
+    public function test_new_client_raw_images_still_require_its_own_media_build(): void
+    {
+        $raw = $this->temporaryRoot
+            .'/client/second-with-image/resources/images/raw';
+        File::ensureDirectoryExists($raw);
+        File::put($raw.'/new.jpg', 'new source');
+        config()->set('client.key', 'second-with-image');
+
+        $errors = app(MediaManifestRepository::class)
+            ->validationErrors($this->temporaryRoot);
+
+        $this->assertNotEmpty($errors);
+        $this->assertContains(
+            'Generated media manifest does not belong to the selected client.',
+            $errors,
+        );
+    }
+
+    public function test_custom_manifest_path_never_inherits_shared_media_exemption(): void
+    {
+        File::ensureDirectoryExists(
+            $this->temporaryRoot.'/client/empty-second-client/resources/images/raw'
+        );
+        config()->set('client.key', 'empty-second-client');
+        config()->set('media.manifest_path',
+            $this->temporaryRoot.'/public/media/manifest.json');
+
+        $errors = app(MediaManifestRepository::class)
+            ->validationErrors($this->temporaryRoot);
+
+        $this->assertContains(
+            'Generated media manifest does not belong to the selected client.',
+            $errors,
+        );
+    }
+
     public function test_media_base_url_rejects_unsupported_schemes(): void
     {
         config()->set('media.base_url', 'ftp://cdn.example.test/media');

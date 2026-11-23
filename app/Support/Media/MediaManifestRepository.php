@@ -96,6 +96,27 @@ final class MediaManifestRepository
             return array_values(array_unique($errors));
         }
 
+        // The local platform shares public/media across client selections.
+        // A new client without raw images does not require a manifest, and
+        // another existing client's generated media must not block bootstrap.
+        // Only the default shared path receives this exemption: client-owned
+        // manifest overrides must still belong to the selected client.
+        $manifestOwner = $manifest['client'] ?? null;
+
+        if ($sources === []
+            && $errors === []
+            && config('media.manifest_path') === 'public/media/manifest.json'
+            && ($manifest['version'] ?? null) === self::MANIFEST_VERSION
+            && is_array($manifest['assets'] ?? null)
+            && is_string($manifestOwner)
+            && $manifestOwner !== $clientKey
+            && preg_match('/^[a-z0-9][a-z0-9_-]*$/D', $manifestOwner) === 1
+            && is_dir(rtrim($basePath, DIRECTORY_SEPARATOR)
+                .DIRECTORY_SEPARATOR.'client'.DIRECTORY_SEPARATOR.$manifestOwner)
+        ) {
+            return [];
+        }
+
         $errors = [
             ...$errors,
             ...$this->validateManifest($manifest, $manifestPath, $clientKey, $sources),

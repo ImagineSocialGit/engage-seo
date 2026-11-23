@@ -139,6 +139,18 @@ Among other structural checks, validation confirms:
 - AVIF/WebP source lists and intrinsic dimensions are structurally valid.
 
 A selected client with no raw images does not require a manifest.
+During local bootstrap, an existing manifest from another registered client under
+the default shared `public/media/manifest.json` does not invalidate an otherwise
+empty client. This exception only applies to setup validation; runtime asset
+resolution continues to refuse a manifest owned by another client. A selected
+client with raw images must have its own valid generated manifest.
+
+**Local build isolation:** This platform currently stores the generated variants
+in a shared `public/media` directory. The build refuses to overwrite another
+client's manifest/assets. Do not remove an existing client's media to work
+around this refusal. Client-specific generated build directories are a separate
+remaining capability gap to close before building media for multiple clients
+within one local platform checkout.
 
 After adding or changing any raw image, rebuild media before treating setup validation as complete.
 

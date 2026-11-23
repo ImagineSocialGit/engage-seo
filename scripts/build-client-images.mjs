@@ -39,6 +39,7 @@ try {
     }
 
     await assertDirectory(rawDirectory, `Selected client raw image directory does not exist: ${rawDirectory}`);
+    await assertMediaOutputOwnership(finalManifestPath, finalAssetsDirectory, clientKey);
     await fs.mkdir(publicMediaDirectory, { recursive: true });
     await fs.rm(stageDirectory, { recursive: true, force: true });
     await fs.mkdir(stageAssetsDirectory, { recursive: true });
@@ -79,6 +80,54 @@ try {
 } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
     process.exitCode = 1;
+}
+
+// The platform's local public/media output is shared between selected
+// clients. Never overwrite another client's variants (or orphaned output)
+// when an operator builds media for a newly scaffolded client.
+async function assertMediaOutputOwnership(manifestPath, assetsPath, selectedClient) {
+    let contents;
+
+    try {
+        const entry = await fs.lstat(manifestPath);
+
+        if (! entry.isFile()) {
+            fail('Generated media manifest is not a regular file; refusing replacement.');
+        }
+
+        contents = await fs.readFile(manifestPath, 'utf8');
+    } catch (error) {
+        if (error?.code !== 'ENOENT') {
+            throw error;
+        }
+
+        // An absent manifest with existing variants may be an interrupted or
+        // older client's build. It is not safe to take ownership implicitly.
+        try {
+            await fs.lstat(assetsPath);
+            fail('Generated media assets exist without a manifest; refusing replacement.');
+        } catch (assetError) {
+            if (assetError?.code !== 'ENOENT') {
+                throw assetError;
+            }
+        }
+
+        return;
+    }
+
+    let current;
+
+    try {
+        current = JSON.parse(contents);
+    } catch {
+        fail('Generated media manifest is invalid JSON; refusing replacement.');
+    }
+
+    if (current === null || typeof current !== 'object' || Array.isArray(current)
+        || current.version !== 1 || ! Object.hasOwn(current, 'assets')
+        || current.client !== selectedClient) {
+        fail('Generated media output belongs to another client or is invalid; refusing replacement.');
+    }
 }
 
 async function collectSourceFiles(directory) {
