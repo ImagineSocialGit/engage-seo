@@ -85,6 +85,13 @@ final class ClientSetupValidator
             return new SetupValidationResult($errors);
         }
 
+        // External mode gets its private client.env from the selected
+        // Infrastructure-owned generation, not from the immutable release.
+        // Legacy local/deployed mode still requires the client-local .env.
+        if (ExternalSelectedEnvironment::enabled()) {
+            unset($requiredPaths['.env']);
+        }
+
         foreach ($requiredPaths as $relativePath => $type) {
             $path = $clientDirectory.DIRECTORY_SEPARATOR.$relativePath;
             $exists = $type === 'directory'

@@ -123,6 +123,41 @@ class ClientSetupValidatorTest extends TestCase
         }
     }
 
+    public function test_external_setup_does_not_require_a_legacy_client_environment_file(): void
+    {
+        $generation = $this->temporaryRoot.'/shared/runtime/config/r1';
+        $cacheDirectory = $this->temporaryRoot.'/shared/runtime/cache/c1';
+        File::ensureDirectoryExists($generation, 0700);
+        File::ensureDirectoryExists($cacheDirectory, 0700);
+        chmod($generation, 0700);
+        chmod($cacheDirectory, 0700);
+        File::put($generation.'/root.env', "APP_ENV=staging\nCLIENT_KEY=validator-client\n");
+        File::put($generation.'/client.env', implode(PHP_EOL, [
+            'APP_URL=https://validator.example.test',
+            'DB_DATABASE=validator_database',
+            'DB_USERNAME=validator_user',
+            'DB_PASSWORD=',
+            '',
+        ]));
+        chmod($generation.'/root.env', 0600);
+        chmod($generation.'/client.env', 0600);
+
+        $this->assertFileDoesNotExist($this->temporaryRoot.'/client/validator-client/.env');
+
+        $oldDirectory = getenv('ENGAGE_RUNTIME_CONFIG_DIR');
+        $oldCache = getenv('APP_CONFIG_CACHE');
+        putenv('ENGAGE_RUNTIME_CONFIG_DIR='.$generation);
+        putenv('APP_CONFIG_CACHE='.$cacheDirectory.'/config.php');
+
+        try {
+            $result = app(ClientSetupValidator::class)->validate($this->temporaryRoot);
+            $this->assertTrue($result->valid(), implode('; ', $result->errors));
+        } finally {
+            $oldDirectory === false ? putenv('ENGAGE_RUNTIME_CONFIG_DIR') : putenv('ENGAGE_RUNTIME_CONFIG_DIR='.$oldDirectory);
+            $oldCache === false ? putenv('APP_CONFIG_CACHE') : putenv('APP_CONFIG_CACHE='.$oldCache);
+        }
+    }
+
     public function test_root_client_owned_values_and_unsupported_client_values_fail_validation(): void
     {
         File::put(
