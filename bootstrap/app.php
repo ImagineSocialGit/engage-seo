@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\ForceStagingAccess;
 use App\Support\Clients\ClientEnvironmentLoader;
+use App\Support\Runtime\ExternalRootEnvironment;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -28,6 +29,8 @@ $app = Application::configure(basePath: dirname(__DIR__))
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
     })->create();
+
+ExternalRootEnvironment::configure($app);
 
 $app->afterLoadingEnvironment(function () use ($app): void {
     /*
