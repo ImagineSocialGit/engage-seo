@@ -3,6 +3,7 @@
 namespace App\Support\Deployment\Credentials;
 
 use App\Support\Clients\ClientEnvironmentDefinition;
+use App\Support\Runtime\ExternalSelectedEnvironment;
 use RuntimeException;
 
 /** Read-only runtime snapshot: owner-only 0600 or authorized-group-readable 0640.
@@ -18,7 +19,7 @@ final class SeoSelectedCredentialEnvironment
         }
         $root = rtrim($basePath, DIRECTORY_SEPARATOR);
         $directory = $root.'/client/'.$client;
-        $path = $directory.'/.env';
+        $path = ExternalSelectedEnvironment::clientPath() ?? $directory.'/.env';
 
         if (! is_dir($root) || is_link($root)
             || ! is_dir($root.'/client') || is_link($root.'/client')
@@ -39,12 +40,13 @@ final class SeoSelectedCredentialEnvironment
         if (! file_exists($path) && ! is_link($path)) {
             return [];
         }
+        $ownerDirectory = dirname($path);
         if (! is_file($path) || is_link($path)) {
             throw new RuntimeException('Unsafe selected SEO environment file.');
         }
         $stat = lstat($path);
         if (! is_array($stat) || ! in_array($stat['mode'] & 07777, [0600, 0640], true)
-            || ($stat['uid'] ?? null) !== fileowner($directory)
+            || ($stat['uid'] ?? null) !== fileowner($ownerDirectory)
             || ($stat['nlink'] ?? 0) !== 1 || ($stat['size'] ?? 0) > 1048576
         ) {
             throw new RuntimeException('Selected SEO environment file is not private.');

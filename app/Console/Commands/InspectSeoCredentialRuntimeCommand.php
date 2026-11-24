@@ -7,6 +7,7 @@ use App\Support\Deployment\Credentials\SeoCredentialInstallationRegistry;
 use App\Support\Deployment\Credentials\SeoCredentialRuntimeProbe;
 use App\Support\Deployment\Credentials\SeoCredentialRuntimeFailure;
 use App\Support\Deployment\Credentials\SeoSelectedCredentialEnvironment;
+use App\Support\Runtime\ExternalSelectedEnvironment;
 use Dotenv\Dotenv;
 use Illuminate\Console\Command;
 use Throwable;
@@ -61,7 +62,8 @@ final class InspectSeoCredentialRuntimeCommand extends Command
                 $purpose = (string) $this->argument('purpose');
                 $definition = $registry->find($purpose);
                 $runtime['binding'] = $definition === null ? null : config($definition->configurationPath);
-                $root = Dotenv::createArrayBacked(base_path(), '.env')->safeLoad();
+                $rootPath = ExternalSelectedEnvironment::rootPath() ?? base_path('.env');
+                $root = Dotenv::createArrayBacked(dirname($rootPath), basename($rootPath))->safeLoad();
                 $result = $probe->prove($purpose, (string) $this->option('caller-id'),
                     (string) $this->option('challenge'), $runtime, $persisted, $root);
             }

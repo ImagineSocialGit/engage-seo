@@ -2,6 +2,7 @@
 
 namespace App\Support\Clients;
 
+use App\Support\Runtime\ExternalSelectedEnvironment;
 use Dotenv\Dotenv;
 use Illuminate\Support\Env;
 use InvalidArgumentException;
@@ -14,6 +15,10 @@ final class ClientEnvironmentLoader
         $clientKey = $this->clientKey();
 
         if ($clientKey === null) {
+            if (ExternalSelectedEnvironment::enabled()) {
+                throw new RuntimeException('External runtime configuration requires a selected client.');
+            }
+
             return;
         }
 
@@ -36,9 +41,10 @@ final class ClientEnvironmentLoader
         $ownedKeys = ClientEnvironmentDefinition::clientOwnedKeys(
             $clientDirectory,
         );
-        $environmentPath = $clientDirectory.DIRECTORY_SEPARATOR.'.env';
+        $externalPath = ExternalSelectedEnvironment::clientPath();
+        $environmentPath = $externalPath ?? $clientDirectory.DIRECTORY_SEPARATOR.'.env';
 
-        if (! is_file($environmentPath)) {
+        if ($externalPath === null && ! is_file($environmentPath)) {
             foreach ($ownedKeys as $key) {
                 $this->clearEnvironmentValue($key);
             }
@@ -47,8 +53,8 @@ final class ClientEnvironmentLoader
         }
 
         $values = Dotenv::createArrayBacked(
-            $clientDirectory,
-            '.env',
+            dirname($environmentPath),
+            basename($environmentPath),
         )->safeLoad();
 
         $unsupportedKeys = array_values(array_diff(

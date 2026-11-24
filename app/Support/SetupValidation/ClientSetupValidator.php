@@ -11,6 +11,7 @@ use App\Support\Sections\SectionManager;
 use App\Support\Seo\Migration\SeoMigrationAuditor;
 use App\Support\Seo\RedirectRepository;
 use App\Support\Seo\SeoIndexingPolicy;
+use App\Support\Runtime\ExternalSelectedEnvironment;
 use App\Support\Site\SitePresentationResolver;
 use App\Support\Verticals\VerticalManager;
 use Dotenv\Dotenv;
@@ -160,13 +161,13 @@ final class ClientSetupValidator
             ...$this->setupValidation->validationErrors($basePath),
         ];
 
-        $rootEnvironmentPath = rtrim($basePath, DIRECTORY_SEPARATOR)
-            .DIRECTORY_SEPARATOR.'.env';
+        $rootEnvironmentPath = ExternalSelectedEnvironment::rootPath()
+            ?? rtrim($basePath, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.'.env';
 
         if (is_file($rootEnvironmentPath)) {
             $rootValues = Dotenv::createArrayBacked(
-                $basePath,
-                '.env',
+                dirname($rootEnvironmentPath),
+                basename($rootEnvironmentPath),
             )->safeLoad();
 
             $rootConflicts = array_values(array_intersect(
@@ -184,12 +185,13 @@ final class ClientSetupValidator
             }
         }
 
-        $clientEnvironmentPath = $clientDirectory.DIRECTORY_SEPARATOR.'.env';
+        $clientEnvironmentPath = ExternalSelectedEnvironment::clientPath()
+            ?? $clientDirectory.DIRECTORY_SEPARATOR.'.env';
 
         if (is_file($clientEnvironmentPath)) {
             $clientValues = Dotenv::createArrayBacked(
-                $clientDirectory,
-                '.env',
+                dirname($clientEnvironmentPath),
+                basename($clientEnvironmentPath),
             )->safeLoad();
 
             $unsupportedKeys = array_values(array_diff(
